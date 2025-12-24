@@ -1,12 +1,14 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import bgImage from '../assets/images/Rectangle 40026.png';
 import loginImg from '../assets/images/login-img.png';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
+  const navigate = useNavigate();
 
   const handleContinue = () => {
-    console.log('Continue with:', email);
+    navigate('/otp');
   };
 
   const handleGoogleSignIn = () => {

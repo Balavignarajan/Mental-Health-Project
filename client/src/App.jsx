@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import OtpPage from './pages/OtpPage';
+import EnterPassword from './pages/EnterPassword';
 import RegisterPage from './pages/RegisterPage';
 import ConsentPage from './pages/ConsentPage';
 import DashboardPage from './pages/DashboardPage';
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/otp" element={<OtpPage />} />
+        <Route path="/password" element={<EnterPassword />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/consent" element={<ConsentPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
