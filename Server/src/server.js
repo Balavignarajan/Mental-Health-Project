@@ -14,9 +14,10 @@ const { cfg } = require("./config/config");
   const app = await createApp();
   
   app.listen(cfg.PORT, () => {
-    console.log(`✅ Server: http://localhost:${cfg.PORT}`);
+    console.log(`✅ Server running on: http://localhost:${cfg.PORT}`);
     if (cfg.NODE_ENV === "development") {
-      console.log(`🔥 Vite HMR ready`);
+      console.log(`🔥 Vite dev server ready`);
+      console.log(`📱 Frontend: http://localhost:${cfg.PORT}`);
     }
   });
 })().catch((startupErrorValue) => {

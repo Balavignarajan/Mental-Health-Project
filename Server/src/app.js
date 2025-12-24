@@ -62,6 +62,7 @@ async function createApp() {
       appType: 'spa',
       root: path.join(__dirname, "../../client"),
       envDir: path.join(__dirname, "../../"),
+      configFile: path.join(__dirname, "../../vite.config.js"),
     });
     
     app.use((req, res, next) => {
@@ -71,12 +72,12 @@ async function createApp() {
       vite.middlewares(req, res, next);
     });
   } else {
-    app.use(express.static(path.join(__dirname, "../../client/dist")));
+    app.use(express.static(path.join(__dirname, "../../dist/public")));
     app.use((req, res, next) => {
       if (req.path.startsWith('/api/')) {
         return next();
       }
-      res.sendFile(path.join(__dirname, "../../client/dist/index.html"));
+      res.sendFile(path.join(__dirname, "../../dist/public/index.html"));
     });
   }
 

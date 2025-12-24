@@ -19,21 +19,24 @@ A comprehensive mental health assessment platform with React frontend and Node.j
 
 2. **Set up MongoDB:**
    - Install MongoDB locally or use MongoDB Atlas
-   - Update `MONGO_URI` in `Server/.env`
+   - Update `MONGO_URI` in `.env`
 
 3. **Configure environment:**
-   - Update `Server/.env` with your credentials
+   - Update `.env` with your credentials
    - Set up email, Razorpay, and other services
 
 4. **Run the application:**
    ```bash
    npm run dev
    ```
-   This will start the application on http://localhost:5000
+   This will start both frontend and backend on http://localhost:5000
+   
+   **Alternative:** Double-click `start-dev.bat` on Windows
 
 ## Project Structure
 - `/client` - React frontend with Vite and Tailwind CSS
 - `/Server` - Node.js/Express backend with MongoDB
+- Root level configs for Vite, Tailwind, and PostCSS
 
 ## API Endpoints
 - `/api/auth` - Authentication
@@ -48,3 +51,9 @@ A comprehensive mental health assessment platform with React frontend and Node.j
 **Backend:** Node.js, Express, MongoDB, JWT
 **Payments:** Razorpay
 **Email:** Nodemailer
+
+## Development Notes
+- Tailwind CSS is configured at the root level for proper integration
+- Vite dev server runs in middleware mode through Express
+- Both frontend and backend serve from port 5000 in development
+- Hot module replacement (HMR) is enabled for React components
