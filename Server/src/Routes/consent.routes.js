@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const Joi = require("joi");
-const { authMiddleware, requireRole } = require("../middlewares/auth.middleware");
-const { validateBody } = require("../middlewares/validate.middleware");
-const consentController = require("../controllers/consent.controller");
+const { authMiddleware, requireRole } = require("../middleware/auth.middleware");
+const { validateBody } = require("../middleware/validate.middleware");
+const consentController = require("../controller/consent.controller");
 
 router.get("/latest", consentController.latest);
 router.post("/accept", authMiddleware, consentController.accept);

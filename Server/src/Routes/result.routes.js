@@ -1,7 +1,7 @@
 const router = require("express").Router();
-const { authMiddleware } = require("../middlewares/auth.middleware");
-const { consentGateMiddleware } = require("../middlewares/consentGate.middleware");
-const resultController = require("../controllers/result.controller");
+const { authMiddleware } = require("../middleware/auth.middleware");
+const { consentGateMiddleware } = require("../middleware/consentGate.middleware");
+const resultController = require("../controller/result.controller");
 
 router.get("/", authMiddleware, consentGateMiddleware, resultController.list);
 router.get("/trends", authMiddleware, consentGateMiddleware, resultController.trends);

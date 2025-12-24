@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const Joi = require("joi");
-const { validateBody } = require("../middlewares/validate.middleware");
-const { authMiddleware } = require("../middlewares/auth.middleware");
-const authController = require("../controllers/auth.controller");
+const { validateBody } = require("../middleware/validate.middleware");
+const { authMiddleware } = require("../middleware/auth.middleware");
+const authController = require("../controller/auth.controller");
 
 router.post(
   "/signup",

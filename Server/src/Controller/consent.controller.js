@@ -1,8 +1,8 @@
-const { asyncHandler } = require("../utils/asyncHandler");
-const { ok, created } = require("../utils/response");
-const { ConsentVersion } = require("../models/ConsentVersion");
-const { UserConsent } = require("../models/UserConsent");
-const { User } = require("../models/User");
+const { asyncHandler } = require("../utils/Asynchandler");
+const { ok, created } = require("../utils/Response");
+const { ConsentVersion } = require("../model/ConsentVersion");
+const { UserConsent } = require("../model/UserConsent");
+const { User } = require("../model/User");
 const { getLatestConsentVersion } = require("../services/consent.service");
 const { writeAudit } = require("../services/audit.service");
 

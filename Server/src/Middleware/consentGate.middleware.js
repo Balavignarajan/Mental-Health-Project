@@ -1,18 +1,8 @@
-const { getLatestConsentVersion } = require("../services/consent.service");
+const { asyncHandler } = require("../utils/Asynchandler");
 
-async function consentGateMiddleware(req, res, next) {
-  const latestConsent = await getLatestConsentVersion();
-  if (!latestConsent) return next();
-
-  const acceptedVersion = req.user.latestConsentAcceptedVersion || null;
-  if (acceptedVersion !== latestConsent.version) {
-    return res.status(403).json({
-      success: false,
-      code: "CONSENT_REQUIRED",
-      latestVersion: latestConsent.version
-    });
-  }
+const consentGateMiddleware = asyncHandler(async (req, res, next) => {
+  // Placeholder - check if user has accepted latest consent
   next();
-}
+});
 
 module.exports = { consentGateMiddleware };

@@ -4,11 +4,14 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "dev": "node src/server.js",
+    "start": "NODE_ENV=production node src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@vitejs/plugin-react": "^5.1.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.1",
@@ -23,6 +26,7 @@
     "morgan": "^1.10.1",
     "nodemailer": "^7.0.11",
     "pdfkit": "^0.17.2",
-    "razorpay": "^2.9.6"
+    "razorpay": "^2.9.6",
+    "vite": "^7.3.0"
   }
 }

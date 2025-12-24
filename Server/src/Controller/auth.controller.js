@@ -1,10 +1,10 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { cfg } = require("../config/config");
-const { User } = require("../models/User");
-const { RefreshToken } = require("../models/RefreshToken");
-const { asyncHandler } = require("../utils/asyncHandler");
-const { ok, created } = require("../utils/response");
+const { User } = require("../model/User");
+const { RefreshToken } = require("../model/Refreshtoken");
+const { asyncHandler } = require("../utils/Asynchandler");
+const { ok, created } = require("../utils/Response");
 const { signAccessToken, signRefreshToken, hashToken } = require("../services/token.service");
 const { sendVerifyEmail, sendResetPasswordEmail } = require("../services/mail.service");
 const { writeAudit } = require("../services/audit.service");

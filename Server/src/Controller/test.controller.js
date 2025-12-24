@@ -1,6 +1,6 @@
-const { asyncHandler } = require("../utils/asyncHandler");
-const { ok } = require("../utils/response");
-const { Test } = require("../models/Test");
+const { asyncHandler } = require("../utils/Asynchandler");
+const { ok } = require("../utils/Response");
+const { Test } = require("../model/Test");
 
 exports.list = asyncHandler(async (req, res) => {
   const { q, category, free, popularity } = req.query;

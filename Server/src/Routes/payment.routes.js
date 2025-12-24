@@ -2,10 +2,10 @@ const router = require("express").Router();
 const express = require("express");
 const Joi = require("joi");
 
-const { authMiddleware } = require("../middlewares/auth.middleware");
-const { consentGateMiddleware } = require("../middlewares/consentGate.middleware");
-const { validateBody } = require("../middlewares/validate.middleware");
-const paymentController = require("../controllers/payment.controller");
+const { authMiddleware } = require("../middleware/auth.middleware");
+const { consentGateMiddleware } = require("../middleware/consentGate.middleware");
+const { validateBody } = require("../middleware/validate.middleware");
+const paymentController = require("../controller/payment.controller");
 
 // Create Razorpay order
 router.post(
