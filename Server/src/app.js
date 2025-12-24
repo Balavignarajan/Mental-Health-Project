@@ -61,6 +61,7 @@ async function createApp() {
       server: { middlewareMode: true },
       appType: 'spa',
       root: path.join(__dirname, "../../client"),
+      envDir: path.join(__dirname, "../../"),
     });
     
     app.use((req, res, next) => {
