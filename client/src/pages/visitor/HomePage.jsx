@@ -22,7 +22,7 @@ function HomePage() {
     { img: f1 },
   ];
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(-1);
 
   const faqs = [
     {
@@ -30,52 +30,68 @@ function HomePage() {
       answer:
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat. Aenean faucibus nibh et justo cursus id rutrum lorem imperdiet. Nunc ut sem vitae risus tristique posuere.',
     },
-    { question: 'Question text goes here', answer: '' },
-    { question: 'Question text goes here', answer: '' },
-    { question: 'Question text goes here', answer: '' },
-    { question: 'Question text goes here', answer: '' },
+    {
+      question: 'Question text goes here',
+      answer:
+        'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+    },
+    {
+      question: 'Question text goes here',
+      answer:
+        'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus.',
+    },
+    {
+      question: 'Question text goes here',
+      answer:
+        'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt.',
+    },
+    {
+      question: 'Question text goes here',
+      answer:
+        'Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias.',
+    },
   ];
 
   return (
     <>
-      <section className="bg-mh-light py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <section className="bg-mh-light py-12 md:py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 
             {/* LEFT CONTENT */}
             <div>
               {/* Pills */}
-              <div className="flex gap-3 mb-6">
-                <span className="px-4 py-1 rounded-full text-sm bg-[#FBEBDC] ">
+              <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <span className="px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm bg-[#FBEBDC] ">
                   Reassurance
                 </span>
-                <span className="px-4 py-1 rounded-full text-sm  bg-[#D5DCEE]">
+                <span className="px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm  bg-[#D5DCEE]">
                   Privacy
                 </span>
-                <span className="px-4 py-1 rounded-full text-sm  bg-[#DFF7EA]">
+                <span className="px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm  bg-[#DFF7EA]">
                   Confidentiality
                 </span>
               </div>
 
               {/* Heading */}
-              <h1 className="text-4xl lg:text-5xl font-medium leading-tight text-mh-dark mb-6">
-                Understand Your <br />
-                <span className="inline-block bg-[#C5E9DB] px-3 py-1 rounded-xl">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium leading-tight text-mh-dark mb-4 sm:mb-6">
+                Understand Your <br className="hidden sm:block" />
+                <span className="inline-block bg-[#C5E9DB] px-3 py-1 rounded-xl mt-1">
                   Mental Health
                 </span>
-                <br />
-                with Science-Backed <br />
+                <br className="hidden sm:block" />
+                with Science-Backed <br className="hidden sm:block" />
                 Assessments
               </h1>
 
               {/* Description */}
-              <p className="text-gray-600 text-lg mb-8">
+              <p className="text-gray-600 text-base sm:text-lg mb-6 sm:mb-8">
                 Take clinically aligned mental health assessments and receive a clear,
                 private report you can confidently share with a professional.
               </p>
 
               {/* Button */}
-              <button className="px-8 py-3 rounded-full bg-mh-gradient text-mh-white font-semibold hover:opacity-90 transition">
+              <button className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-mh-gradient text-mh-white text-sm sm:text-base font-semibold hover:opacity-90 transition">
                 Explore Assessments
               </button>
             </div>
@@ -85,11 +101,11 @@ function HomePage() {
             <div className="relative flex justify-center">
 
               {/* Image container */}
-              <div className="relative rounded-[32px] overflow-hidden ">
+              <div className="relative rounded-2xl md:rounded-[32px] overflow-hidden w-full max-w-full">
                 <img
                   src={heroImage}
                   alt="Mental health wellbeing"
-                  className="w-[600px] h-[520px] object-cover"
+                  className="w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[520px] object-cover"
                 />
               </div>
 
@@ -102,50 +118,50 @@ function HomePage() {
 
       {/* Featured Assessments Section */}
 
-      <section className="bg-mh-light py-24">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
           {/* Section Header */}
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-mh-dark mb-4">
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark mb-3 sm:mb-4">
               Featured Assessments
             </h2>
-            <p className="text-gray-600  mx-auto">
-              Take clinically aligned mental health assessments and receive a clear, <br></br>
+            <p className="text-gray-600 text-sm sm:text-base mx-auto">
+              Take clinically aligned mental health assessments and receive a clear, <br className="hidden sm:block" />
               private report you can confidently share with a professional.
             </p>
           </div>
 
           {/* Cards */}
-          <div className="space-y-10">
+          <div className="space-y-6 sm:space-y-8 lg:space-y-10">
 
             {/* Card 1 */}
-            <div className="bg-[#FBEBDC] rounded-3xl p-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div className="bg-[#FBEBDC] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 items-center">
 
               {/* Left */}
               <div>
-                <h3 className="text-2xl font-semibold mb-3">
+                <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">
                   Anxiety Assessment
                 </h3>
-                <p className="text-gray-600 mb-6 max-w-md">
+                <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 max-w-md">
                   A quick screening that helps identify symptoms of excessive worry,
                   tension, and emotional overwhelm.
                 </p>
 
-                <div className="flex gap-10 mb-6">
+                <div className="flex gap-6 sm:gap-8 lg:gap-10 mb-4 sm:mb-6">
                   <div>
                     <svg className="w-4 h-4 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-mh-dark font-bold mb-1">Duration</p>
-                    <p className="font-medium text-gray-700">10–12 minutes</p>
+                    <p className="text-xs sm:text-sm text-mh-dark font-bold mb-1">Duration</p>
+                    <p className="text-sm sm:text-base font-medium text-gray-700">10–12 minutes</p>
                   </div>
                   <div>
                     <svg className="w-4 h-4 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-mh-dark font-bold mb-1">Questions</p>
-                    <p className="font-medium text-gray-700">20 questions</p>
+                    <p className="text-xs sm:text-sm text-mh-dark font-bold mb-1">Questions</p>
+                    <p className="text-sm sm:text-base font-medium text-gray-700">20 questions</p>
                   </div>
                 </div>
 
@@ -162,38 +178,38 @@ function HomePage() {
                 <img
                   src={f1}
                   alt="Anxiety assessment"
-                  className="rounded-2xl w-full h-[300px] object-cover"
+                  className="rounded-xl sm:rounded-2xl w-full h-[200px] sm:h-[250px] lg:h-[300px] object-cover"
                 />
               </div>
 
             </div>
 
             {/* Card 2 */}
-            <div className="bg-[#D5DCEE] rounded-3xl p-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div className="bg-[#D5DCEE] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 items-center">
 
               <div>
-                <h3 className="text-2xl font-semibold mb-3">
+                <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">
                   Depression Screening
                 </h3>
-                <p className="text-gray-600 mb-6 max-w-md">
+                <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 max-w-md">
                   Evaluates mood patterns, motivation levels, and emotional well-being
                   to detect signs of low mood or persistent sadness.
                 </p>
 
-                <div className="flex gap-10 mb-6">
+                <div className="flex gap-6 sm:gap-8 lg:gap-10 mb-4 sm:mb-6">
                   <div>
                     <svg className="w-4 h-4 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-mh-dark font-bold mb-1">Duration</p>
-                    <p className="font-medium text-gray-700">10–12 minutes</p>
+                    <p className="text-xs sm:text-sm text-mh-dark font-bold mb-1">Duration</p>
+                    <p className="text-sm sm:text-base font-medium text-gray-700">10–12 minutes</p>
                   </div>
                   <div>
                     <svg className="w-4 h-4 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-mh-dark font-bold mb-1">Questions</p>
-                    <p className="font-medium text-gray-700">20 questions</p>
+                    <p className="text-xs sm:text-sm text-mh-dark font-bold mb-1">Questions</p>
+                    <p className="text-sm sm:text-base font-medium text-gray-700">20 questions</p>
                   </div>
                 </div>
 
@@ -209,38 +225,38 @@ function HomePage() {
                 <img
                   src={f2}
                   alt="Depression screening"
-                  className="rounded-2xl w-full h-[300px] object-cover"
+                  className="rounded-xl sm:rounded-2xl w-full h-[200px] sm:h-[250px] lg:h-[300px] object-cover"
                 />
               </div>
 
             </div>
 
             {/* Card 3 */}
-            <div className="bg-[#F7E3EE] rounded-3xl p-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div className="bg-[#F7E3EE] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 items-center">
 
               <div>
-                <h3 className="text-2xl font-semibold mb-3">
+                <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">
                   ADHD / Attention Difficulty Screening
                 </h3>
-                <p className="text-gray-600 mb-6 max-w-md">
+                <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 max-w-md">
                   Assesses focus, impulsivity, and attention-related challenges
                   to support early understanding of ADHD-like symptoms.
                 </p>
 
-                <div className="flex gap-10 mb-6">
+                <div className="flex gap-6 sm:gap-8 lg:gap-10 mb-4 sm:mb-6">
                   <div>
                     <svg className="w-4 h-4 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-mh-dark font-bold mb-1">Duration</p>
-                    <p className="font-medium text-gray-700">10–12 minutes</p>
+                    <p className="text-xs sm:text-sm text-mh-dark font-bold mb-1">Duration</p>
+                    <p className="text-sm sm:text-base font-medium text-gray-700">10–12 minutes</p>
                   </div>
                   <div>
                     <svg className="w-4 h-4 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-mh-dark font-bold mb-1">Questions</p>
-                    <p className="font-medium text-gray-700">20 questions</p>
+                    <p className="text-xs sm:text-sm text-mh-dark font-bold mb-1">Questions</p>
+                    <p className="text-sm sm:text-base font-medium text-gray-700">20 questions</p>
                   </div>
                 </div>
 
@@ -256,7 +272,7 @@ function HomePage() {
                 <img
                   src={f3}
                   alt="ADHD screening"
-                  className="rounded-2xl w-full h-[300px] object-cover"
+                  className="rounded-xl sm:rounded-2xl w-full h-[200px] sm:h-[250px] lg:h-[300px] object-cover"
                 />
               </div>
 
@@ -269,31 +285,31 @@ function HomePage() {
       {/* Our Service Section  */}
 
 
-      <section className="bg-mh-light py-24">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
           {/* Section Title */}
-          <h2 className="text-3xl lg:text-4xl font-bold text-mh-dark mb-12">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark mb-8 sm:mb-10 lg:mb-12">
             Our Services
           </h2>
 
           {/* Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
 
             {/* LEFT LARGE CARD */}
-            <div className="lg:col-span-2 bg-mh-white rounded-3xl shadow-sm overflow-hidden">
+            <div className="lg:col-span-2 bg-mh-white rounded-2xl sm:rounded-3xl shadow-sm overflow-hidden">
               <img
                 src={serviceImage}
                 alt="Psychologist support"
-                className="w-full h-[320px] object-cover"
+                className="w-full h-[200px] sm:h-[250px] md:h-[280px] lg:h-[320px] object-cover"
               />
 
-              <div className="p-8">
-                <h3 className="text-xl font-semibold mb-3">
+              <div className="p-6 sm:p-8">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">
                   Psychologist & Psychiatrist Network
                 </h3>
 
-                <p className="text-gray-600 mb-6 max-w-xl">
+                <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 max-w-xl">
                   Connect with trusted mental-health experts for guidance,
                   diagnosis, therapy, and long-term support tailored to your needs.
                 </p>
@@ -305,15 +321,15 @@ function HomePage() {
             </div>
 
             {/* RIGHT STACKED CARDS */}
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
 
               {/* Card 1 */}
-              <div className="bg-mh-white rounded-3xl shadow-sm p-8">
-                <h4 className="text-lg font-semibold mb-3">
+              <div className="bg-mh-white rounded-2xl sm:rounded-3xl shadow-sm p-6 sm:p-8">
+                <h4 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">
                   Meditation & Wellness Retreats
                 </h4>
 
-                <p className="text-gray-600 mb-6 text-sm">
+                <p className="text-gray-600 mb-4 sm:mb-6 text-xs sm:text-sm">
                   Experience guided meditation, mindfulness workshops,
                   and rejuvenating retreats designed to help you reset,
                   relax, and restore balance.
@@ -325,12 +341,12 @@ function HomePage() {
               </div>
 
               {/* Card 2 */}
-              <div className="bg-mh-white rounded-3xl shadow-sm p-8">
-                <h4 className="text-lg font-semibold mb-3">
+              <div className="bg-mh-white rounded-2xl sm:rounded-3xl shadow-sm p-6 sm:p-8">
+                <h4 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">
                   Age-Focused Wellness Camps
                 </h4>
 
-                <p className="text-gray-600 mb-6 text-sm">
+                <p className="text-gray-600 mb-4 sm:mb-6 text-xs sm:text-sm">
                   Programs for teens, young adults, and seniors, addressing
                   unique mental health challenges through curated activities
                   and expert-led sessions.
@@ -345,8 +361,8 @@ function HomePage() {
           </div>
 
           {/* Bottom CTA */}
-          <div className="flex justify-center mt-14">
-            <button className="px-10 py-3 rounded-full bg-mh-gradient text-mh-white font-semibold hover:opacity-90 transition">
+          <div className="flex justify-center mt-8 sm:mt-12 lg:mt-14">
+            <button className="px-8 sm:px-10 py-2.5 sm:py-3 rounded-full bg-mh-gradient text-mh-white text-sm sm:text-base font-semibold hover:opacity-90 transition">
               Explore More
             </button>
           </div>
@@ -357,48 +373,48 @@ function HomePage() {
       {/* Our Assessments Section   */}
 
 
-      <section className="bg-mh-light py-24">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
           {/* Section Title */}
-          <h2 className="text-3xl lg:text-4xl font-bold text-mh-dark mb-12">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark mb-8 sm:mb-10 lg:mb-12">
             Our Assessment
           </h2>
 
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
             {assessments.map((item, index) => (
               <div
                 key={index}
-                className="bg-mh-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition"
+                className="bg-mh-white rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition"
               >
                 {/* Image */}
                 <div className="relative">
                   <img
                     src={item.img}
                     alt="Assessment"
-                    className="w-full h-[200px] object-cover"
+                    className="w-full h-[180px] sm:h-[200px] object-cover"
                   />
 
                   {/* Badge */}
-                  <span className="absolute top-3 left-3 bg-mh-white text-xs px-3 py-1 rounded-full shadow">
+                  <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-mh-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full shadow">
                     Research-Based
                   </span>
                 </div>
 
                 {/* Content */}
-                <div className="p-5">
-                  <h3 className="font-semibold text-mh-dark mb-2">
+                <div className="p-4 sm:p-5">
+                  <h3 className="text-sm sm:text-base font-semibold text-mh-dark mb-2">
                     Anxiety Assessment
                   </h3>
 
-                  <p className="text-sm text-gray-600 mb-4">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
                     A quick screening that helps identify symptoms of excessive
                     worry, tension, and emotional overwhelm.
                   </p>
 
                   {/* Rating */}
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex items-center gap-2 text-xs sm:text-sm">
                     <span className="flex items-center gap-1 text-mh-green font-semibold">
                       ⭐ 4.9
                     </span>
@@ -410,8 +426,8 @@ function HomePage() {
           </div>
 
           {/* Bottom CTA */}
-          <div className="flex justify-center mt-14">
-            <button className="px-10 py-3 rounded-full bg-mh-gradient text-mh-white font-semibold hover:opacity-90 transition">
+          <div className="flex justify-center mt-8 sm:mt-12 lg:mt-14">
+            <button className="px-8 sm:px-10 py-2.5 sm:py-3 rounded-full bg-mh-gradient text-mh-white text-sm sm:text-base font-semibold hover:opacity-90 transition">
               View All Assessment
             </button>
           </div>
@@ -422,55 +438,55 @@ function HomePage() {
       {/* Assessments Matter Section  */}
 
 
-      <section className="bg-mh-light py-28">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
           {/* Title */}
-          <h2 className="text-3xl lg:text-4xl font-bold text-center text-mh-dark mb-20">
-            Why These <br /> Assessments Matter
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-mh-dark mb-8 sm:mb-12 lg:mb-16">
+            Why These <br className="hidden sm:block" /> Assessments Matter
           </h2>
 
           {/* Layout */}
-          <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-10 items-center">
+          <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 items-center">
 
             {/* LEFT COLUMN */}
-            <div className="space-y-10">
-              <div className="relative bg-[#D3D9F4] rounded-3xl p-8 min-h-[160px]">
-                <div className="w-6 h-6 bg-mh-white rounded-md mb-6"></div>
-                <p className="font-medium">
-                  Used by mental health <br></br> professionals
+            <div className="space-y-6 sm:space-y-8 lg:space-y-10">
+              <div className="relative bg-[#D3D9F4] rounded-2xl sm:rounded-3xl p-6 sm:p-8 min-h-[140px] sm:min-h-[160px]">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-mh-white rounded-md mb-4 sm:mb-6"></div>
+                <p className="text-sm sm:text-base font-medium">
+                  Used by mental health <br className="hidden sm:block" /> professionals
                 </p>
               </div>
 
-              <div className="relative bg-[#B4EACF] rounded-3xl p-8 min-h-[160px]">
-                <div className="w-6 h-6 bg-mh-white rounded-md mb-6"></div>
-                <p className="font-medium">
-                  Backed by standardized <br></br> psychological models
+              <div className="relative bg-[#B4EACF] rounded-2xl sm:rounded-3xl p-6 sm:p-8 min-h-[140px] sm:min-h-[160px]">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-mh-white rounded-md mb-4 sm:mb-6"></div>
+                <p className="text-sm sm:text-base font-medium">
+                  Backed by standardized <br className="hidden sm:block" /> psychological models
                 </p>
               </div>
             </div>
 
             {/* CENTER IMAGE */}
-            <div className="flex justify-center">
+            <div className="flex justify-center order-first lg:order-none">
               <img
                 src={assessmentMatterImage}
                 alt="Assessment importance"
-                className="rounded-3xl w-[460px] h-[400px] object-cover"
+                className="rounded-2xl sm:rounded-3xl w-full max-w-[300px] sm:max-w-[380px] lg:max-w-[460px] h-[250px] sm:h-[320px] lg:h-[400px] object-cover"
               />
             </div>
 
             {/* RIGHT COLUMN */}
-            <div className="space-y-10">
-              <div className="relative bg-[#F9DAEB] rounded-3xl p-8 min-h-[160px]">
-                <div className="w-6 h-6 bg-mh-white rounded-md mb-6"></div>
-                <p className="font-medium">
+            <div className="space-y-6 sm:space-y-8 lg:space-y-10">
+              <div className="relative bg-[#F9DAEB] rounded-2xl sm:rounded-3xl p-6 sm:p-8 min-h-[140px] sm:min-h-[160px]">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-mh-white rounded-md mb-4 sm:mb-6"></div>
+                <p className="text-sm sm:text-base font-medium">
                   Safe, confidential, private
                 </p>
               </div>
 
-              <div className="relative bg-[#D4E8EF] rounded-3xl p-8 min-h-[160px]">
-                <div className="w-6 h-6 bg-mh-white rounded-md mb-6"></div>
-                <p className="font-medium">
+              <div className="relative bg-[#D4E8EF] rounded-2xl sm:rounded-3xl p-6 sm:p-8 min-h-[140px] sm:min-h-[160px]">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-mh-white rounded-md mb-4 sm:mb-6"></div>
+                <p className="text-sm sm:text-base font-medium">
                   Used for preliminary screening, not diagnosis
                 </p>
               </div>
@@ -489,33 +505,33 @@ function HomePage() {
       {/* Why Choose Soukya */}
 
     
-      <section className="bg-mh-light py-24">
-      <div className="max-w-7xl mx-auto px-6">
+      <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Section Title */}
-        <h2 className="text-3xl lg:text-4xl font-bold text-mh-dark mb-14">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark mb-8 sm:mb-12 lg:mb-14">
           Why Choose Soukya Stacks
         </h2>
 
         {/* Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-start">
 
           {/* LEFT IMAGE */}
           <div>
             <img
               src={soukya}
               alt="Why choose Soukya"
-              className="rounded-3xl w-full h-[520px] object-cover"
+              className="rounded-2xl sm:rounded-3xl w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[520px] object-cover"
             />
           </div>
 
           {/* RIGHT CONTENT */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
 
             {/* Active Highlight Card */}
-            <div className="bg-mh-gradient rounded-2xl p-6 text-mh-white">
-              <h4 className="font-semibold mb-2">Heading</h4>
-              <p className="text-sm opacity-90">
+            <div className="bg-mh-gradient rounded-xl sm:rounded-2xl p-5 sm:p-6 text-mh-white">
+              <h4 className="text-base sm:text-lg font-semibold mb-2">Heading</h4>
+              <p className="text-xs sm:text-sm opacity-90">
                 It is a long established fact that a reader will be distracted by the
                 readable content of a page when looking at its layout. The point of
                 using Lorem Ipsum is that it has a more-or-less normal.
@@ -526,9 +542,9 @@ function HomePage() {
             {['Heading', 'Heading', 'Heading', 'Heading'].map((item, index) => (
               <div
                 key={index}
-                className="border-b border-gray-200 py-4 cursor-pointer hover:text-mh-green transition"
+                className="border-b border-gray-200 py-3 sm:py-4 cursor-pointer hover:text-mh-green transition"
               >
-                <h4 className="font-medium text-mh-dark">
+                <h4 className="text-sm sm:text-base font-medium text-mh-dark">
                   {item}
                 </h4>
               </div>
@@ -543,33 +559,31 @@ function HomePage() {
     {/* Testimonials section  */}
    
    
-    <section className="bg-mh-light py-24">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-14">
-          <h2 className="text-3xl lg:text-4xl font-bold text-mh-dark
-
--dark">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 sm:mb-12 lg:mb-14">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark">
             Testimonials
           </h2>
 
-          <button className="mt-6 sm:mt-0 px-6 py-2 rounded-full bg-mh-gradient text-mh-white text-sm font-semibold hover:opacity-90 transition">
+          <button className="mt-4 sm:mt-0 px-5 sm:px-6 py-2 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm font-semibold hover:opacity-90 transition">
             View All Testimonials
           </button>
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
 
           {/* Testimonial Card */}
           {[1, 2].map((_, index) => (
             <div
               key={index}
-              className="bg-mh-white rounded-3xl p-8 shadow-sm"
+              className="bg-mh-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm"
             >
               {/* Stars */}
-              <div className="flex gap-1 text-mh-green mb-4">
+              <div className="flex gap-1 text-mh-green mb-3 sm:mb-4 text-sm sm:text-base">
                 {Array(5)
                   .fill(0)
                   .map((_, i) => (
@@ -578,7 +592,7 @@ function HomePage() {
               </div>
 
               {/* Content */}
-              <p className="text-gray-600 mb-6 leading-relaxed">
+              <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                 Suspendisse varius enim in eros elementum tristique. Duis
                 cursus, mi quis viverra ornare, eros dolor interdum nulla,
@@ -586,16 +600,16 @@ function HomePage() {
               </p>
 
               {/* User */}
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center text-xs sm:text-sm">
                   😊
                 </div>
 
                 <div>
-                  <p className="font-semibold text-mh-dark">
+                  <p className="text-sm sm:text-base font-semibold text-mh-dark">
                     Name Surname
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-500">
                     Company name
                   </p>
                 </div>
@@ -605,7 +619,7 @@ function HomePage() {
         </div>
 
         {/* Bottom Controls */}
-        <div className="flex justify-between items-center mt-12">
+        <div className="flex justify-between items-center mt-8 sm:mt-10 lg:mt-12">
 
           {/* Dots */}
           <div className="flex items-center gap-2">
@@ -615,11 +629,11 @@ function HomePage() {
           </div>
 
           {/* Arrows */}
-          <div className="flex gap-3">
-            <button className="w-10 h-10 rounded-lg bg-green-100 text-mh-green flex items-center justify-center hover:bg-green-200 transition">
+          <div className="flex gap-2 sm:gap-3">
+            <button className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-green-100 text-mh-green flex items-center justify-center hover:bg-green-200 transition text-sm sm:text-base">
               ‹
             </button>
-            <button className="w-10 h-10 rounded-lg bg-mh-green text-mh-white flex items-center justify-center hover:opacity-90 transition">
+            <button className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-mh-green text-mh-white flex items-center justify-center hover:opacity-90 transition text-sm sm:text-base">
               ›
             </button>
           </div>
@@ -632,32 +646,32 @@ function HomePage() {
 
     {/* FAQ Section  */}
     
-    <section className="bg-mh-light py-24">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-start">
 
           {/* LEFT CONTENT */}
           <div>
-            <h2 className="text-3xl lg:text-4xl font-bold text-mh-dark mb-4">
-              Frequently Asked <br /> Questions
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark mb-3 sm:mb-4">
+              Frequently Asked <br className="hidden sm:block" /> Questions
             </h2>
 
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-600 text-sm sm:text-base mb-6 sm:mb-8">
               If you still have questions?
             </p>
 
-            <button className="px-8 py-3 rounded-full bg-mh-gradient text-mh-white font-semibold hover:opacity-90 transition">
+            <button className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-mh-gradient text-mh-white text-sm sm:text-base font-semibold hover:opacity-90 transition">
               Contact Us
             </button>
           </div>
 
           {/* RIGHT FAQ */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className={`rounded-2xl border transition ${
+                className={`rounded-xl sm:rounded-2xl border transition ${
                   activeIndex === index
                     ? 'bg-green-50 border-green-100'
                     : 'bg-mh-white border-gray-200'
@@ -667,18 +681,18 @@ function HomePage() {
                   onClick={() =>
                     setActiveIndex(activeIndex === index ? -1 : index)
                   }
-                  className="w-full flex justify-between items-center px-6 py-5 text-left"
+                  className="w-full flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 text-left"
                 >
-                  <span className="font-bold text-mh-dark">
+                  <span className="text-sm sm:text-base font-bold text-mh-dark pr-4">
                     {faq.question}
                   </span>
-                  <span className="text-xl font-semibold">
+                  <span className="text-lg sm:text-xl font-semibold flex-shrink-0">
                     {activeIndex === index ? '−' : '+'}
                   </span>
                 </button>
 
                 {activeIndex === index && faq.answer && (
-                  <div className="px-6 pb-6 text-gray-600 text-sm leading-relaxed">
+                  <div className="px-4 sm:px-6 pb-4 sm:pb-6 text-gray-600 text-xs sm:text-sm leading-relaxed">
                     {faq.answer}
                   </div>
                 )}
