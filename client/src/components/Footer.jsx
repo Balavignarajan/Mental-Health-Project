@@ -1,21 +1,21 @@
 import { Link } from 'react-router-dom';
-import logo from '../assets/images/logo.png';
+import footerLogo from '../assets/images/footer-logo.png';
 
 function Footer({ isLoggedIn = false }) {
   return (
-    <footer className="bg-mh-gradient text-mh-white">
+    <footer className="bg-mh-gradient-footer text-mh-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="py-6 sm:py-8">
           <div className="flex flex-col space-y-6 lg:flex-row lg:justify-between lg:items-center lg:space-y-0">
             {/* Left Side - Logo */}
             <div className="flex items-center justify-center lg:justify-start space-x-3">
-              <img src={logo} alt="Soukya Stacks" className="h-8 sm:h-10 w-auto" />
+              <img src={footerLogo} alt="Soukya Stacks" className="h-8 sm:h-10 w-auto" />
             </div>
 
             {/* Right Side - Email Subscription */}
             <div className="flex flex-col items-center lg:items-end space-y-2">
-              <p className="text-mh-white text-sm font-medium text-center  lg:text-right">Subscribe to Stay Update</p>
+              <p className="text-mh-white text-sm font-medium text-center lg:mr-52  lg:text-right">Subscribe to Stay Update</p>
               <div className="flex flex-col  sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full lg:w-auto">
                 <input
                   type="email"
