@@ -1,31 +1,61 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+// Auth Pages
 import LoginPage from './pages/auth/LoginPage';
 import OtpPage from './pages/auth/OtpPage';
 import EnterPassword from './pages/auth/EnterPassword';
 import SignUpPage from './pages/auth/SignUpPage';
 import RegisterPage from './pages/auth/RegisterPage';
-import ConsentPage from './pages/ConsentPage';
+// Visitor Pages
+import HomePage from './pages/visitor/HomePage';
+import AllAssessmentsPage from './pages/visitor/AllAssessmentsPage';
+import AssessmentDetailPage from './pages/visitor/AssessmentDetailPage';
+import TestimonialsPage from './pages/visitor/TestimonialsPage';
+// User Pages
+import UserHomePage from './pages/user/UserHomePage';
+import MyAssessmentsPage from './pages/user/MyAssessmentsPage';
+import AssessmentTestPage from './pages/user/AssessmentTestPage';
+import AssessmentTestResultPage from './pages/user/AssessmentTestResultPage';
+// Shared Pages
+import AboutUsPage from './pages/shared/AboutUsPage';
+import ContactUsPage from './pages/shared/ContactUsPage';
+// Other Pages 
 import DashboardPage from './pages/dashboard/DashboardPage';
-import AssessmentIntroPage from './pages/assessment/AssessmentIntroPage';
-import AssessmentPage from './pages/assessment/AssessmentPage';
-import ResultPage from './pages/ResultPage';
+import PaymentPage from './pages/payment/PaymentPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/otp" element={<OtpPage />} />
-        <Route path="/password" element={<EnterPassword />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/consent" element={<ConsentPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/assessment-intro" element={<AssessmentIntroPage />} />
-        <Route path="/assessment" element={<AssessmentPage />} />
-        <Route path="/result" element={<ResultPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        {/* Visitor Routes */}
+        <Route path="/" element={<Layout><HomePage /></Layout>} />
+        <Route path="/assessments" element={<Layout><AllAssessmentsPage /></Layout>} />
+        <Route path="/assessment-detail/:id" element={<Layout><AssessmentDetailPage /></Layout>} />
+        <Route path="/testimonials" element={<Layout><TestimonialsPage /></Layout>} />
+        
+        {/* Auth Routes - No Header/Footer */}
+        <Route path="/login" element={<Layout showHeaderFooter={false}><LoginPage /></Layout>} />
+        <Route path="/otp" element={<Layout showHeaderFooter={false}><OtpPage /></Layout>} />
+        <Route path="/password" element={<Layout showHeaderFooter={false}><EnterPassword /></Layout>} />
+        <Route path="/signup" element={<Layout showHeaderFooter={false}><SignUpPage /></Layout>} />
+        <Route path="/register" element={<Layout showHeaderFooter={false}><RegisterPage /></Layout>} />
+        
+        {/* User Routes */}
+        <Route path="/user-home" element={<Layout isLoggedIn={true}><UserHomePage /></Layout>} />
+        <Route path="/my-assessments" element={<Layout isLoggedIn={true}><MyAssessmentsPage /></Layout>} />
+        <Route path="/assessment-test/:id" element={<Layout isLoggedIn={true}><AssessmentTestPage /></Layout>} />
+        <Route path="/test-result/:id" element={<Layout isLoggedIn={true}><AssessmentTestResultPage /></Layout>} />
+        
+        {/* Shared Routes */}
+        <Route path="/about" element={<Layout><AboutUsPage /></Layout>} />
+        <Route path="/contact" element={<Layout><ContactUsPage /></Layout>} />
+        
+        {/* Assessment & Payment Routes */}
+        <Route path="/dashboard" element={<Layout isLoggedIn={true}><DashboardPage /></Layout>} />
+        <Route path="/payment" element={<Layout isLoggedIn={true}><PaymentPage /></Layout>} />
+        
+        <Route path="*" element={<Layout><NotFoundPage /></Layout>} />
       </Routes>
     </Router>
   );
