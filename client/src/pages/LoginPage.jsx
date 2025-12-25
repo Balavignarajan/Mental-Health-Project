@@ -8,11 +8,17 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const handleContinue = () => {
-    navigate('/otp');
+    // For existing users, go to password page
+    // For new users, this would typically check if user exists first
+    navigate('/password');
   };
 
   const handleGoogleSignIn = () => {
     console.log('Sign in with Google');
+  };
+
+  const handleSignUp = () => {
+    navigate('/signup');
   };
 
   return (
@@ -39,15 +45,8 @@ function LoginPage() {
       {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8">
         <div className="w-full max-w-md">
-          {/* Back Button */}
-          <button className="flex justify-center items-center text-gray-600 mb-8 hover:text-gray-800 transition-colors">
-            <div className="w-8 h-8 rounded-full border border-mh-green flex items-center justify-center mr-2">
-              <svg className="w-4 h-4 text-mh-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </div>
-            <span className="text-sm font-medium text-mh-dark">Back</span>
-          </button>
+          {/* Back Button - Hidden on login page as it's the entry point */}
+          <div className="mb-8 h-8"></div>
 
           {/* Login Form */}
           <div className="space-y-6">
@@ -87,6 +86,17 @@ function LoginPage() {
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-mh-light text-mh-dark">Or continue with</span>
               </div>
+            </div>
+
+            {/* Sign Up Link */}
+            <div className="text-center">
+              <span className="text-sm text-gray-600">Don't have an account? </span>
+              <button 
+                onClick={handleSignUp}
+                className="text-sm text-mh-green hover:underline font-medium"
+              >
+                Sign Up
+              </button>
             </div>
 
             {/* Google Sign In */}

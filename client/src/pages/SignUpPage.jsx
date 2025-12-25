@@ -28,7 +28,7 @@ function SignUpPage() {
   };
 
   const handleBack = () => {
-    navigate('/');
+    navigate('/'); // Go back to login page
   };
 
   return (
@@ -168,6 +168,17 @@ function SignUpPage() {
                   <button className="text-mh-green hover:underline">Terms of use</button>
                   <span> and </span>
                   <button className="text-mh-green hover:underline">Privacy Policy</button>
+                </div>
+
+                {/* Sign In Link */}
+                <div className="text-center">
+                  <span className="text-sm text-gray-600">Already have an account? </span>
+                  <button 
+                    onClick={() => navigate('/')}
+                    className="text-sm text-mh-green hover:underline font-medium"
+                  >
+                    Sign In
+                  </button>
                 </div>
 
                 <button

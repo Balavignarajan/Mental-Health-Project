@@ -19,7 +19,11 @@ function EnterPassword() {
   };
 
   const handleBack = () => {
-    navigate('/');
+    navigate('/'); // Go back to login page
+  };
+
+  const handleForgotPassword = () => {
+    navigate('/otp'); // Navigate to OTP for password reset
   };
 
   return (
@@ -103,7 +107,10 @@ function EnterPassword() {
                     </button>
                   </div>
                   <div className="text-right mt-2">
-                    <button className="text-sm text-mh-green hover:underline">
+                    <button 
+                      onClick={handleForgotPassword}
+                      className="text-sm text-mh-green hover:underline"
+                    >
                       Forgot Password?
                     </button>
                   </div>

@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import bgImage from '../assets/images/Rectangle 40026.png';
 import otpImg from '../assets/images/otp-img.png';
 
 function OtpPage() {
   const [otp, setOtp] = useState(['', '', '', '']);
   const inputRefs = useRef([]);
+  const navigate = useNavigate();
 
   const handleOtpChange = (index, value) => {
     if (value.length <= 1) {
@@ -28,6 +30,15 @@ function OtpPage() {
   const handleVerify = () => {
     const otpValue = otp.join('');
     console.log('OTP:', otpValue);
+    navigate('/dashboard'); // Navigate to dashboard after successful OTP verification
+  };
+
+  const handleBack = () => {
+    navigate(-1); // Go back to previous page (signup or password)
+  };
+
+  const handleUsePassword = () => {
+    navigate('/password');
   };
 
   const handleResend = () => {
@@ -58,7 +69,10 @@ function OtpPage() {
       {/* Right Side - OTP Form */}
       <div className="w-full lg:w-1/2 flex flex-col p-4 sm:p-8">
         {/* Back Button */}
-        <button className="flex items-center text-gray-600 mb-8 hover:text-gray-800 transition-colors self-start">
+        <button 
+          onClick={handleBack}
+          className="flex items-center text-gray-600 mb-8 hover:text-gray-800 transition-colors self-start"
+        >
           <div className="w-8 h-8 rounded-full border border-mh-green flex items-center justify-center mr-3">
             <svg className="w-4 h-4 text-mh-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -128,7 +142,10 @@ function OtpPage() {
 
               {/* Use Password Link */}
               <div className="text-center">
-                <button className="text-sm text-mh-green hover:underline">
+                <button 
+                  onClick={handleUsePassword}
+                  className="text-sm text-mh-green hover:underline"
+                >
                   Use password to login
                 </button>
               </div>
