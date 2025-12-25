@@ -7,6 +7,16 @@ import serviceImage from '../../assets/images/service-img.png'
 
 
 function HomePage() {
+
+  const assessments = [
+    { img: f1 },
+    { img: f2 },
+    { img: f3 },
+    { img: f2 },
+    { img: f3 },
+    { img: f1 },
+  ];
+
   return (
     <>
       <section className="bg-mh-light py-20">
@@ -325,7 +335,71 @@ function HomePage() {
       </div>
     </section>
 
+      {/* Our Assessments Section   */}
 
+
+      <section className="bg-mh-light py-24">
+      <div className="max-w-7xl mx-auto px-6">
+
+        {/* Section Title */}
+        <h2 className="text-3xl lg:text-4xl font-bold text-mh-dark mb-12">
+          Our Assessment
+        </h2>
+
+        {/* Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {assessments.map((item, index) => (
+            <div
+              key={index}
+              className="bg-mh-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition"
+            >
+              {/* Image */}
+              <div className="relative">
+                <img
+                  src={item.img}
+                  alt="Assessment"
+                  className="w-full h-[200px] object-cover"
+                />
+
+                {/* Badge */}
+                <span className="absolute top-3 left-3 bg-mh-white text-xs px-3 py-1 rounded-full shadow">
+                  Research-Based
+                </span>
+              </div>
+
+              {/* Content */}
+              <div className="p-5">
+                <h3 className="font-semibold text-mh-dark mb-2">
+                  Anxiety Assessment
+                </h3>
+
+                <p className="text-sm text-gray-600 mb-4">
+                  A quick screening that helps identify symptoms of excessive
+                  worry, tension, and emotional overwhelm.
+                </p>
+
+                {/* Rating */}
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="flex items-center gap-1 text-mh-green font-semibold">
+                    ⭐ 4.9
+                  </span>
+                  <span className="text-gray-500">190 Reviews</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="flex justify-center mt-14">
+          <button className="px-10 py-3 rounded-full bg-mh-gradient text-mh-white font-semibold hover:opacity-90 transition">
+            View All Assessment
+          </button>
+        </div>
+
+      </div>
+    </section>
+  
 
     </>
   );
