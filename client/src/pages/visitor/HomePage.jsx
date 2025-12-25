@@ -2,6 +2,8 @@ import heroImage from '../../assets/images/hero-home.png';
 import f1 from '../../assets/images/f1.png'
 import f2 from '../../assets/images/f2.png'
 import f3 from '../../assets/images/f3.png'
+import serviceImage from '../../assets/images/service-img.png'
+
 
 
 function HomePage() {
@@ -234,6 +236,97 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+       {/* Our Service Section  */}
+
+
+       <section className="bg-mh-light py-24">
+      <div className="max-w-7xl mx-auto px-6">
+
+        {/* Section Title */}
+        <h2 className="text-3xl lg:text-4xl font-bold text-mh-dark mb-12">
+          Our Services
+        </h2>
+
+        {/* Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+
+          {/* LEFT LARGE CARD */}
+          <div className="lg:col-span-2 bg-mh-white rounded-3xl shadow-sm overflow-hidden">
+            <img
+              src={serviceImage}
+              alt="Psychologist support"
+              className="w-full h-[320px] object-cover"
+            />
+
+            <div className="p-8">
+              <h3 className="text-xl font-semibold mb-3">
+                Psychologist & Psychiatrist Network
+              </h3>
+
+              <p className="text-gray-600 mb-6 max-w-xl">
+                Connect with trusted mental-health experts for guidance,
+                diagnosis, therapy, and long-term support tailored to your needs.
+              </p>
+
+              <button className="px-6 py-2 rounded-full border border-mh-green text-mh-green text-sm font-semibold hover:bg-mh-green hover:text-mh-white transition">
+                View Details
+              </button>
+            </div>
+          </div>
+
+          {/* RIGHT STACKED CARDS */}
+          <div className="space-y-8">
+
+            {/* Card 1 */}
+            <div className="bg-mh-white rounded-3xl shadow-sm p-8">
+              <h4 className="text-lg font-semibold mb-3">
+                Meditation & Wellness Retreats
+              </h4>
+
+              <p className="text-gray-600 mb-6 text-sm">
+                Experience guided meditation, mindfulness workshops,
+                and rejuvenating retreats designed to help you reset,
+                relax, and restore balance.
+              </p>
+
+              <button className="px-5 py-2 rounded-full border border-mh-green text-mh-green text-sm font-semibold hover:bg-mh-green hover:text-mh-white transition">
+                View Details
+              </button>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-mh-white rounded-3xl shadow-sm p-8">
+              <h4 className="text-lg font-semibold mb-3">
+                Age-Focused Wellness Camps
+              </h4>
+
+              <p className="text-gray-600 mb-6 text-sm">
+                Programs for teens, young adults, and seniors, addressing
+                unique mental health challenges through curated activities
+                and expert-led sessions.
+              </p>
+
+              <button className="px-5 py-2 rounded-full border border-mh-green text-mh-green text-sm font-semibold hover:bg-mh-green hover:text-mh-white transition">
+                View Details
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="flex justify-center mt-14">
+          <button className="px-10 py-3 rounded-full bg-mh-gradient text-mh-white font-semibold hover:opacity-90 transition">
+            Explore More
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+
+
     </>
   );
 }
