@@ -51,7 +51,7 @@ function App() {
         <Route path="/user/contact" element={<Layout isLoggedIn={true}><ContactUsPage /></Layout>} />
         <Route path="/my-assessments" element={<Layout isLoggedIn={true}><MyAssessmentsPage /></Layout>} />
         <Route path="/assessment-test/:id" element={<Layout isLoggedIn={true} showHeaderFooter={false}><AssessmentTestPage /></Layout>} />
-        <Route path="/test-result/:id" element={<Layout isLoggedIn={true}><AssessmentTestResultPage /></Layout>} />
+        <Route path="/test-result/:id" element={<Layout isLoggedIn={true} showHeaderFooter={false}><AssessmentTestResultPage /></Layout>} />
         
         {/* Assessment & Payment Routes */}
         <Route path="/dashboard" element={<Layout isLoggedIn={true}><DashboardPage /></Layout>} />

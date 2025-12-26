@@ -12,7 +12,7 @@ function AssessmentTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-16 py-6">
+    <div className="min-h-screen bg-gray-50 px-40 py-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center text-sm text-gray-600">
@@ -28,9 +28,9 @@ function AssessmentTestPage() {
       </div>
 
       {/* Title Section */}
-      <div className="bg-purple-100 rounded-xl p-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-3">Strengths and Difficulties Questionnaire</h1>
-        <p className="text-gray-600 text-sm leading-relaxed">
+      <div className="bg-[#D5DCEE] rounded-xl p-16 mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 text-center mb-3">Strengths and Difficulties Questionnaire</h1>
+        <p className="text-gray-600 text-sm text-center max-w-2xl mx-auto leading-relaxed">
           For each item, please mark the box for Not True, Somewhat True or Certainly True. It would help us if you
           answered all items as best you can even if you are not absolutely certain. Please give your answers on
           the basis of how things have been for you over the last six months.
