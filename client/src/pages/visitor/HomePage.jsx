@@ -54,7 +54,7 @@ function HomePage() {
 
   return (
     <>
-      <section className="bg-mh-light py-12 md:py-16 lg:py-20">
+      <section className="bg-[#F8F8F0] py-12 md:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 
@@ -118,7 +118,7 @@ function HomePage() {
 
       {/* Featured Assessments Section */}
 
-      <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+      <section className="bg-mh-white py-12 md:py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
           {/* Section Header */}
@@ -373,7 +373,7 @@ function HomePage() {
       {/* Our Assessments Section   */}
 
 
-      <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+      <section className="bg-mh-white py-12 md:py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
           {/* Section Title */}
@@ -505,7 +505,7 @@ function HomePage() {
       {/* Why Choose Soukya */}
 
     
-      <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+      <section className="bg-mh-white py-12 md:py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Section Title */}
@@ -646,7 +646,7 @@ function HomePage() {
 
     {/* FAQ Section  */}
     
-    <section className="bg-mh-light py-12 md:py-16 lg:py-24">
+    <section className="bg-mh-white py-12 md:py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-start">

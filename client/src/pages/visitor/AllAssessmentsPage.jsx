@@ -14,7 +14,7 @@ function AllAssessmentsPage() {
   ];
 
   return (
-    <section className="bg-mh-light py-12 sm:py-16 lg:py-20">
+    <section className="bg-mh-white py-12 sm:py-16 lg:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Breadcrumb */}
@@ -52,7 +52,7 @@ function AllAssessmentsPage() {
           {assessments.map((item, index) => (
             <div
               key={index}
-              className="bg-mh-white rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300"
+              className="bg-mh-light rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300"
             >
               {/* Image */}
               <div className="relative">

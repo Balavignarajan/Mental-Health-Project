@@ -1,6 +1,6 @@
 function ContactUsPage() {
   return (
-    <section className="bg-mh-light py-20">
+    <section className="bg-mh-white py-20">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Breadcrumb */}
@@ -13,7 +13,7 @@ function ContactUsPage() {
 
           {/* LEFT CONTENT */}
           <div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-mh-dark mb-4">
+            <h1 className="text-3xl lg:text-4xl font-medium text-mh-dark mb-4">
               Reach Out Anytime
             </h1>
 
@@ -27,7 +27,7 @@ function ContactUsPage() {
             <div className="flex flex-col sm:flex-row gap-6">
 
               {/* Email */}
-              <div className="bg-mh-white rounded-2xl p-6 flex items-start gap-4 shadow-sm w-full sm:w-64">
+              <div className="bg-mh-light rounded-2xl p-6 flex items-start gap-4 shadow-sm w-full sm:w-64">
                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-mh-green">
                   ✉
                 </div>
@@ -40,7 +40,7 @@ function ContactUsPage() {
               </div>
 
               {/* Phone */}
-              <div className="bg-mh-white rounded-2xl p-6 flex items-start gap-4 shadow-sm w-full sm:w-64">
+              <div className="bg-mh-light rounded-2xl p-6 flex items-start gap-4 shadow-sm w-full sm:w-64">
                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-mh-green">
                   ☎
                 </div>
@@ -69,7 +69,7 @@ function ContactUsPage() {
                   <input
                     type="text"
                     placeholder="Enter your first name"
-                    className="input-field"
+                    className="bg-mh-light border border-gray-200 rounded-xl px-4 py-3.5 text-sm w-full outline-none focus:border-mh-green transition-colors placeholder-gray-400"
                   />
                 </div>
 
@@ -80,7 +80,7 @@ function ContactUsPage() {
                   <input
                     type="text"
                     placeholder="Enter your last name"
-                    className="input-field"
+                    className="bg-mh-light border border-gray-200 rounded-xl px-4 py-3.5 text-sm w-full outline-none focus:border-mh-green transition-colors placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -94,7 +94,7 @@ function ContactUsPage() {
                   <input
                     type="email"
                     placeholder="Enter your Email"
-                    className="input-field"
+                    className="bg-mh-light border border-gray-200 rounded-xl px-4 py-3.5 text-sm w-full outline-none focus:border-mh-green transition-colors placeholder-gray-400"
                   />
                 </div>
 
@@ -105,7 +105,7 @@ function ContactUsPage() {
                   <input
                     type="tel"
                     placeholder="+1  Enter your mobile number"
-                    className="input-field"
+                    className="bg-mh-light border border-gray-200 rounded-xl px-4 py-3.5 text-sm w-full outline-none focus:border-mh-green transition-colors placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -118,7 +118,7 @@ function ContactUsPage() {
                 <textarea
                   rows="4"
                   placeholder="Enter your message"
-                  className="input-field resize-none"
+                  className="bg-mh-light border border-gray-200 rounded-xl px-4 py-3.5 text-sm w-full outline-none focus:border-mh-green transition-colors placeholder-gray-400 resize-none"
                 ></textarea>
               </div>
 

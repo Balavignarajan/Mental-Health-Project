@@ -9,7 +9,7 @@ function TestimonialsPage() {
   });
 
   return (
-    <section className="bg-mh-light py-20">
+    <section className="bg-mh-white py-20">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Breadcrumb */}
@@ -27,7 +27,7 @@ function TestimonialsPage() {
           {testimonials.map((item, index) => (
             <div
               key={index}
-              className="bg-mh-white rounded-2xl p-6 shadow-sm"
+              className="bg-mh-light rounded-2xl p-6 shadow-sm"
             >
               {/* Stars */}
               <div className="flex gap-1 text-mh-green mb-4">

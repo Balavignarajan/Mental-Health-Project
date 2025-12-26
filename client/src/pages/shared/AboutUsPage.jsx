@@ -5,7 +5,7 @@ import { Mountain, Eye, Heart, Sparkles, Shield, Brain, Globe } from 'lucide-rea
 
 function AboutUsPage() {
   return (
-    <div className="bg-mh-light">
+    <div className="bg-mh-white">
 
       {/* HERO SECTION */}
       <section className="bg-mh-gradient py-12 sm:py-16 md:py-20 lg:py-24 relative overflow-hidden">
@@ -55,7 +55,7 @@ function AboutUsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
 
           {/* Mission */}
-          <div className="bg-mh-white rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="bg-mh-light rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
             <div className="mb-4 text-mh-green">
               <Mountain size={32} className="sm:w-8 sm:h-8" />
             </div>
@@ -70,7 +70,7 @@ function AboutUsPage() {
           </div>
 
           {/* Vision */}
-          <div className="bg-mh-white rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="bg-mh-light rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
             <div className="mb-4 text-mh-green">
               <Eye size={32} className="sm:w-8 sm:h-8" />
             </div>
@@ -98,7 +98,7 @@ function AboutUsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
 
             {/* Value Card */}
-            <div className="bg-mh-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+            <div className="bg-mh-light rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
               <div className="mb-4 text-mh-green">
                 <Heart size={28} className="sm:w-7 sm:h-7" />
               </div>
@@ -112,7 +112,7 @@ function AboutUsPage() {
               </p>
             </div>
 
-            <div className="bg-mh-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+            <div className="bg-mh-light rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
               <div className="mb-4 text-mh-green">
                 <Sparkles size={28} className="sm:w-7 sm:h-7" />
               </div>
@@ -125,7 +125,7 @@ function AboutUsPage() {
               </p>
             </div>
 
-            <div className="bg-mh-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+            <div className="bg-mh-light rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
               <div className="mb-4 text-mh-green">
                 <Shield size={28} className="sm:w-7 sm:h-7" />
               </div>
@@ -138,7 +138,7 @@ function AboutUsPage() {
               </p>
             </div>
 
-            <div className="bg-mh-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+            <div className="bg-mh-light rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
               <div className="mb-4 text-mh-green">
                 <Brain size={28} className="sm:w-7 sm:h-7" />
               </div>
@@ -151,7 +151,7 @@ function AboutUsPage() {
               </p>
             </div>
 
-            <div className="bg-mh-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 sm:col-span-2 lg:col-span-1">
+              <div className="bg-mh-light rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 sm:col-span-2 lg:col-span-1">
               <div className="mb-4 text-mh-green">
                 <Globe size={28} className="sm:w-7 sm:h-7" />
               </div>
