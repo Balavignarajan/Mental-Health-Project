@@ -12,7 +12,7 @@ function AssessmentTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-60 py-6">
+    <div className="min-h-screen bg-gray-50 px-16 py-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center text-sm text-gray-600">
@@ -28,7 +28,7 @@ function AssessmentTestPage() {
       </div>
 
       {/* Title Section */}
-      <div className="bg-[#D5DCEE] rounded-xl p-6 mb-6">
+      <div className="bg-purple-100 rounded-xl p-6 mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-3">Strengths and Difficulties Questionnaire</h1>
         <p className="text-gray-600 text-sm leading-relaxed">
           For each item, please mark the box for Not True, Somewhat True or Certainly True. It would help us if you
@@ -55,13 +55,15 @@ function AssessmentTestPage() {
           <h3 className="text-lg font-medium text-gray-900 mb-4">
             15. I am easily distracted, I find it hard to concentrate
           </h3>
-          <div className="flex gap-8">
+          <div className="flex gap-4">
             {[
               { value: 'not-true', label: 'Not True' },
               { value: 'somewhat-true', label: 'Somewhat True' },
               { value: 'certainly-true', label: 'Certainly True' }
             ].map((option) => (
-              <label key={option.value} className="flex items-center cursor-pointer">
+              <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
+                answers.q15 === option.value ? 'bg-mh-green' : 'bg-mh-light'
+              }`}>
                 <div className="relative">
                   <input 
                     type="radio" 
@@ -83,25 +85,29 @@ function AssessmentTestPage() {
                     )}
                   </div>
                 </div>
-                <span className="ml-3 text-gray-700">{option.label}</span>
+                <span className={`ml-3 ${
+                  answers.q15 === option.value ? 'text-white' : 'text-gray-700'
+                }`}>{option.label}</span>
               </label>
             ))}
           </div>
         </div>
 
-        {/* Question 16 with sub-questions */}
+        {/* Question 17 with sub-questions */}
         <div className="bg-white rounded-lg p-6 border border-gray-200">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
             17. Overall, do you think that your child has difficulties in one or more of the following areas: emotions, concentration, behaviour or being able to get on with other people?
           </h3>
-          <div className="flex gap-8 mb-6">
+          <div className="flex gap-4 mb-6">
             {[
               { value: 'no', label: 'No' },
               { value: 'yes-minor', label: 'Yes minor difficulties' },
               { value: 'yes-definite', label: 'Yes definite difficulties' },
               { value: 'yes-severe', label: 'Yes severe difficulties' }
             ].map((option) => (
-              <label key={option.value} className="flex items-center cursor-pointer">
+              <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
+                answers.q17 === option.value ? 'bg-mh-green' : 'bg-mh-light'
+              }`}>
                 <div className="relative">
                   <input 
                     type="radio" 
@@ -123,24 +129,31 @@ function AssessmentTestPage() {
                     )}
                   </div>
                 </div>
-                <span className="ml-3 text-gray-700">{option.label}</span>
+                <span className={`ml-3 ${
+                  answers.q17 === option.value ? 'text-white' : 'text-gray-700'
+                }`}>{option.label}</span>
               </label>
             ))}
           </div>
 
           {/* Sub-questions in gray background */}
           <div className="bg-gray-100 rounded-lg p-6">
-            <h4 className="text-base font-medium text-gray-900 mb-4">
-              • How long have these difficulties been present?
+            <h4 className="text-base font-medium text-gray-900 mb-4 flex items-center">
+              <svg className="w-4 h-4 mr-2 text-mh-green" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+              </svg>
+              How long have these difficulties been present?
             </h4>
-            <div className="flex gap-8 mb-6">
+            <div className="flex gap-4 mb-6">
               {[
                 { value: 'less-month', label: 'Less than a month' },
                 { value: '1-5-months', label: '1-5 months' },
                 { value: '6-12-months', label: '6-12 months' },
                 { value: 'over-year', label: 'Over a year' }
               ].map((option) => (
-                <label key={option.value} className="flex items-center cursor-pointer">
+                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
+                  answers.duration === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                }`}>
                   <div className="relative">
                     <input 
                       type="radio" 
@@ -162,22 +175,29 @@ function AssessmentTestPage() {
                       )}
                     </div>
                   </div>
-                  <span className="ml-3 text-gray-700">{option.label}</span>
+                  <span className={`ml-3 ${
+                    answers.duration === option.value ? 'text-white' : 'text-gray-700'
+                  }`}>{option.label}</span>
                 </label>
               ))}
             </div>
 
-            <h4 className="text-base font-medium text-gray-900 mb-4">
-              • Do the difficulties upset or distress your child?
+            <h4 className="text-base font-medium text-gray-900 mb-4 flex items-center">
+              <svg className="w-4 h-4 mr-2 text-mh-green" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+              </svg>
+              Do the difficulties upset or distress your child?
             </h4>
-            <div className="flex gap-8 mb-6">
+            <div className="flex gap-4 mb-6">
               {[
                 { value: 'not-at-all', label: 'Not at all' },
                 { value: 'only-little', label: 'Only a little' },
                 { value: 'quite-lot', label: 'Quite a lot' },
                 { value: 'great-deal', label: 'A great deal' }
               ].map((option) => (
-                <label key={option.value} className="flex items-center cursor-pointer">
+                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
+                  answers.distress === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                }`}>
                   <div className="relative">
                     <input 
                       type="radio" 
@@ -199,13 +219,18 @@ function AssessmentTestPage() {
                       )}
                     </div>
                   </div>
-                  <span className="ml-3 text-gray-700">{option.label}</span>
+                  <span className={`ml-3 ${
+                    answers.distress === option.value ? 'text-white' : 'text-gray-700'
+                  }`}>{option.label}</span>
                 </label>
               ))}
             </div>
 
-            <h4 className="text-base font-medium text-gray-900 mb-4">
-              • Do the difficulties interfere with your child's everyday life in the following areas?
+            <h4 className="text-base font-medium text-gray-900 mb-4 flex items-center">
+              <svg className="w-4 h-4 mr-2 text-mh-green" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+              </svg>
+              Do the difficulties interfere with your child's everyday life in the following areas?
             </h4>
             
             <div className="space-y-3">
@@ -217,14 +242,16 @@ function AssessmentTestPage() {
               ].map((area, index) => (
                 <div key={index} className="flex items-center">
                   <span className="text-gray-700 w-40">{area}</span>
-                  <div className="flex gap-8">
+                  <div className="flex gap-4">
                     {[
                       { value: 'not-at-all', label: 'Not at all' },
                       { value: 'only-little', label: 'Only a little' },
                       { value: 'quite-lot', label: 'Quite a lot' },
                       { value: 'great-deal', label: 'A great deal' }
                     ].map((option) => (
-                      <label key={option.value} className="flex items-center cursor-pointer">
+                      <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
+                        answers[`area-${index}`] === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                      }`}>
                         <div className="relative">
                           <input 
                             type="radio" 
@@ -246,7 +273,9 @@ function AssessmentTestPage() {
                             )}
                           </div>
                         </div>
-                        <span className="ml-3 text-gray-700">{option.label}</span>
+                        <span className={`ml-3 ${
+                          answers[`area-${index}`] === option.value ? 'text-white' : 'text-gray-700'
+                        }`}>{option.label}</span>
                       </label>
                     ))}
                   </div>
@@ -254,17 +283,22 @@ function AssessmentTestPage() {
               ))}
             </div>
 
-            <h4 className="text-base font-medium text-gray-900 mb-4 mt-6">
-              • Do the difficulties put a burden on you or the family as a whole?
+            <h4 className="text-base font-medium text-gray-900 mb-4 mt-6 flex items-center">
+              <svg className="w-4 h-4 mr-2 text-mh-green" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+              </svg>
+              Do the difficulties put a burden on you or the family as a whole?
             </h4>
-            <div className="flex gap-8">
+            <div className="flex gap-4">
               {[
                 { value: 'not-at-all', label: 'Not at all' },
                 { value: 'only-little', label: 'Only a little' },
                 { value: 'quite-lot', label: 'Quite a lot' },
                 { value: 'great-deal', label: 'A great deal' }
               ].map((option) => (
-                <label key={option.value} className="flex items-center cursor-pointer">
+                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
+                  answers.burden === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                }`}>
                   <div className="relative">
                     <input 
                       type="radio" 
@@ -286,7 +320,9 @@ function AssessmentTestPage() {
                       )}
                     </div>
                   </div>
-                  <span className="ml-3 text-gray-700">{option.label}</span>
+                  <span className={`ml-3 ${
+                    answers.burden === option.value ? 'text-white' : 'text-gray-700'
+                  }`}>{option.label}</span>
                 </label>
               ))}
             </div>
@@ -303,13 +339,15 @@ function AssessmentTestPage() {
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               {question.num}. {question.text}
             </h3>
-            <div className="flex gap-8">
+            <div className="flex gap-4">
               {[
                 { value: 'not-true', label: 'Not True' },
                 { value: 'somewhat-true', label: 'Somewhat True' },
                 { value: 'certainly-true', label: 'Certainly True' }
               ].map((option) => (
-                <label key={option.value} className="flex items-center cursor-pointer">
+                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
+                  answers[`q${question.num}`] === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                }`}>
                   <div className="relative">
                     <input 
                       type="radio" 
@@ -331,7 +369,9 @@ function AssessmentTestPage() {
                       )}
                     </div>
                   </div>
-                  <span className="ml-3 text-gray-700">{option.label}</span>
+                  <span className={`ml-3 ${
+                    answers[`q${question.num}`] === option.value ? 'text-white' : 'text-gray-700'
+                  }`}>{option.label}</span>
                 </label>
               ))}
             </div>
