@@ -2,15 +2,18 @@ import f1 from '../../assets/images/f1.png';
 import f2 from '../../assets/images/f2.png';
 import f3 from '../../assets/images/f3.png';
 import { Search, Filter, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 function AllAssessmentsPage() {
+  const navigate = useNavigate();
+  
   const assessments = [
-    { img: f1 },
-    { img: f2 },
-    { img: f3 },
-    { img: f2 },
-    { img: f3 },
-    { img: f1 },
+    { img: f1, id: 1 },
+    { img: f2, id: 2 },
+    { img: f3, id: 3 },
+    { img: f2, id: 4 },
+    { img: f3, id: 5 },
+    { img: f1, id: 6 },
   ];
 
   return (
@@ -52,7 +55,8 @@ function AllAssessmentsPage() {
           {assessments.map((item, index) => (
             <div
               key={index}
-              className="bg-mh-light rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300"
+              onClick={() => navigate(`/assessment-detail/${item.id}`)}
+              className="bg-mh-light rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300 cursor-pointer"
             >
               {/* Image */}
               <div className="relative">
