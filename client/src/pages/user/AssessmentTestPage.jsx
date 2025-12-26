@@ -61,23 +61,21 @@ function AssessmentTestPage() {
               { value: 'somewhat-true', label: 'Somewhat True' },
               { value: 'certainly-true', label: 'Certainly True' }
             ].map((option) => (
-              <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
-                answers.q15 === option.value ? 'bg-mh-green' : 'bg-mh-light'
-              }`}>
+              <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${answers.q15 === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                }`}>
                 <div className="relative">
-                  <input 
-                    type="radio" 
-                    name="q15" 
+                  <input
+                    type="radio"
+                    name="q15"
                     value={option.value}
                     checked={answers.q15 === option.value}
                     onChange={(e) => setAnswers(prev => ({ ...prev, q15: e.target.value }))}
                     className="sr-only"
                   />
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                    answers.q15 === option.value 
-                      ? 'bg-mh-green border-mh-green' 
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${answers.q15 === option.value
+                      ? 'bg-mh-green border-mh-green'
                       : 'border-gray-300'
-                  }`}>
+                    }`}>
                     {answers.q15 === option.value && (
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -85,9 +83,8 @@ function AssessmentTestPage() {
                     )}
                   </div>
                 </div>
-                <span className={`ml-3 ${
-                  answers.q15 === option.value ? 'text-white' : 'text-gray-700'
-                }`}>{option.label}</span>
+                <span className={`ml-3 ${answers.q15 === option.value ? 'text-white' : 'text-gray-700'
+                  }`}>{option.label}</span>
               </label>
             ))}
           </div>
@@ -105,23 +102,21 @@ function AssessmentTestPage() {
               { value: 'yes-definite', label: 'Yes definite difficulties' },
               { value: 'yes-severe', label: 'Yes severe difficulties' }
             ].map((option) => (
-              <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
-                answers.q17 === option.value ? 'bg-mh-green' : 'bg-mh-light'
-              }`}>
+              <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${answers.q17 === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                }`}>
                 <div className="relative">
-                  <input 
-                    type="radio" 
-                    name="q17" 
+                  <input
+                    type="radio"
+                    name="q17"
                     value={option.value}
                     checked={answers.q17 === option.value}
                     onChange={(e) => setAnswers(prev => ({ ...prev, q17: e.target.value }))}
                     className="sr-only"
                   />
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                    answers.q17 === option.value 
-                      ? 'bg-mh-green border-mh-green' 
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${answers.q17 === option.value
+                      ? 'bg-mh-green border-mh-green'
                       : 'border-gray-300'
-                  }`}>
+                    }`}>
                     {answers.q17 === option.value && (
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -129,9 +124,8 @@ function AssessmentTestPage() {
                     )}
                   </div>
                 </div>
-                <span className={`ml-3 ${
-                  answers.q17 === option.value ? 'text-white' : 'text-gray-700'
-                }`}>{option.label}</span>
+                <span className={`ml-3 ${answers.q17 === option.value ? 'text-white' : 'text-gray-700'
+                  }`}>{option.label}</span>
               </label>
             ))}
           </div>
@@ -139,9 +133,18 @@ function AssessmentTestPage() {
           {/* Sub-questions in gray background */}
           <div className="bg-gray-100 rounded-lg p-6">
             <h4 className="text-base font-medium text-gray-900 mb-4 flex items-center">
-              <svg className="w-4 h-4 mr-2 text-mh-green" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+              <svg
+                className="w-4 h-4 mr-2 text-mh-green"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 3l2.5 6L21 12l-6.5 3L12 21l-2.5-6L3 12l6.5-3L12 3z" />
               </svg>
+
               How long have these difficulties been present?
             </h4>
             <div className="flex gap-4 mb-6">
@@ -151,23 +154,21 @@ function AssessmentTestPage() {
                 { value: '6-12-months', label: '6-12 months' },
                 { value: 'over-year', label: 'Over a year' }
               ].map((option) => (
-                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
-                  answers.duration === option.value ? 'bg-mh-green' : 'bg-mh-light'
-                }`}>
+                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${answers.duration === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                  }`}>
                   <div className="relative">
-                    <input 
-                      type="radio" 
-                      name="duration" 
+                    <input
+                      type="radio"
+                      name="duration"
                       value={option.value}
                       checked={answers.duration === option.value}
                       onChange={(e) => setAnswers(prev => ({ ...prev, duration: e.target.value }))}
                       className="sr-only"
                     />
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      answers.duration === option.value 
-                        ? 'bg-mh-green border-mh-green' 
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${answers.duration === option.value
+                        ? 'bg-mh-green border-mh-green'
                         : 'border-gray-300'
-                    }`}>
+                      }`}>
                       {answers.duration === option.value && (
                         <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -175,17 +176,25 @@ function AssessmentTestPage() {
                       )}
                     </div>
                   </div>
-                  <span className={`ml-3 ${
-                    answers.duration === option.value ? 'text-white' : 'text-gray-700'
-                  }`}>{option.label}</span>
+                  <span className={`ml-3 ${answers.duration === option.value ? 'text-white' : 'text-gray-700'
+                    }`}>{option.label}</span>
                 </label>
               ))}
             </div>
 
             <h4 className="text-base font-medium text-gray-900 mb-4 flex items-center">
-              <svg className="w-4 h-4 mr-2 text-mh-green" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+              <svg
+                className="w-4 h-4 mr-2 text-mh-green"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 3l2.5 6L21 12l-6.5 3L12 21l-2.5-6L3 12l6.5-3L12 3z" />
               </svg>
+
               Do the difficulties upset or distress your child?
             </h4>
             <div className="flex gap-4 mb-6">
@@ -195,23 +204,21 @@ function AssessmentTestPage() {
                 { value: 'quite-lot', label: 'Quite a lot' },
                 { value: 'great-deal', label: 'A great deal' }
               ].map((option) => (
-                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
-                  answers.distress === option.value ? 'bg-mh-green' : 'bg-mh-light'
-                }`}>
+                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${answers.distress === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                  }`}>
                   <div className="relative">
-                    <input 
-                      type="radio" 
-                      name="distress" 
+                    <input
+                      type="radio"
+                      name="distress"
                       value={option.value}
                       checked={answers.distress === option.value}
                       onChange={(e) => setAnswers(prev => ({ ...prev, distress: e.target.value }))}
                       className="sr-only"
                     />
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      answers.distress === option.value 
-                        ? 'bg-mh-green border-mh-green' 
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${answers.distress === option.value
+                        ? 'bg-mh-green border-mh-green'
                         : 'border-gray-300'
-                    }`}>
+                      }`}>
                       {answers.distress === option.value && (
                         <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -219,20 +226,28 @@ function AssessmentTestPage() {
                       )}
                     </div>
                   </div>
-                  <span className={`ml-3 ${
-                    answers.distress === option.value ? 'text-white' : 'text-gray-700'
-                  }`}>{option.label}</span>
+                  <span className={`ml-3 ${answers.distress === option.value ? 'text-white' : 'text-gray-700'
+                    }`}>{option.label}</span>
                 </label>
               ))}
             </div>
 
             <h4 className="text-base font-medium text-gray-900 mb-4 flex items-center">
-              <svg className="w-4 h-4 mr-2 text-mh-green" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+              <svg
+                className="w-4 h-4 mr-2 text-mh-green"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 3l2.5 6L21 12l-6.5 3L12 21l-2.5-6L3 12l6.5-3L12 3z" />
               </svg>
+
               Do the difficulties interfere with your child's everyday life in the following areas?
             </h4>
-            
+
             <div className="space-y-3">
               {[
                 'Home Life',
@@ -249,23 +264,21 @@ function AssessmentTestPage() {
                       { value: 'quite-lot', label: 'Quite a lot' },
                       { value: 'great-deal', label: 'A great deal' }
                     ].map((option) => (
-                      <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
-                        answers[`area-${index}`] === option.value ? 'bg-mh-green' : 'bg-mh-light'
-                      }`}>
+                      <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${answers[`area-${index}`] === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                        }`}>
                         <div className="relative">
-                          <input 
-                            type="radio" 
-                            name={`area-${index}`} 
+                          <input
+                            type="radio"
+                            name={`area-${index}`}
                             value={option.value}
                             checked={answers[`area-${index}`] === option.value}
                             onChange={(e) => setAnswers(prev => ({ ...prev, [`area-${index}`]: e.target.value }))}
                             className="sr-only"
                           />
-                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                            answers[`area-${index}`] === option.value 
-                              ? 'bg-mh-green border-mh-green' 
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${answers[`area-${index}`] === option.value
+                              ? 'bg-mh-green border-mh-green'
                               : 'border-gray-300'
-                          }`}>
+                            }`}>
                             {answers[`area-${index}`] === option.value && (
                               <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -273,9 +286,8 @@ function AssessmentTestPage() {
                             )}
                           </div>
                         </div>
-                        <span className={`ml-3 ${
-                          answers[`area-${index}`] === option.value ? 'text-white' : 'text-gray-700'
-                        }`}>{option.label}</span>
+                        <span className={`ml-3 ${answers[`area-${index}`] === option.value ? 'text-white' : 'text-gray-700'
+                          }`}>{option.label}</span>
                       </label>
                     ))}
                   </div>
@@ -284,9 +296,18 @@ function AssessmentTestPage() {
             </div>
 
             <h4 className="text-base font-medium text-gray-900 mb-4 mt-6 flex items-center">
-              <svg className="w-4 h-4 mr-2 text-mh-green" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+              <svg
+                className="w-4 h-4 mr-2 text-mh-green"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 3l2.5 6L21 12l-6.5 3L12 21l-2.5-6L3 12l6.5-3L12 3z" />
               </svg>
+
               Do the difficulties put a burden on you or the family as a whole?
             </h4>
             <div className="flex gap-4">
@@ -296,23 +317,21 @@ function AssessmentTestPage() {
                 { value: 'quite-lot', label: 'Quite a lot' },
                 { value: 'great-deal', label: 'A great deal' }
               ].map((option) => (
-                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
-                  answers.burden === option.value ? 'bg-mh-green' : 'bg-mh-light'
-                }`}>
+                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${answers.burden === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                  }`}>
                   <div className="relative">
-                    <input 
-                      type="radio" 
-                      name="burden" 
+                    <input
+                      type="radio"
+                      name="burden"
                       value={option.value}
                       checked={answers.burden === option.value}
                       onChange={(e) => setAnswers(prev => ({ ...prev, burden: e.target.value }))}
                       className="sr-only"
                     />
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      answers.burden === option.value 
-                        ? 'bg-mh-green border-mh-green' 
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${answers.burden === option.value
+                        ? 'bg-mh-green border-mh-green'
                         : 'border-gray-300'
-                    }`}>
+                      }`}>
                       {answers.burden === option.value && (
                         <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -320,9 +339,8 @@ function AssessmentTestPage() {
                       )}
                     </div>
                   </div>
-                  <span className={`ml-3 ${
-                    answers.burden === option.value ? 'text-white' : 'text-gray-700'
-                  }`}>{option.label}</span>
+                  <span className={`ml-3 ${answers.burden === option.value ? 'text-white' : 'text-gray-700'
+                    }`}>{option.label}</span>
                 </label>
               ))}
             </div>
@@ -345,23 +363,21 @@ function AssessmentTestPage() {
                 { value: 'somewhat-true', label: 'Somewhat True' },
                 { value: 'certainly-true', label: 'Certainly True' }
               ].map((option) => (
-                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${
-                  answers[`q${question.num}`] === option.value ? 'bg-mh-green' : 'bg-mh-light'
-                }`}>
+                <label key={option.value} className={`flex items-center cursor-pointer p-3 rounded-lg transition-colors ${answers[`q${question.num}`] === option.value ? 'bg-mh-green' : 'bg-mh-light'
+                  }`}>
                   <div className="relative">
-                    <input 
-                      type="radio" 
-                      name={`q${question.num}`} 
+                    <input
+                      type="radio"
+                      name={`q${question.num}`}
                       value={option.value}
                       checked={answers[`q${question.num}`] === option.value}
                       onChange={(e) => setAnswers(prev => ({ ...prev, [`q${question.num}`]: e.target.value }))}
                       className="sr-only"
                     />
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      answers[`q${question.num}`] === option.value 
-                        ? 'bg-mh-green border-mh-green' 
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${answers[`q${question.num}`] === option.value
+                        ? 'bg-mh-green border-mh-green'
                         : 'border-gray-300'
-                    }`}>
+                      }`}>
                       {answers[`q${question.num}`] === option.value && (
                         <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -369,9 +385,8 @@ function AssessmentTestPage() {
                       )}
                     </div>
                   </div>
-                  <span className={`ml-3 ${
-                    answers[`q${question.num}`] === option.value ? 'text-white' : 'text-gray-700'
-                  }`}>{option.label}</span>
+                  <span className={`ml-3 ${answers[`q${question.num}`] === option.value ? 'text-white' : 'text-gray-700'
+                    }`}>{option.label}</span>
                 </label>
               ))}
             </div>
@@ -381,30 +396,51 @@ function AssessmentTestPage() {
 
       {/* Navigation */}
       <div className="flex justify-between items-center mt-8">
-        <button 
-          onClick={() => navigate('/my-assessments')}
-          className="flex items-center text-gray-600 hover:text-gray-800 px-4 py-2 rounded-full border border-gray-300"
+        {/* Previous Page */}
+        <button
+          onClick={() => navigate("/my-assessments")}
+          className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition"
         >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Previous Page
+          <span className="flex items-center justify-center w-7 h-7 rounded-full border border-green-500 text-green-500">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </span>
+          <span className="text-sm font-medium">Previous Page</span>
         </button>
-        
-        <button className="flex items-center bg-mh-gradient hover:bg-green-700 text-white px-6 py-2 rounded-full font-medium transition-colors">
-          Next Page
-          <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+
+        {/* Next Page */}
+        <button
+          className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition"
+        >
+          <span className="text-sm font-medium">Next Page</span>
+          <span className="flex items-center justify-center w-7 h-7 rounded-full border border-green-500 text-green-500">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
         </button>
       </div>
+
 
       {/* Bottom Actions */}
       <div className="flex justify-between items-center mt-8">
         <button className="text-mh-green hover:text-green-700 px-4 py-2 rounded-full border border-mh-green font-medium transition-colors">
-          Save & Do Later
+          Save & Do it Later
         </button>
-        
+
         <button className="bg-mh-gradient hover:bg-green-700 text-white px-8 py-2 rounded-full font-medium transition-colors">
           Submit
         </button>
