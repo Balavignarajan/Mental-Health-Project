@@ -1,4 +1,5 @@
-import Header from './Header';
+import VisitorHeader from './VisitorHeader';
+import UserHeader from './UserHeader';
 import Footer from './Footer';
 
 function Layout({ children, isLoggedIn = false, showHeaderFooter = true }) {
@@ -8,7 +9,7 @@ function Layout({ children, isLoggedIn = false, showHeaderFooter = true }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header isLoggedIn={isLoggedIn} />
+      {isLoggedIn ? <UserHeader /> : <VisitorHeader />}
       <main className="flex-grow">
         {children}
       </main>

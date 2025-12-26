@@ -33,6 +33,8 @@ function App() {
         <Route path="/assessments" element={<Layout><AllAssessmentsPage /></Layout>} />
         <Route path="/assessment-detail/:id" element={<Layout><AssessmentDetailPage /></Layout>} />
         <Route path="/testimonials" element={<Layout><TestimonialsPage /></Layout>} />
+        <Route path="/about" element={<Layout><AboutUsPage /></Layout>} />
+        <Route path="/contact" element={<Layout><ContactUsPage /></Layout>} />
         
         {/* Auth Routes - No Header/Footer */}
         <Route path="/login" element={<Layout showHeaderFooter={false}><LoginPage /></Layout>} />
@@ -43,13 +45,12 @@ function App() {
         
         {/* User Routes */}
         <Route path="/user-home" element={<Layout isLoggedIn={true}><UserHomePage /></Layout>} />
+        <Route path="/user/assessments" element={<Layout isLoggedIn={true}><AllAssessmentsPage /></Layout>} />
+        <Route path="/user/about" element={<Layout isLoggedIn={true}><AboutUsPage /></Layout>} />
+        <Route path="/user/contact" element={<Layout isLoggedIn={true}><ContactUsPage /></Layout>} />
         <Route path="/my-assessments" element={<Layout isLoggedIn={true}><MyAssessmentsPage /></Layout>} />
         <Route path="/assessment-test/:id" element={<Layout isLoggedIn={true}><AssessmentTestPage /></Layout>} />
         <Route path="/test-result/:id" element={<Layout isLoggedIn={true}><AssessmentTestResultPage /></Layout>} />
-        
-        {/* Shared Routes */}
-        <Route path="/about" element={<Layout><AboutUsPage /></Layout>} />
-        <Route path="/contact" element={<Layout><ContactUsPage /></Layout>} />
         
         {/* Assessment & Payment Routes */}
         <Route path="/dashboard" element={<Layout isLoggedIn={true}><DashboardPage /></Layout>} />
