@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import assHero from '../../assets/images/ass-hero.png';
 import f1 from '../../assets/images/f1.png';
 import f2 from '../../assets/images/f2.png';
 
 function MyAssessmentsPage() {
   const [activeTab, setActiveTab] = useState('ongoing');
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -98,7 +100,10 @@ function MyAssessmentsPage() {
                         <div className="bg-mh-gradient h-2.5 rounded-full" style={{ width: '52%' }}></div>
                       </div>
                     </div>
-                    <button className="bg-mh-gradient hover:bg-green-700 text-white px-5 py-2 rounded-full text-sm font-medium transition-colors flex-shrink-0">
+                    <button 
+                      onClick={() => navigate('/assessment-test/1')}
+                      className="bg-mh-gradient hover:bg-green-700 text-white px-5 py-2 rounded-full text-sm font-medium transition-colors flex-shrink-0"
+                    >
                       Continue
                     </button>
                   </div>
@@ -142,7 +147,10 @@ function MyAssessmentsPage() {
                         <div className="bg-mh-gradient h-1.5 rounded-full" style={{ width: '1%' }}></div>
                       </div>
                     </div>
-                    <button className="bg-mh-gradient hover:bg-green-700 text-white px-5 py-2 rounded-full text-sm font-medium transition-colors flex-shrink-0">
+                    <button 
+                      onClick={() => navigate('/assessment-test/1')}
+                      className="bg-mh-gradient hover:bg-green-700 text-white px-5 py-2 rounded-full text-sm font-medium transition-colors flex-shrink-0"
+                    >
                       Start
                     </button>
                   </div>
