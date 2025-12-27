@@ -285,19 +285,35 @@ function Breadcrumb({ isLoggedIn = false, customLabel, assessmentName, variant =
   const hoverColor = variant === 'light' ? 'hover:text-white hover:opacity-100' : 'hover:text-gray-700';
   const separatorColor = variant === 'light' ? 'text-white opacity-50' : 'text-gray-400';
   
+  // For mobile: show only last 2 breadcrumbs if there are more than 3, otherwise show all
+  // This helps prevent overflow on small screens
+  const shouldTruncateMobile = breadcrumbs.length > 3;
+  const mobileBreadcrumbs = shouldTruncateMobile 
+    ? [
+        { ...breadcrumbs[0], label: 'Home' }, // Keep Home
+        { label: '...', path: '#', isEllipsis: true },
+        ...breadcrumbs.slice(-2) // Last 2 items
+      ]
+    : breadcrumbs;
+  
   return (
-    <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6" aria-label="Breadcrumb">
-      <ol className={`flex items-center space-x-2 text-sm ${textColor} mb-4 sm:mb-6`}>
+    <nav 
+      className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-3 sm:pt-4 lg:pt-6" 
+      aria-label="Breadcrumb"
+    >
+      {/* Desktop view - show all breadcrumbs with proper wrapping */}
+      <ol className={`hidden md:flex items-center flex-wrap gap-x-1 sm:gap-x-2 text-xs sm:text-sm ${textColor} mb-3 sm:mb-4 lg:mb-6`}>
         {breadcrumbs.map((crumb, index) => (
-          <li key={index} className="flex items-center">
+          <li key={index} className="flex items-center flex-shrink-0">
             {index > 0 && (
-              <span className={`mx-1 sm:mx-2 ${separatorColor}`} aria-hidden="true">
+              <span className={`mx-1 sm:mx-1.5 ${separatorColor} flex-shrink-0`} aria-hidden="true">
                 /
               </span>
             )}
             {crumb.isActive ? (
               <span 
-                className={activeColor}
+                className={`${activeColor} max-w-[200px] lg:max-w-xs truncate block`}
+                title={crumb.label}
                 aria-current={crumb.isActive ? 'page' : undefined}
               >
                 {crumb.label}
@@ -305,7 +321,8 @@ function Breadcrumb({ isLoggedIn = false, customLabel, assessmentName, variant =
             ) : (
               <Link
                 to={crumb.path}
-                className={`${textColor} ${hoverColor} transition-colors cursor-pointer`}
+                className={`${textColor} ${hoverColor} transition-colors cursor-pointer max-w-[180px] lg:max-w-xs truncate block`}
+                title={crumb.label}
               >
                 {crumb.label}
               </Link>
@@ -313,6 +330,44 @@ function Breadcrumb({ isLoggedIn = false, customLabel, assessmentName, variant =
           </li>
         ))}
       </ol>
+      
+      {/* Mobile view - truncated breadcrumbs with horizontal scroll */}
+      <div className="md:hidden overflow-x-auto -mx-3 sm:-mx-4 px-3 sm:px-4 scrollbar-hide scroll-smooth">
+        <ol className={`flex items-center gap-x-1 text-xs ${textColor} mb-3 whitespace-nowrap`}>
+          {mobileBreadcrumbs.map((crumb, index) => (
+            <li key={index} className="flex items-center flex-shrink-0">
+              {index > 0 && (
+                <span className={`mx-1 ${separatorColor} flex-shrink-0`} aria-hidden="true">
+                  /
+                </span>
+              )}
+              {crumb.isEllipsis ? (
+                <span className={`${textColor} px-0.5 flex-shrink-0`} aria-hidden="true">
+                  ...
+                </span>
+              ) : crumb.isActive ? (
+                <span 
+                  className={`${activeColor} truncate block`}
+                  style={{ maxWidth: '150px' }}
+                  title={crumb.label}
+                  aria-current={crumb.isActive ? 'page' : undefined}
+                >
+                  {crumb.label}
+                </span>
+              ) : (
+                <Link
+                  to={crumb.path}
+                  className={`${textColor} ${hoverColor} transition-colors cursor-pointer truncate block`}
+                  style={{ maxWidth: '110px' }}
+                  title={crumb.label}
+                >
+                  {crumb.label}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ol>
+      </div>
     </nav>
   );
 }
