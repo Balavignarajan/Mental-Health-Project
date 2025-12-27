@@ -30,7 +30,7 @@ function OtpPage() {
   const handleVerify = () => {
     const otpValue = otp.join('');
     console.log('OTP:', otpValue);
-    navigate('/dashboard'); // Navigate to dashboard after successful OTP verification
+    navigate('/user-home'); // Navigate to dashboard after successful OTP verification
   };
 
   const handleBack = () => {

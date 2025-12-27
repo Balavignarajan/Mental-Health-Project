@@ -11,7 +11,7 @@ function EnterPassword() {
 
   const handleLogin = () => {
     console.log('Login with password:', password);
-    navigate('/dashboard');
+    navigate('/user-home');
   };
 
   const handleUseOtp = () => {
