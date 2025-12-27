@@ -5,12 +5,28 @@ import loginImg from '../../assets/images/login-img.png';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleContinue = () => {
-    // For existing users, go to password page
-    // For new users, this would typically check if user exists first
-    navigate('/password');
+  const handleContinue = (e) => {
+    e?.preventDefault();
+    
+    if (!email || !email.trim()) {
+      setError('Please enter your email');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    setError('');
+    // Navigate to password page with email in state
+    navigate('/password', { state: { email: email.trim() } });
   };
 
   const handleGoogleSignIn = () => {
@@ -56,7 +72,7 @@ function LoginPage() {
               </h1>
             </div>
 
-            <div className="space-y-4">
+            <form onSubmit={handleContinue} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-mh-dark mb-2">
                   Mobile number / Email
@@ -64,19 +80,26 @@ function LoginPage() {
                 <input
                   type="text"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError('');
+                  }}
                   placeholder="Enter Mobile number / Email"
                   className="input-field"
                 />
+                {error && (
+                  <p className="text-red-500 text-sm mt-1">{error}</p>
+                )}
               </div>
 
               <button
-                onClick={handleContinue}
-                className="bg-mh-gradient w-full py-4 text-mh-white font-semibold rounded-xl text-base hover:opacity-90 transition-opacity duration-200"
+                type="submit"
+                disabled={loading}
+                className="bg-mh-gradient w-full py-4 text-mh-white font-semibold rounded-xl text-base hover:opacity-90 transition-opacity duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Continue
+                {loading ? 'Please wait...' : 'Continue'}
               </button>
-            </div>
+            </form>
 
             {/* Divider */}
             <div className="relative my-6">

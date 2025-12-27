@@ -1,21 +1,83 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import bgImage from '../../assets/images/Rectangle 40026.png';
 import otpImg from '../../assets/images/otp-img.png';
+import { verifyEmail, login } from '../../api/authApi';
+import { setTokens } from '../../utils/auth';
 
 function OtpPage() {
-  const [otp, setOtp] = useState(['', '', '', '']);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']); // Changed to 6 digits to match typical email verification tokens
   const inputRefs = useRef([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const handleAutoVerify = async (emailToVerify, token) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await verifyEmail(emailToVerify, token);
+      
+      if (response.success) {
+        navigate('/login', { 
+          state: { 
+            message: 'Email verified successfully! Please login.' 
+          } 
+        });
+      } else {
+        setError(response.message || 'Verification failed. Please try again.');
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Verification failed. Please check the link and try again.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Get email and token from URL params (from email verification link) or navigation state
+    const emailFromUrl = searchParams.get('email');
+    const tokenFromUrl = searchParams.get('token');
+    const emailFromState = location.state?.email;
+    const isSignUpFromState = location.state?.isSignUp;
+    
+    if (emailFromUrl) {
+      setEmail(emailFromUrl);
+    } else if (emailFromState) {
+      setEmail(emailFromState);
+    }
+    
+    if (isSignUpFromState) {
+      setIsSignUp(true);
+    }
+
+    // If token is in URL (from email link), auto-verify
+    if (tokenFromUrl && emailFromUrl) {
+      handleAutoVerify(emailFromUrl, tokenFromUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, searchParams]);
 
   const handleOtpChange = (index, value) => {
+    // Only allow digits
+    if (value && !/^\d+$/.test(value)) {
+      return;
+    }
+    
     if (value.length <= 1) {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
+      setError('');
 
       // Auto-focus next input
-      if (value && index < 3) {
+      if (value && index < 5) {
         inputRefs.current[index + 1]?.focus();
       }
     }
@@ -27,10 +89,29 @@ function OtpPage() {
     }
   };
 
-  const handleVerify = () => {
-    const otpValue = otp.join('');
-    console.log('OTP:', otpValue);
-    navigate('/user-home'); // Navigate to dashboard after successful OTP verification
+  const handleVerify = async () => {
+    // Check if token is in URL (from email link click)
+    const tokenFromUrl = searchParams.get('token');
+    
+    if (tokenFromUrl) {
+      // Token from URL - use it directly
+      if (!email) {
+        setError('Email is required');
+        return;
+      }
+      await handleAutoVerify(email, tokenFromUrl);
+      return;
+    }
+
+    // Manual token entry (for cases where user needs to enter token manually)
+    // Note: Backend uses long hex tokens (64 chars), not 6-digit codes
+    // This is a fallback for manual entry
+    if (!email) {
+      setError('Email is required');
+      return;
+    }
+
+    setError('Please use the verification link from your email. If you don\'t have the link, please request a new verification email.');
   };
 
   const handleBack = () => {
@@ -93,22 +174,33 @@ function OtpPage() {
                   We have sent a verification code to your registered email
                 </p>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium text-mh-dark">johndavid@gmail.com</span>
-                  <button className="text-sm text-mh-green hover:underline">Change</button>
+                  <span className="text-sm font-medium text-mh-dark">{email || 'johndavid@gmail.com'}</span>
+                  <button 
+                    onClick={() => navigate('/login')}
+                    className="text-sm text-mh-green hover:underline"
+                  >
+                    Change
+                  </button>
                 </div>
               </div>
 
               <div className="space-y-4">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+                
                 <div>
                   <div className="flex justify-between items-center mb-4">
                     <label className="block text-sm font-medium text-mh-dark">
-                      OTP
+                      Verification Code
                     </label>
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm text-mh-green">56 Sec</span>
                       <button 
+                        type="button"
                         onClick={handleResend}
-                        className="text-sm text-mh-dark hover:underline"
+                        className="text-sm text-mh-green hover:underline"
                       >
                         Resend
                       </button>
@@ -122,6 +214,7 @@ function OtpPage() {
                         key={index}
                         ref={(el) => (inputRefs.current[index] = el)}
                         type="text"
+                        inputMode="numeric"
                         maxLength="1"
                         value={digit}
                         onChange={(e) => handleOtpChange(index, e.target.value)}
@@ -134,9 +227,10 @@ function OtpPage() {
 
                 <button
                   onClick={handleVerify}
-                  className="bg-mh-gradient w-full py-4 text-mh-white font-semibold rounded-xl text-base hover:opacity-90 transition-opacity duration-200"
+                  disabled={loading}
+                  className="bg-mh-gradient w-full py-4 text-mh-white font-semibold rounded-xl text-base hover:opacity-90 transition-opacity duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Verify
+                  {loading ? 'Verifying...' : 'Verify'}
                 </button>
               </div>
 

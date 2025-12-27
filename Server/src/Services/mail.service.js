@@ -2,13 +2,19 @@ const { createMailerTransport } = require("../config/mail");
 const { cfg } = require("../config/config");
 
 async function sendMail(toEmailValue, subjectValue, htmlValue) {
-  const transporter = createMailerTransport();
-  await transporter.sendMail({
-    from: `"Soukya Stacks" <${cfg.MAIL_USER}>`,
-    to: toEmailValue,
-    subject: subjectValue,
-    html: htmlValue
-  });
+  try {
+    const transporter = createMailerTransport();
+    const fromEmail = cfg.FROM_EMAIL || cfg.MAIL_USER;
+    await transporter.sendMail({
+      from: `"Soukya Stacks" <${fromEmail}>`,
+      to: toEmailValue,
+      subject: subjectValue,
+      html: htmlValue
+    });
+  } catch (error) {
+    // Re-throw with more context
+    throw new Error(`Email sending failed: ${error.message}`);
+  }
 }
 
 async function sendVerifyEmail(toEmailValue, verifyUrlValue) {

@@ -1,17 +1,62 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import bgImage from '../../assets/images/Rectangle 40026.png';
-// import loginImg from '../../assets/images/login-img.png';
 import otpImg from '../../assets/images/otp-img.png';
+import { login } from '../../api/authApi';
+import { setTokens } from '../../utils/auth';
 
 function EnterPassword() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogin = () => {
-    console.log('Login with password:', password);
-    navigate('/user-home');
+  useEffect(() => {
+    // Get email from navigation state or use placeholder
+    const emailFromState = location.state?.email;
+    if (emailFromState) {
+      setEmail(emailFromState);
+    }
+  }, [location]);
+
+  const handleLogin = async (e) => {
+    e?.preventDefault();
+    
+    if (!password || !password.trim()) {
+      setError('Please enter your password');
+      return;
+    }
+
+    if (!email) {
+      setError('Email is required');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await login(email, password);
+      
+      if (response.success && response.data) {
+        // Store tokens
+        setTokens(response.data.accessToken, response.data.refreshToken);
+        
+        // Navigate to user home
+        navigate('/user-home');
+      } else {
+        setError(response.message || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      // Handle error response
+      const errorMessage = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleUseOtp = () => {
@@ -71,12 +116,17 @@ function EnterPassword() {
                   Enter Password
                 </h1>
                 <div className="flex items-center space-x-2 mb-6">
-                  <span className="text-sm font-medium text-mh-dark">johndavid@gmail.com</span>
-                  <button className="text-sm text-mh-green hover:underline">Change</button>
+                  <span className="text-sm font-medium text-mh-dark">{email || 'johndavid@gmail.com'}</span>
+                  <button 
+                    onClick={() => navigate('/login')}
+                    className="text-sm text-mh-green hover:underline"
+                  >
+                    Change
+                  </button>
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-mh-dark mb-2">
                     Password
@@ -85,7 +135,10 @@ function EnterPassword() {
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setError('');
+                      }}
                       placeholder="Enter Password"
                       className="input-field pr-12"
                     />
@@ -106,8 +159,12 @@ function EnterPassword() {
                       )}
                     </button>
                   </div>
+                  {error && (
+                    <p className="text-red-500 text-sm mt-2">{error}</p>
+                  )}
                   <div className="text-right mt-2">
                     <button 
+                      type="button"
                       onClick={handleForgotPassword}
                       className="text-sm text-mh-green hover:underline"
                     >
@@ -117,12 +174,13 @@ function EnterPassword() {
                 </div>
 
                 <button
-                  onClick={handleLogin}
-                  className="bg-mh-gradient w-full py-4 text-mh-white font-semibold rounded-xl text-base hover:opacity-90 transition-opacity duration-200"
+                  type="submit"
+                  disabled={loading}
+                  className="bg-mh-gradient w-full py-4 text-mh-white font-semibold rounded-xl text-base hover:opacity-90 transition-opacity duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Login
+                  {loading ? 'Logging in...' : 'Login'}
                 </button>
-              </div>
+              </form>
 
               {/* Use OTP Link */}
               <div className="text-center">

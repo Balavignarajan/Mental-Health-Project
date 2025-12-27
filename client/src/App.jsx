@@ -43,6 +43,7 @@ function App() {
         {/* Auth Routes - No Header/Footer */}
         <Route path="/login" element={<Layout showHeaderFooter={false}><LoginPage /></Layout>} />
         <Route path="/otp" element={<Layout showHeaderFooter={false}><OtpPage /></Layout>} />
+        <Route path="/verify-email" element={<Layout showHeaderFooter={false}><OtpPage /></Layout>} />
         <Route path="/password" element={<Layout showHeaderFooter={false}><EnterPassword /></Layout>} />
         <Route path="/signup" element={<Layout showHeaderFooter={false}><SignUpPage /></Layout>} />
         <Route path="/register" element={<Layout showHeaderFooter={false}><RegisterPage /></Layout>} />

@@ -33,7 +33,19 @@ exports.signup = asyncHandler(async (req, res) => {
   });
 
   const verifyUrl = `${cfg.APP_BASE_URL}/verify-email?email=${encodeURIComponent(email)}&token=${verifyTokenRaw}`;
-  await sendVerifyEmail(email.toLowerCase(), verifyUrl);
+  
+  // Try to send verification email, but don't fail signup if it fails
+  try {
+    await sendVerifyEmail(email.toLowerCase(), verifyUrl);
+  } catch (emailError) {
+    // Log error but don't fail the signup
+    console.error("⚠️  Failed to send verification email:", emailError.message);
+    console.log("📧 Verification URL (for development):", verifyUrl);
+    // In development, log the URL so user can manually verify
+    if (cfg.NODE_ENV === "development") {
+      console.log(`\n🔗 Manual verification link:\n${verifyUrl}\n`);
+    }
+  }
 
   await writeAudit({ userId: newUser._id, action: "SIGNUP", resourceType: "user", resourceId: String(newUser._id), req });
 
@@ -144,7 +156,18 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   await userDoc.save();
 
   const resetUrl = `${cfg.APP_BASE_URL}/reset-password?email=${encodeURIComponent(email)}&token=${resetRaw}`;
-  await sendResetPasswordEmail(email.toLowerCase(), resetUrl);
+  
+  // Try to send reset email, but don't fail if it fails
+  try {
+    await sendResetPasswordEmail(email.toLowerCase(), resetUrl);
+  } catch (emailError) {
+    console.error("⚠️  Failed to send reset password email:", emailError.message);
+    console.log("📧 Reset URL (for development):", resetUrl);
+    // In development, log the URL so user can manually reset
+    if (cfg.NODE_ENV === "development") {
+      console.log(`\n🔗 Manual reset password link:\n${resetUrl}\n`);
+    }
+  }
 
   return ok(res, "If user exists, reset email sent", null);
 });

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bgImage from '../../assets/images/Rectangle 40026.png';
-// import loginImg from '../../assets/images/login-img.png';
 import signupImg from '../../assets/images/signup.png';
+import { signup } from '../../api/authApi';
 
 function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -13,6 +13,8 @@ function SignUpPage() {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (field, value) => {
@@ -20,11 +22,69 @@ function SignUpPage() {
       ...prev,
       [field]: value
     }));
+    setError('');
   };
 
-  const handleContinue = () => {
-    console.log('Sign up data:', formData);
-    navigate('/otp');
+  const validateForm = () => {
+    if (!formData.firstName.trim()) {
+      setError('First name is required');
+      return false;
+    }
+    if (!formData.lastName.trim()) {
+      setError('Last name is required');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    if (!formData.password || formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return false;
+    }
+    return true;
+  };
+
+  const handleContinue = async (e) => {
+    e?.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await signup(
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName
+      );
+
+      if (response.success) {
+        // Navigate to OTP page with email for verification
+        navigate('/otp', { 
+          state: { 
+            email: formData.email,
+            isSignUp: true 
+          } 
+        });
+      } else {
+        setError(response.message || 'Sign up failed. Please try again.');
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Sign up failed. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -77,7 +137,13 @@ function SignUpPage() {
                 </h1>
               </div>
 
-              <div className="space-y-4">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleContinue} className="space-y-4">
                 {/* First Name */}
                 <div>
                   <label className="block text-sm font-medium text-mh-dark mb-2">
@@ -89,6 +155,7 @@ function SignUpPage() {
                     onChange={(e) => handleInputChange('firstName', e.target.value)}
                     placeholder="Enter your first name"
                     className="input-field"
+                    required
                   />
                 </div>
 
@@ -103,6 +170,7 @@ function SignUpPage() {
                     onChange={(e) => handleInputChange('lastName', e.target.value)}
                     placeholder="Enter your last name"
                     className="input-field"
+                    required
                   />
                 </div>
 
@@ -136,6 +204,7 @@ function SignUpPage() {
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="johndavid@gmail.com"
                     className="input-field"
+                    required
                   />
                 </div>
 
@@ -149,8 +218,10 @@ function SignUpPage() {
                       type={showPassword ? "text" : "password"}
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
-                      placeholder="Enter Password"
+                      placeholder="Enter Password (min 6 characters)"
                       className="input-field pr-16"
+                      minLength={6}
+                      required
                     />
                     <button
                       type="button"
@@ -182,12 +253,13 @@ function SignUpPage() {
                 </div>
 
                 <button
-                  onClick={handleContinue}
-                  className="bg-mh-gradient w-full py-4 text-mh-white font-semibold rounded-xl text-base hover:opacity-90 transition-opacity duration-200"
+                  type="submit"
+                  disabled={loading}
+                  className="bg-mh-gradient w-full py-4 text-mh-white font-semibold rounded-xl text-base hover:opacity-90 transition-opacity duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Continue
+                  {loading ? 'Creating account...' : 'Continue'}
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         </div>

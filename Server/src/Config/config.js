@@ -11,10 +11,12 @@ const cfg = {
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
   JWT_REFRESH_EXPIRES_IN_DAYS: Number(process.env.JWT_REFRESH_EXPIRES_IN_DAYS || 30),
 
-  MAIL_HOST: process.env.MAIL_HOST,
-  MAIL_PORT: Number(process.env.MAIL_PORT || 587),
-  MAIL_USER: process.env.MAIL_USER,
-  MAIL_PASS: process.env.MAIL_PASS,
+  // Support both SMTP_* and MAIL_* for backward compatibility
+  MAIL_HOST: process.env.SMTP_HOST || process.env.MAIL_HOST || "smtp.gmail.com",
+  MAIL_PORT: Number(process.env.SMTP_PORT || process.env.MAIL_PORT || 587),
+  MAIL_USER: process.env.SMTP_USER || process.env.MAIL_USER,
+  MAIL_PASS: process.env.SMTP_PASS || process.env.MAIL_PASS,
+  FROM_EMAIL: process.env.FROM_EMAIL || process.env.SMTP_USER || process.env.MAIL_USER,
 
   CRYPTO_ENC_KEY: process.env.CRYPTO_ENC_KEY,
   CRYPTO_ENC_IV: process.env.CRYPTO_ENC_IV,
