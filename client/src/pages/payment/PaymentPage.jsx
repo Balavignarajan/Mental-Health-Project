@@ -1,4 +1,11 @@
 import { useState } from 'react';
+import anxietyAssessment from '../../assets/images/f2.png';
+import upiIcon from '../../assets/images/upi-2.svg';
+import cardsIcon from '../../assets/images/cards-2.svg';
+import netBankingIcon from '../../assets/images/net-banking-2.svg';
+import visaIcon from '../../assets/images/visa.svg';
+import cardIcon from '../../assets/images/cardIcon.svg';
+
 
 function PaymentPage() {
   const [selectedPayment, setSelectedPayment] = useState('cards');
@@ -10,7 +17,7 @@ function PaymentPage() {
   const [cvc, setCvc] = useState('DD/YY');
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
+    <div className="min-h-screen bg-mh-white">
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Breadcrumb */}
         <div className="text-sm text-gray-500 mb-6">
@@ -32,51 +39,59 @@ function PaymentPage() {
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-black mb-6">Billing Information</h2>
               
-              {/* Country */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
-                      <span className="text-white text-sm">🇮🇳</span>
+              {/* Country and State on same line */}
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                {/* Country */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
+                      <svg className="w-5 h-5 text-mh-green" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <select 
+                      className="w-full pl-10 pr-4 py-3 border border-[#E5E5E5] rounded-lg bg-mh-light text-gray-500 appearance-none focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                    >
+                      <option value="">Select your Country</option>
+                      <option value="india">India</option>
+                      <option value="usa">United States</option>
+                      <option value="uk">United Kingdom</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
                     </div>
                   </div>
-                  <select 
-                    className="w-full pl-12 pr-4 py-3 border border-[#E5E5E5] rounded-lg bg-white text-gray-500 appearance-none focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                  >
-                    <option value="">Select your Country</option>
-                    <option value="india">India</option>
-                    <option value="usa">United States</option>
-                    <option value="uk">United Kingdom</option>
-                  </select>
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
                 </div>
-              </div>
 
-              {/* State */}
-              <div className="mb-8">
-                <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                <div className="relative">
-                  <select 
-                    className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg bg-white text-gray-500 appearance-none focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                  >
-                    <option value="">Select your State</option>
-                    <option value="california">California</option>
-                    <option value="texas">Texas</option>
-                    <option value="new-york">New York</option>
-                  </select>
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
+                {/* State */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
+                      <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <select 
+                      className="w-full pl-10 pr-4 py-3 border border-[#E5E5E5] rounded-lg bg-mh-light text-gray-500 appearance-none focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                    >
+                      <option value="">Select your State</option>
+                      <option value="california">California</option>
+                      <option value="texas">Texas</option>
+                      <option value="new-york">New York</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -92,17 +107,18 @@ function PaymentPage() {
                   <div className="mb-3">
                     <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${
                       selectedPayment === 'upi' 
-                        ? 'border-[#039059] bg-[#039059] bg-opacity-10 border-2' 
+                        ? 'border-mh-green bg-[#038A561A] bg-opacity-10 border-2' 
                         : 'border-[#E5E5E5] hover:bg-gray-50'
                     }`}>
                       <input 
                         type="radio" 
                         name="payment" 
-                        className="w-5 h-5 text-[#039059] mr-3"
+                        className="w-5 h-5 mr-3"
+                        style={{ accentColor: '#039059' }}
                         checked={selectedPayment === 'upi'}
                         onChange={() => setSelectedPayment('upi')}
                       />
-                      <span className="text-orange-500 text-xl mr-2">📱</span>
+                      <img src={upiIcon} alt="UPI" className="w-6 h-6 mr-2" />
                       <span className="text-gray-700 font-medium">UPI</span>
                     </label>
                   </div>
@@ -111,17 +127,18 @@ function PaymentPage() {
                   <div className="mb-3">
                     <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${
                       selectedPayment === 'cards' 
-                        ? 'border-[#039059] bg-[#039059] bg-opacity-10 border-2' 
+                        ? 'border-mh-green bg-[#038A561A] bg-opacity-10 border-2' 
                         : 'border-[#E5E5E5] hover:bg-gray-50'
                     }`}>
                       <input 
                         type="radio" 
                         name="payment" 
-                        className="w-5 h-5 text-[#039059] mr-3"
+                        className="w-5 h-5 mr-3"
+                        style={{ accentColor: '#039059' }}
                         checked={selectedPayment === 'cards'}
                         onChange={() => setSelectedPayment('cards')}
                       />
-                      <div className="w-6 h-4 bg-black rounded-sm mr-3"></div>
+                      <img src={cardsIcon} alt="Cards" className="w-6 h-6 mr-2" />
                       <span className="text-gray-700 font-medium">Cards</span>
                     </label>
                   </div>
@@ -130,17 +147,18 @@ function PaymentPage() {
                   <div className="mb-3">
                     <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${
                       selectedPayment === 'netbanking' 
-                        ? 'border-[#039059] bg-[#039059] bg-opacity-10 border-2' 
+                        ? 'border-mh-green bg-[#038A561A] bg-opacity-10 border-2' 
                         : 'border-[#E5E5E5] hover:bg-gray-50'
                     }`}>
                       <input 
                         type="radio" 
                         name="payment" 
-                        className="w-5 h-5 text-[#039059] mr-3"
+                        className="w-5 h-5 mr-3"
+                        style={{ accentColor: '#039059' }}
                         checked={selectedPayment === 'netbanking'}
                         onChange={() => setSelectedPayment('netbanking')}
                       />
-                      <div className="w-6 h-4 bg-gray-400 rounded-sm mr-3"></div>
+                      <img src={netBankingIcon} alt="Net Banking" className="w-6 h-6 mr-2" />
                       <span className="text-gray-700 font-medium">Net Banking</span>
                     </label>
                   </div>
@@ -157,16 +175,17 @@ function PaymentPage() {
                           type="text" 
                           value={cardNumber}
                           onChange={(e) => setCardNumber(e.target.value)}
-                          className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg bg-gray-50 text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
+                          className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg bg-mh-light text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
                         />
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex space-x-2">
-                          <div className="w-7 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">VISA</div>
-                          <div className="w-7 h-5 bg-red-500 rounded flex items-center justify-center">
-                            <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                          </div>
-                          <div className="w-7 h-5 bg-blue-500 rounded"></div>
+                         <img src={cardIcon} alt="Visa" className="w-6 h-6 mr-2" />
                         </div>
+                        
                       </div>
+                      <div className='flex justify-end space-x-2'>
+                          <img src={visaIcon} alt="Visa" className="w-28 h-10 mr-2" />
+                        </div>
+                      
                     </div>
                     
                     {/* Card Holder Name */}
@@ -177,7 +196,7 @@ function PaymentPage() {
                         placeholder="Name on card"
                         value={cardHolder}
                         onChange={(e) => setCardHolder(e.target.value)}
-                        className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg bg-gray-50 text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
+                        className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg bg-mh-light text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
                       />
                     </div>
                     
@@ -190,7 +209,7 @@ function PaymentPage() {
                           placeholder="DD/YY"
                           value={expireDate}
                           onChange={(e) => setExpireDate(e.target.value)}
-                          className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg bg-gray-50 text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
+                          className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg bg-mh-light text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
                         />
                       </div>
                       <div>
@@ -200,7 +219,7 @@ function PaymentPage() {
                           placeholder="DD/YY"
                           value={cvc}
                           onChange={(e) => setCvc(e.target.value)}
-                          className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg bg-gray-50 text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
+                          className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg bg-mh-light text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#039059] focus:border-transparent"
                         />
                       </div>
                     </div>
@@ -213,11 +232,11 @@ function PaymentPage() {
           {/* Right Column - Order Details */}
           <div className="col-span-4">
             {/* Order Details */}
-            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div className="bg-mh-light  shadow-sm p-6 border-b">
               <h3 className="text-lg font-semibold text-black mb-6">Order Details</h3>
               <div className="flex items-start space-x-4 mb-2">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-emerald-50 rounded-lg flex items-center justify-center">
-                  <div className="text-2xl">📊</div>
+                  <img src={anxietyAssessment} alt="Anxiety Assessment" className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-1">Anxiety Assessment</h4>
@@ -230,7 +249,7 @@ function PaymentPage() {
             </div>
 
             {/* Order Summary */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-mh-light shadow-sm p-6">
               <h3 className="text-lg font-semibold text-black mb-6">Order Summary</h3>
               <div className="space-y-4 text-sm mb-6">
                 <div className="flex justify-between">
@@ -260,7 +279,7 @@ function PaymentPage() {
               </div>
               
               {/* Purchase Button */}
-              <button className="w-full bg-gradient-to-r from-[#01321F] to-[#03985E] text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-all focus:outline-none focus:ring-2 focus:ring-[#039059] focus:ring-offset-2">
+              <button className="w-full bg-mh-gradient text-white py-3 rounded-full font-semibold hover:opacity-90 transition-all focus:outline-none focus:ring-2 focus:ring-[#039059] focus:ring-offset-2">
                 Purchase
               </button>
             </div>
