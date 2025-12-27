@@ -60,7 +60,12 @@ function EnterPassword() {
   };
 
   const handleUseOtp = () => {
-    navigate('/otp');
+    navigate('/otp', { 
+      state: { 
+        email: email,
+        isLogin: true 
+      } 
+    });
   };
 
   const handleBack = () => {

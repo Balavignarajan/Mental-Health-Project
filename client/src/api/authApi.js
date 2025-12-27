@@ -113,6 +113,34 @@ export const resetPassword = async (email, token, newPassword) => {
 };
 
 /**
+ * Send login OTP code to user email
+ * @param {string} email - User email
+ * @returns {Promise} API response
+ */
+export const sendLoginOtp = async (email) => {
+  const response = await axiosInstance.post('/auth/send-login-otp', {
+    email
+  });
+  return response.data;
+};
+
+/**
+ * Login user with OTP code
+ * @param {string} email - User email
+ * @param {string} code - 6-digit OTP code
+ * @param {string} deviceId - Optional device ID
+ * @returns {Promise} API response with accessToken and refreshToken
+ */
+export const loginWithOtp = async (email, code, deviceId = '') => {
+  const response = await axiosInstance.post('/auth/login-with-otp', {
+    email,
+    code,
+    deviceId
+  });
+  return response.data;
+};
+
+/**
  * Get current user profile (requires authentication)
  * @returns {Promise} API response with user data
  */

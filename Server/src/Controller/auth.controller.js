@@ -6,7 +6,7 @@ const { RefreshToken } = require("../model/Refreshtoken");
 const { asyncHandler } = require("../utils/Asynchandler");
 const { ok, created } = require("../utils/Response");
 const { signAccessToken, signRefreshToken, hashToken } = require("../services/token.service");
-const { sendVerifyEmail, sendResetPasswordEmail } = require("../services/mail.service");
+const { sendVerifyEmail, sendResetPasswordEmail, sendLoginOtpEmail } = require("../services/mail.service");
 const { writeAudit } = require("../services/audit.service");
 
 function hashRaw(rawValue) {
@@ -245,6 +245,96 @@ exports.resetPassword = asyncHandler(async (req, res) => {
   await writeAudit({ userId: userDoc._id, action: "PASSWORD_RESET", resourceType: "user", resourceId: String(userDoc._id), req });
 
   return ok(res, "Password reset successful", null);
+});
+
+exports.sendLoginOtp = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const userDoc = await User.findOne({ email: email.toLowerCase() });
+  
+  if (!userDoc) {
+    // Don't reveal if user exists or not for security
+    return ok(res, "If user exists, login OTP will be sent", null);
+  }
+
+  if (!userDoc.isEmailVerified) {
+    return res.status(400).json({ success: false, message: "Email not verified. Please verify your email first." });
+  }
+
+  // Generate new 6-digit login OTP code
+  const loginOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const codeHash = hashRaw(loginOtpCode);
+  const codeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+  userDoc.loginOtpCode = codeHash;
+  userDoc.loginOtpExpiresAt = codeExpiresAt;
+  await userDoc.save();
+
+  // Try to send login OTP email
+  try {
+    await sendLoginOtpEmail(email.toLowerCase(), loginOtpCode);
+  } catch (emailError) {
+    console.error("⚠️  Failed to send login OTP email:", emailError.message);
+    if (cfg.NODE_ENV === "development") {
+      console.log(`\n📧 Login OTP Code (for development): ${loginOtpCode}\n`);
+      console.log(`Code expires at: ${codeExpiresAt}\n`);
+    }
+    // Don't fail the request, code is stored and can be used
+  }
+
+  return ok(res, "If user exists, login OTP will be sent", null);
+});
+
+exports.loginWithOtp = asyncHandler(async (req, res) => {
+  const { email, code, deviceId } = req.body;
+  const userDoc = await User.findOne({ email: email.toLowerCase() });
+  
+  if (!userDoc) {
+    return res.status(401).json({ success: false, message: "Invalid credentials" });
+  }
+
+  if (!userDoc.isEmailVerified) {
+    return res.status(403).json({ success: false, message: "Email not verified" });
+  }
+
+  // Check if login OTP code exists and is not expired
+  if (!userDoc.loginOtpCode) {
+    return res.status(400).json({ success: false, message: "Login OTP code not found. Please request a new code." });
+  }
+
+  if (!userDoc.loginOtpExpiresAt || userDoc.loginOtpExpiresAt < new Date()) {
+    return res.status(400).json({ success: false, message: "Login OTP code expired. Please request a new code." });
+  }
+
+  // Verify the code
+  const codeHash = hashRaw(code);
+  if (codeHash !== userDoc.loginOtpCode) {
+    return res.status(400).json({ success: false, message: "Invalid login OTP code" });
+  }
+
+  // Code is valid, clear it and log the user in
+  userDoc.loginOtpCode = "";
+  userDoc.loginOtpExpiresAt = null;
+  await userDoc.save();
+
+  const accessTokenValue = signAccessToken(userDoc);
+  const refreshTokenValue = signRefreshToken(userDoc);
+  const refreshHashValue = hashToken(refreshTokenValue);
+
+  const expiresAtValue = new Date(Date.now() + cfg.JWT_REFRESH_EXPIRES_IN_DAYS * 24 * 60 * 60 * 1000);
+
+  await RefreshToken.create({
+    userId: userDoc._id,
+    tokenHash: refreshHashValue,
+    deviceId: deviceId || "",
+    expiresAt: expiresAtValue
+  });
+
+  await writeAudit({ userId: userDoc._id, action: "LOGIN_WITH_OTP", resourceType: "user", resourceId: String(userDoc._id), req });
+
+  return ok(res, "Login success", {
+    accessToken: accessTokenValue,
+    refreshToken: refreshTokenValue
+  });
 });
 
 exports.me = asyncHandler(async (req, res) => {

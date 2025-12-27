@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import bgImage from '../../assets/images/Rectangle 40026.png';
 import otpImg from '../../assets/images/otp-img.png';
-import { verifyEmail, resendVerificationCode, forgotPassword, resetPassword } from '../../api/authApi';
+import { verifyEmail, resendVerificationCode, forgotPassword, resetPassword, sendLoginOtp, loginWithOtp } from '../../api/authApi';
+import { setTokens } from '../../utils/auth';
 
 function OtpPage() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']); // Changed to 6 digits to match typical email verification tokens
@@ -12,6 +13,7 @@ function OtpPage() {
   const [email, setEmail] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const [resetToken, setResetToken] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,6 +25,7 @@ function OtpPage() {
     const emailFromState = location.state?.email;
     const isSignUpFromState = location.state?.isSignUp;
     const isForgotPasswordFromState = location.state?.isForgotPassword;
+    const isLoginFromState = location.state?.isLogin;
     const tokenFromUrl = searchParams.get('token');
     
     if (emailFromUrl) {
@@ -35,6 +38,10 @@ function OtpPage() {
       setIsSignUp(true);
     }
     
+    if (isLoginFromState) {
+      setIsLogin(true);
+    }
+    
     // Check if this is a forgot password flow
     if (isForgotPasswordFromState || tokenFromUrl) {
       setIsForgotPassword(true);
@@ -44,10 +51,30 @@ function OtpPage() {
     }
   }, [location, searchParams]);
 
-  // Automatically send forgot password email when component mounts for forgot password flow
+  // Automatically send OTP when component mounts for login or forgot password flow
   useEffect(() => {
-    const sendForgotPasswordEmail = async () => {
-      if (isForgotPassword && email && !resetToken) {
+    const sendOtpEmail = async () => {
+      if (isLogin && email) {
+        // Send login OTP
+        try {
+          setLoading(true);
+          const response = await sendLoginOtp(email);
+          if (response.success) {
+            setError('');
+            // Show success message
+            alert('Login OTP code has been sent to your email.');
+          }
+        } catch (err) {
+          console.error('Failed to send login OTP:', err);
+          const errorMessage = err.response?.data?.message || 'Failed to send login OTP. Please try again.';
+          // Only show error if it's not a 404 (endpoint doesn't exist)
+          if (err.response?.status !== 404) {
+            setError(errorMessage);
+          }
+        } finally {
+          setLoading(false);
+        }
+      } else if (isForgotPassword && email && !resetToken) {
         // Only send if we don't have a token (meaning user came from EnterPassword, not from email link)
         try {
           setLoading(true);
@@ -66,8 +93,8 @@ function OtpPage() {
       }
     };
 
-    sendForgotPasswordEmail();
-  }, [isForgotPassword, email, resetToken]);
+    sendOtpEmail();
+  }, [isLogin, isForgotPassword, email, resetToken]);
 
   const handleOtpChange = (index, value) => {
     // Only allow digits
@@ -124,6 +151,19 @@ function OtpPage() {
             message: 'Please enter your new password.'
           }
         });
+      } else if (isLogin) {
+        // For login with OTP
+        const response = await loginWithOtp(email, otpValue);
+        
+        if (response.success && response.data) {
+          // Store tokens
+          setTokens(response.data.accessToken, response.data.refreshToken);
+          
+          // Navigate to user home
+          navigate('/user-home');
+        } else {
+          setError(response.message || 'Login failed. Please try again.');
+        }
       } else {
         // For signup verification
         const response = await verifyEmail(email, otpValue);
@@ -169,6 +209,9 @@ function OtpPage() {
       if (isForgotPassword) {
         // For forgot password, call forgotPassword API to resend reset code
         response = await forgotPassword(email);
+      } else if (isLogin) {
+        // For login, call sendLoginOtp API
+        response = await sendLoginOtp(email);
       } else {
         // For signup verification, call resendVerificationCode API
         response = await resendVerificationCode(email);
@@ -181,6 +224,8 @@ function OtpPage() {
         // Show success message
         const message = isForgotPassword 
           ? 'Password reset code has been sent to your email.'
+          : isLogin
+          ? 'Login OTP code has been sent to your email.'
           : 'Verification code has been sent to your email.';
         alert(message);
       } else {
@@ -236,11 +281,13 @@ function OtpPage() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-mh-dark mb-4">
-                  {isForgotPassword ? 'Reset Password' : 'Enter OTP'}
+                  {isForgotPassword ? 'Reset Password' : isLogin ? 'Login with OTP' : 'Enter OTP'}
                 </h1>
                 <p className="text-sm text-gray-600 mb-2">
                   {isForgotPassword 
                     ? 'We have sent a password reset link to your registered email. Please check your email and click the link to reset your password.'
+                    : isLogin
+                    ? 'We have sent a login OTP code to your registered email'
                     : 'We have sent a verification code to your registered email'}
                 </p>
                 {isForgotPassword && (
@@ -307,7 +354,7 @@ function OtpPage() {
                       disabled={loading}
                       className="bg-mh-gradient w-full py-4 text-mh-white font-semibold rounded-xl text-base hover:opacity-90 transition-opacity duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {loading ? 'Verifying...' : 'Verify'}
+                      {loading ? (isLogin ? 'Logging in...' : 'Verifying...') : (isLogin ? 'Login' : 'Verify')}
                     </button>
                   </>
                 )}

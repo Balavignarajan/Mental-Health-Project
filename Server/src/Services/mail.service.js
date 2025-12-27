@@ -45,6 +45,26 @@ async function sendResetPasswordEmail(toEmailValue, resetUrlValue) {
   );
 }
 
+async function sendLoginOtpEmail(toEmailValue, otpCode) {
+  await sendMail(
+    toEmailValue,
+    "Login OTP Code",
+    `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Login OTP Code</h2>
+        <p>Hello,</p>
+        <p>You requested to login with OTP. Please use the following code to complete your login:</p>
+        <div style="background-color: #f4f4f4; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
+          <h1 style="color: #4CAF50; font-size: 32px; letter-spacing: 8px; margin: 0;">${otpCode}</h1>
+        </div>
+        <p>This code will expire in 10 minutes.</p>
+        <p>If you didn't request this code, please ignore this email and ensure your account is secure.</p>
+        <p style="color: #666; font-size: 12px; margin-top: 30px;">Best regards,<br>Soukya Stacks Team</p>
+      </div>
+    `
+  );
+}
+
 async function sendInvoiceEmail(toEmailValue, invoiceNumberValue) {
   await sendMail(
     toEmailValue,
@@ -53,4 +73,4 @@ async function sendInvoiceEmail(toEmailValue, invoiceNumberValue) {
   );
 }
 
-module.exports = { sendVerifyEmail, sendResetPasswordEmail, sendInvoiceEmail };
+module.exports = { sendVerifyEmail, sendResetPasswordEmail, sendInvoiceEmail, sendLoginOtpEmail };

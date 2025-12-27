@@ -57,6 +57,22 @@ router.post(
   authController.resetPassword
 );
 
+router.post(
+  "/send-login-otp",
+  validateBody(Joi.object({ email: Joi.string().email().required() })),
+  authController.sendLoginOtp
+);
+
+router.post(
+  "/login-with-otp",
+  validateBody(Joi.object({ 
+    email: Joi.string().email().required(), 
+    code: Joi.string().length(6).pattern(/^\d+$/).required(),
+    deviceId: Joi.string().allow("").optional()
+  })),
+  authController.loginWithOtp
+);
+
 router.get("/me", authMiddleware, authController.me);
 
 router.get("/google/start", authController.googleStart);

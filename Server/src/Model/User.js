@@ -21,6 +21,9 @@ const userSchema = new mongoose.Schema(
     resetPasswordTokenHash: { type: String, default: "" },
     resetPasswordExpiresAt: { type: Date, default: null },
 
+    loginOtpCode: { type: String, default: "" }, // Hashed 6-digit code for login
+    loginOtpExpiresAt: { type: Date, default: null }, // Login OTP expiration (10 minutes)
+
     latestConsentAcceptedVersion: { type: String, default: "" },
 
     profile: {
