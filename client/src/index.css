@@ -68,5 +68,32 @@ body {
   .border-mh-green { border-color: #039059; }
   .bg-mh-gradient { background: linear-gradient(135deg, #01321F 0%, #03985E 100%); }
   .bg-mh-gradient-footer { background: linear-gradient(135deg, #167651 0%, #01321F 100%); }
-
+  
+  /* Custom Checkbox */
+  .custom-checkbox {
+    appearance: none;
+    background-color: #E5E7EB;
+    border: 2px solid #D1D5DB;
+    border-radius: 4px;
+    width: 16px;
+    height: 16px;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .custom-checkbox:checked {
+    background-color: #039059;
+    border-color: #039059;
+  }
+  
+  .custom-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+  }
 }
