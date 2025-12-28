@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import f1 from '../../assets/images/f1.png';
 import f2 from '../../assets/images/f2.png';
 import { Star } from 'lucide-react';
@@ -9,7 +9,12 @@ function AssessmentDetailPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [activeFaq, setActiveFaq] = useState(0);
   const location = useLocation();
+  const navigate = useNavigate();
   const isLoggedIn = location.pathname.startsWith('/user');
+
+  const handleBuyNow = () => {
+    navigate('/payment');
+  };
 
   const faqs = [
     {
@@ -56,7 +61,10 @@ function AssessmentDetailPage() {
                 <div className="flex items-center gap-4 mb-2">
                   <span className="text-2xl font-bold text-gray-900">$150</span>
                   <span className="text-lg line-through text-gray-400">$300</span>
-                  <button className="px-6 py-2 rounded-full bg-mh-gradient text-white font-semibold hover:bg-mh-green transition-colors">
+                  <button 
+                    onClick={handleBuyNow}
+                    className="px-6 py-2 rounded-full bg-mh-gradient text-white font-semibold hover:bg-mh-green transition-colors"
+                  >
                     Buy Now
                   </button>
                 </div>
@@ -112,7 +120,10 @@ function AssessmentDetailPage() {
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-semibold text-gray-900">{item.price}</span>
                         <span className="text-xs text-gray-400 line-through">$300</span>
-                        <button className="px-4 py-1.5 text-xs rounded-full bg-mh-gradient text-white font-semibold hover:bg-mh-green transition-colors">
+                        <button 
+                          onClick={handleBuyNow}
+                          className="px-4 py-1.5 text-xs rounded-full bg-mh-gradient text-white font-semibold hover:bg-mh-green transition-colors"
+                        >
                           Buy Now
                         </button>
                       </div>
@@ -271,7 +282,10 @@ function AssessmentDetailPage() {
               <span className="text-xs text-gray-500">(inclusive of all taxes)</span>
             </div>
           </div>
-          <button className="px-8 py-3 rounded-full bg-mh-gradient text-white font-semibold hover:bg-mh-green transition-colors">
+          <button 
+            onClick={handleBuyNow}
+            className="px-8 py-3 rounded-full bg-mh-gradient text-white font-semibold hover:bg-mh-green transition-colors"
+          >
             Buy Now
           </button>
         </div>

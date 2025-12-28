@@ -64,14 +64,14 @@ function UserHeader() {
       clearTokens();
       setIsDropdownOpen(false);
       showToast.success('Logged out successfully!');
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
       // Clear tokens and redirect anyway
       clearTokens();
       setIsDropdownOpen(false);
       showToast.success('Logged out successfully!');
-      navigate('/login');
+      navigate('/');
     }
   };
 

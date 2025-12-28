@@ -1,4 +1,5 @@
 import Breadcrumb from '../../components/Breadcrumb';
+import testi from '../../assets/images/testi.svg';
 
 function TestimonialsPage() {
   const testimonials = Array(8).fill({
@@ -44,9 +45,7 @@ function TestimonialsPage() {
 
               {/* User */}
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-xs">
-                  😊
-                </div>
+                <img src={testi} alt="User" className="w-9 h-9 rounded-full" />
 
                 <div>
                   <p className="text-sm font-semibold text-mh-dark">

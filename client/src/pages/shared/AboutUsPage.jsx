@@ -11,14 +11,10 @@ function AboutUsPage() {
   
   return (
     <div className="bg-mh-white">
-      {/* Breadcrumb */}
-      <div className="bg-mh-gradient pt-6">
-        <Breadcrumb isLoggedIn={isLoggedIn} variant="light" />
-      </div>
-
       {/* HERO SECTION */}
-      <section className="bg-mh-gradient py-12 sm:py-16 md:py-20 lg:py-24 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-mh-white">
+      <section className="bg-mh-gradient pt-6 pb-12 sm:pb-16 md:pb-20 lg:pb-24 relative overflow-hidden">
+        <Breadcrumb isLoggedIn={isLoggedIn} variant="light" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-mh-white pt-6 sm:pt-8 md:pt-12">
 
           <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold mb-4 sm:mb-6 leading-tight">
             Helping You Understand Your Mind, <br className="hidden sm:block" />
