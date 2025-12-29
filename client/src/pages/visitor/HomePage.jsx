@@ -145,10 +145,11 @@ function HomePage() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "+=450%",
+          end: "+=500%",
           pin: true,
           scrub: 1.8,
           anticipatePin: 1,
+          pinSpacing: true,
         },
       });
 
@@ -205,9 +206,9 @@ function HomePage() {
 
   return (
     <>
-      <section className="bg-[#F8F8F0] py-12 md:py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+      <section className="bg-[#F8F8F0] py-8 sm:py-12 md:py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16 items-center">
 
             {/* LEFT CONTENT */}
             <div>
@@ -242,7 +243,7 @@ function HomePage() {
               </p>
 
               {/* Button */}
-              <button className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-mh-gradient text-mh-white text-sm sm:text-base font-semibold hover:opacity-90 transition">
+              <button className="px-5 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm md:text-base font-semibold hover:opacity-90 transition w-full sm:w-auto">
                 Explore Assessments
               </button>
             </div>
@@ -252,11 +253,11 @@ function HomePage() {
             <div className="relative flex justify-center">
 
               {/* Image container */}
-              <div className="relative rounded-2xl md:rounded-[32px] overflow-hidden w-full max-w-full">
+              <div className="relative rounded-xl sm:rounded-2xl md:rounded-[32px] overflow-hidden w-full max-w-full">
                 <img
                   src={heroImage}
                   alt="Mental health wellbeing"
-                  className="w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[520px] object-cover"
+                  className="w-full h-[250px] xs:h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] xl:h-[520px] object-cover"
                 />
               </div>
 
@@ -268,71 +269,68 @@ function HomePage() {
       </section>
 
       {/* Featured Assessments Section */}
-      <section className="bg-white pt-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          {/* Section Header */}
-          <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark mb-3 sm:mb-4">
+      <section ref={sectionRef} className="relative min-h-screen bg-white py-6 sm:py-8 md:py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header - Fixed at top */}
+          <div className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-mh-dark mb-3 sm:mb-4">
               Featured Assessments
             </h2>
-            <p className="text-gray-600 text-sm sm:text-base mx-auto">
+            <p className="text-gray-600 text-sm sm:text-base lg:text-lg mx-auto max-w-3xl">
               Take clinically aligned mental health assessments and receive a clear, <br className="hidden sm:block" />
               private report you can confidently share with a professional.
             </p>
           </div>
-        </div>
-      </section>
 
-      <section ref={sectionRef} className="relative h-screen bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-full flex items-center justify-center">
-          <div className="relative w-full h-[70vh]" style={{ perspective: "1200px" }}>
+          {/* Cards Container */}
+          <div className="relative w-full h-[45vh] xs:h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[60vh] flex items-center justify-center" style={{ perspective: "1200px" }}>
             {cards.map((card, i) => (
               <div
                 key={i}
                 ref={(el) => (cardsRef.current[i] = el)}
-                className="rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 items-center"
+                className="rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-10 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10 items-center w-full max-w-6xl mx-auto"
                 style={{ background: card.bg }}
               >
                 {/* Left */}
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">
+                <div className="order-2 md:order-1">
+                  <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold mb-2 sm:mb-3">
                     {card.title}
                   </h3>
-                  <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 max-w-md">
+                  <p className="text-gray-600 text-xs sm:text-sm md:text-base mb-3 sm:mb-4 md:mb-6 max-w-md">
                     {card.description}
                   </p>
 
-                  <div className="flex gap-6 sm:gap-8 lg:gap-10 mb-4 sm:mb-6">
+                  <div className="flex flex-wrap gap-4 sm:gap-6 md:gap-8 lg:gap-10 mb-3 sm:mb-4 md:mb-6">
                     <div>
-                      <svg className="w-4 h-4 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 mb-1 sm:mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <p className="text-xs sm:text-sm text-gray-900 font-bold mb-1">Duration</p>
-                      <p className="text-sm sm:text-base font-medium text-gray-700">{card.duration}</p>
+                      <p className="text-[10px] sm:text-xs md:text-sm text-gray-900 font-bold mb-0.5 sm:mb-1">Duration</p>
+                      <p className="text-xs sm:text-sm md:text-base font-medium text-gray-700">{card.duration}</p>
                     </div>
                     <div>
-                      <svg className="w-4 h-4 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 mb-1 sm:mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <p className="text-xs sm:text-sm text-gray-900 font-bold mb-1">Questions</p>
-                      <p className="text-sm sm:text-base font-medium text-gray-700">{card.questions}</p>
+                      <p className="text-[10px] sm:text-xs md:text-sm text-gray-900 font-bold mb-0.5 sm:mb-1">Questions</p>
+                      <p className="text-xs sm:text-sm md:text-base font-medium text-gray-700">{card.questions}</p>
                     </div>
                   </div>
 
-                  <button className="px-6 py-2 rounded-full bg-gray-900 text-white text-sm">
+                  <button className="px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-full bg-mh-gradient text-mh-white text-sm  hover:opacity-90 transition">
                     View Details
                   </button>
                 </div>
 
                 {/* Right */}
-                <div className="relative">
-                  <span className="absolute top-4 left-4 bg-white text-xs px-3 py-1 rounded-full shadow">
+                <div className="relative order-1 md:order-2">
+                  <span className="absolute top-2 left-2 sm:top-3 sm:left-3 md:top-4 md:left-4 bg-white text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full shadow">
                     Research-Based
                   </span>
                   <img
                     src={card.image}
                     alt={card.title}
-                    className="rounded-xl sm:rounded-2xl w-full h-[200px] sm:h-[250px] lg:h-[300px] object-cover"
+                    className="rounded-lg sm:rounded-xl md:rounded-2xl w-full h-[150px] xs:h-[180px] sm:h-[200px] md:h-[250px] lg:h-[300px] object-cover"
                   />
                 </div>
               </div>
@@ -344,74 +342,74 @@ function HomePage() {
       {/* Our Service Section  */}
 
 
-      <section className="bg-mh-light py-12 md:py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <section className="bg-mh-light py-8 sm:py-12 md:py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Section Title */}
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark mb-8 sm:mb-10 lg:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-mh-dark mb-6 sm:mb-8 md:mb-10 lg:mb-12">
             Our Services
           </h2>
 
           {/* Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 items-start">
 
             {/* LEFT LARGE CARD */}
-            <div className="lg:col-span-2 bg-mh-white rounded-2xl sm:rounded-3xl shadow-sm overflow-hidden">
+            <div className="lg:col-span-2 bg-mh-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-sm overflow-hidden">
               <img
                 src={serviceImage}
                 alt="Psychologist support"
-                className="w-full h-[200px] sm:h-[250px] md:h-[280px] lg:h-[320px] object-cover"
+                className="w-full h-[180px] xs:h-[200px] sm:h-[230px] md:h-[250px] lg:h-[280px] xl:h-[320px] object-cover"
               />
 
-              <div className="p-6 sm:p-8">
-                <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">
+              <div className="p-4 sm:p-6 md:p-8">
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-2 sm:mb-3">
                   Psychologist & Psychiatrist Network
                 </h3>
 
-                <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 max-w-xl">
+                <p className="text-gray-600 text-xs sm:text-sm md:text-base mb-3 sm:mb-4 md:mb-6 max-w-xl">
                   Connect with trusted mental-health experts for guidance,
                   diagnosis, therapy, and long-term support tailored to your needs.
                 </p>
 
-                <button className="px-6 py-2 rounded-full border border-mh-green text-mh-green text-sm font-semibold hover:bg-mh-green hover:text-mh-white transition">
+                <button className="px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-full border border-mh-green text-mh-green text-xs sm:text-sm md:text-base font-semibold hover:bg-mh-green hover:text-mh-white transition w-full sm:w-auto">
                   View Details
                 </button>
               </div>
             </div>
 
             {/* RIGHT STACKED CARDS */}
-            <div className="space-y-6 sm:space-y-8">
+            <div className="space-y-4 sm:space-y-6 md:space-y-8">
 
               {/* Card 1 */}
-              <div className="bg-mh-white rounded-2xl sm:rounded-3xl shadow-sm p-6 sm:p-8">
-                <h4 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">
+              <div className="bg-mh-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-sm p-4 sm:p-6 md:p-8">
+                <h4 className="text-sm sm:text-base md:text-lg font-semibold mb-2 sm:mb-3">
                   Meditation & Wellness Retreats
                 </h4>
 
-                <p className="text-gray-600 mb-4 sm:mb-6 text-xs sm:text-sm">
+                <p className="text-gray-600 mb-3 sm:mb-4 md:mb-6 text-xs sm:text-sm md:text-base">
                   Experience guided meditation, mindfulness workshops,
                   and rejuvenating retreats designed to help you reset,
                   relax, and restore balance.
                 </p>
 
-                <button className="px-5 py-2 rounded-full border border-mh-green text-mh-green text-sm font-semibold hover:bg-mh-green hover:text-mh-white transition">
+                <button className="px-4 sm:px-5 py-1.5 sm:py-2 rounded-full border border-mh-green text-mh-green text-xs sm:text-sm md:text-base font-semibold hover:bg-mh-green hover:text-mh-white transition w-full sm:w-auto">
                   View Details
                 </button>
               </div>
 
               {/* Card 2 */}
-              <div className="bg-mh-white rounded-2xl sm:rounded-3xl shadow-sm p-6 sm:p-8">
-                <h4 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">
+              <div className="bg-mh-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-sm p-4 sm:p-6 md:p-8">
+                <h4 className="text-sm sm:text-base md:text-lg font-semibold mb-2 sm:mb-3">
                   Age-Focused Wellness Camps
                 </h4>
 
-                <p className="text-gray-600 mb-4 sm:mb-6 text-xs sm:text-sm">
+                <p className="text-gray-600 mb-3 sm:mb-4 md:mb-6 text-xs sm:text-sm md:text-base">
                   Programs for teens, young adults, and seniors, addressing
                   unique mental health challenges through curated activities
                   and expert-led sessions.
                 </p>
 
-                <button className="px-5 py-2 rounded-full border border-mh-green text-mh-green text-sm font-semibold hover:bg-mh-green hover:text-mh-white transition">
+                <button className="px-4 sm:px-5 py-1.5 sm:py-2 rounded-full border border-mh-green text-mh-green text-xs sm:text-sm md:text-base font-semibold hover:bg-mh-green hover:text-mh-white transition w-full sm:w-auto">
                   View Details
                 </button>
               </div>
@@ -420,8 +418,8 @@ function HomePage() {
           </div>
 
           {/* Bottom CTA */}
-          <div className="flex justify-center mt-8 sm:mt-12 lg:mt-14">
-            <button className="px-8 sm:px-10 py-2.5 sm:py-3 rounded-full bg-mh-gradient text-mh-white text-sm sm:text-base font-semibold hover:opacity-90 transition">
+          <div className="flex justify-center mt-6 sm:mt-8 md:mt-12 lg:mt-14">
+            <button className="px-6 sm:px-8 md:px-10 py-2 sm:py-2.5 md:py-3 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm md:text-base font-semibold hover:opacity-90 transition w-full sm:w-auto max-w-xs sm:max-w-none">
               Explore More
             </button>
           </div>
@@ -432,49 +430,49 @@ function HomePage() {
       {/* Our Assessments Section   */}
 
 
-      <section className="bg-mh-white py-12 md:py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <section className="bg-mh-white py-8 sm:py-12 md:py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Section Title */}
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark mb-8 sm:mb-10 lg:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-mh-dark mb-6 sm:mb-8 md:mb-10 lg:mb-12">
             Our Assessment
           </h2>
 
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
             {assessments.map((item, index) => (
               <div
                 key={index}
-                className="bg-mh-white rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition"
+                className="bg-mh-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition"
               >
                 {/* Image */}
                 <div className="relative">
                   <img
                     src={item.img}
                     alt="Assessment"
-                    className="w-full h-[180px] sm:h-[200px] object-cover"
+                    className="w-full h-[160px] xs:h-[180px] sm:h-[200px] md:h-[220px] object-cover"
                   />
 
                   {/* Badge */}
-                  <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-mh-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full shadow">
+                  <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-mh-white text-[9px] sm:text-[10px] md:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full shadow">
                     Research-Based
                   </span>
                 </div>
 
                 {/* Content */}
-                <div className="p-4 sm:p-5">
-                  <h3 className="text-sm sm:text-base font-semibold text-mh-dark mb-2">
+                <div className="p-3 sm:p-4 md:p-5">
+                  <h3 className="text-xs sm:text-sm md:text-base font-semibold text-mh-dark mb-1.5 sm:mb-2">
                     Anxiety Assessment
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+                  <p className="text-[11px] sm:text-xs md:text-sm text-gray-600 mb-2 sm:mb-3 md:mb-4 line-clamp-2">
                     A quick screening that helps identify symptoms of excessive
                     worry, tension, and emotional overwhelm.
                   </p>
 
                   {/* Rating */}
-                  <div className="flex items-center gap-2 text-xs sm:text-sm">
-                    <span className="flex items-center gap-1 text-mh-green font-semibold">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs md:text-sm">
+                    <span className="flex items-center gap-0.5 sm:gap-1 text-mh-green font-semibold">
                       ⭐ 4.9
                     </span>
                     <span className="text-gray-500">190 Reviews</span>
@@ -485,8 +483,8 @@ function HomePage() {
           </div>
 
           {/* Bottom CTA */}
-          <div className="flex justify-center mt-8 sm:mt-12 lg:mt-14">
-            <button className="px-8 sm:px-10 py-2.5 sm:py-3 rounded-full bg-mh-gradient text-mh-white text-sm sm:text-base font-semibold hover:opacity-90 transition">
+          <div className="flex justify-center mt-6 sm:mt-8 md:mt-12 lg:mt-14">
+            <button className="px-6 sm:px-8 md:px-10 py-2 sm:py-2.5 md:py-3 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm md:text-base font-semibold hover:opacity-90 transition w-full sm:w-auto max-w-xs sm:max-w-none">
               View All Assessment
             </button>
           </div>
@@ -497,29 +495,29 @@ function HomePage() {
       {/* Assessments Matter Section  */}
 
 
-      <section className="bg-mh-light py-12 md:py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <section className="bg-mh-light py-8 sm:py-12 md:py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Title */}
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-mh-dark mb-8 sm:mb-12 lg:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center text-mh-dark mb-6 sm:mb-8 md:mb-12 lg:mb-16">
             Why These <br className="hidden sm:block" /> Assessments Matter
           </h2>
 
           {/* Layout */}
-          <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 items-center">
+          <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-10 items-center">
 
             {/* LEFT COLUMN */}
-            <div className="space-y-6 sm:space-y-8 lg:space-y-10">
-              <div className="relative bg-[#D3D9F4] rounded-2xl sm:rounded-3xl p-6 sm:p-8 min-h-[140px] sm:min-h-[160px]">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-mh-white rounded-md mb-4 sm:mb-6"></div>
-                <p className="text-sm sm:text-base font-medium">
+            <div className="space-y-4 sm:space-y-6 md:space-y-8 lg:space-y-10">
+              <div className="relative bg-[#D3D9F4] rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 bg-mh-white rounded-md mb-3 sm:mb-4 md:mb-6"></div>
+                <p className="text-xs sm:text-sm md:text-base font-medium">
                   Used by mental health <br className="hidden sm:block" /> professionals
                 </p>
               </div>
 
-              <div className="relative bg-[#B4EACF] rounded-2xl sm:rounded-3xl p-6 sm:p-8 min-h-[140px] sm:min-h-[160px]">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-mh-white rounded-md mb-4 sm:mb-6"></div>
-                <p className="text-sm sm:text-base font-medium">
+              <div className="relative bg-[#B4EACF] rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 bg-mh-white rounded-md mb-3 sm:mb-4 md:mb-6"></div>
+                <p className="text-xs sm:text-sm md:text-base font-medium">
                   Backed by standardized <br className="hidden sm:block" /> psychological models
                 </p>
               </div>
@@ -530,22 +528,22 @@ function HomePage() {
               <img
                 src={assessmentMatterImage}
                 alt="Assessment importance"
-                className="rounded-2xl sm:rounded-3xl w-full max-w-[300px] sm:max-w-[380px] lg:max-w-[460px] h-[250px] sm:h-[320px] lg:h-[400px] object-cover"
+                className="rounded-xl sm:rounded-2xl md:rounded-3xl w-full max-w-[280px] sm:max-w-[320px] md:max-w-[380px] lg:max-w-[460px] h-[200px] xs:h-[250px] sm:h-[280px] md:h-[320px] lg:h-[400px] object-cover"
               />
             </div>
 
             {/* RIGHT COLUMN */}
-            <div className="space-y-6 sm:space-y-8 lg:space-y-10">
-              <div className="relative bg-[#F9DAEB] rounded-2xl sm:rounded-3xl p-6 sm:p-8 min-h-[140px] sm:min-h-[160px]">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-mh-white rounded-md mb-4 sm:mb-6"></div>
-                <p className="text-sm sm:text-base font-medium">
+            <div className="space-y-4 sm:space-y-6 md:space-y-8 lg:space-y-10">
+              <div className="relative bg-[#F9DAEB] rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 bg-mh-white rounded-md mb-3 sm:mb-4 md:mb-6"></div>
+                <p className="text-xs sm:text-sm md:text-base font-medium">
                   Safe, confidential, private
                 </p>
               </div>
 
-              <div className="relative bg-[#D4E8EF] rounded-2xl sm:rounded-3xl p-6 sm:p-8 min-h-[140px] sm:min-h-[160px]">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-mh-white rounded-md mb-4 sm:mb-6"></div>
-                <p className="text-sm sm:text-base font-medium">
+              <div className="relative bg-[#D4E8EF] rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 bg-mh-white rounded-md mb-3 sm:mb-4 md:mb-6"></div>
+                <p className="text-xs sm:text-sm md:text-base font-medium">
                   Used for preliminary screening, not diagnosis
                 </p>
               </div>
@@ -564,33 +562,33 @@ function HomePage() {
       {/* Why Choose Soukya */}
 
     
-      <section className="bg-mh-white py-12 md:py-16 lg:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <section className="bg-mh-white py-8 sm:py-12 md:py-16 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section Title */}
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark mb-8 sm:mb-12 lg:mb-14">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-mh-dark mb-6 sm:mb-8 md:mb-12 lg:mb-14">
           Why Choose Soukya Stacks
         </h2>
 
         {/* Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-16 items-start">
 
           {/* LEFT IMAGE */}
           <div>
             <img
               src={soukya}
               alt="Why choose Soukya"
-              className="rounded-2xl sm:rounded-3xl w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[520px] object-cover"
+              className="rounded-xl sm:rounded-2xl md:rounded-3xl w-full h-[250px] xs:h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] xl:h-[520px] object-cover"
             />
           </div>
 
           {/* RIGHT CONTENT */}
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-3 sm:space-y-4 md:space-y-6">
 
             {/* Active Highlight Card */}
-            <div className="bg-mh-gradient rounded-xl sm:rounded-2xl p-5 sm:p-6 text-mh-white">
-              <h4 className="text-base sm:text-lg font-semibold mb-2">Heading</h4>
-              <p className="text-xs sm:text-sm opacity-90">
+            <div className="bg-mh-gradient rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 text-mh-white">
+              <h4 className="text-sm sm:text-base md:text-lg font-semibold mb-1.5 sm:mb-2">Heading</h4>
+              <p className="text-xs sm:text-sm md:text-base opacity-90">
                 It is a long established fact that a reader will be distracted by the
                 readable content of a page when looking at its layout. The point of
                 using Lorem Ipsum is that it has a more-or-less normal.
@@ -601,9 +599,9 @@ function HomePage() {
             {['Heading', 'Heading', 'Heading', 'Heading'].map((item, index) => (
               <div
                 key={index}
-                className="border-b border-gray-200 py-3 sm:py-4 cursor-pointer hover:text-mh-green transition"
+                className="border-b border-gray-200 py-2.5 sm:py-3 md:py-4 cursor-pointer hover:text-mh-green transition"
               >
-                <h4 className="text-sm sm:text-base font-medium text-mh-dark">
+                <h4 className="text-xs sm:text-sm md:text-base font-medium text-mh-dark">
                   {item}
                 </h4>
               </div>
@@ -618,31 +616,31 @@ function HomePage() {
     {/* Testimonials section  */}
    
    
-    <section className="bg-mh-light py-12 md:py-16 lg:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <section className="bg-mh-light py-8 sm:py-12 md:py-16 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 sm:mb-12 lg:mb-14">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 md:mb-12 lg:mb-14">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-mh-dark mb-3 sm:mb-0">
             Testimonials
           </h2>
 
-          <button className="mt-4 sm:mt-0 px-5 sm:px-6 py-2 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm font-semibold hover:opacity-90 transition">
+          <button className="px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm md:text-base font-semibold hover:opacity-90 transition w-full sm:w-auto">
             View All Testimonials
           </button>
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
 
           {/* Testimonial Card */}
           {[1, 2].map((_, index) => (
             <div
               key={index}
-              className="bg-mh-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm"
+              className="bg-mh-white rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm"
             >
               {/* Stars */}
-              <div className="flex gap-1 text-mh-green mb-3 sm:mb-4 text-sm sm:text-base">
+              <div className="flex gap-0.5 sm:gap-1 text-mh-green mb-2 sm:mb-3 md:mb-4 text-xs sm:text-sm md:text-base">
                 {Array(5)
                   .fill(0)
                   .map((_, i) => (
@@ -651,7 +649,7 @@ function HomePage() {
               </div>
 
               {/* Content */}
-              <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
+              <p className="text-gray-600 text-xs sm:text-sm md:text-base mb-3 sm:mb-4 md:mb-6 leading-relaxed">
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                 Suspendisse varius enim in eros elementum tristique. Duis
                 cursus, mi quis viverra ornare, eros dolor interdum nulla,
@@ -659,16 +657,16 @@ function HomePage() {
               </p>
 
               {/* User */}
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center text-xs sm:text-sm">
+              <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-gray-200 flex items-center justify-center text-xs sm:text-sm flex-shrink-0">
                   😊
                 </div>
 
                 <div>
-                  <p className="text-sm sm:text-base font-semibold text-mh-dark">
+                  <p className="text-xs sm:text-sm md:text-base font-semibold text-mh-dark">
                     Name Surname
                   </p>
-                  <p className="text-xs sm:text-sm text-gray-500">
+                  <p className="text-[10px] sm:text-xs md:text-sm text-gray-500">
                     Company name
                   </p>
                 </div>
@@ -678,21 +676,21 @@ function HomePage() {
         </div>
 
         {/* Bottom Controls */}
-        <div className="flex justify-between items-center mt-8 sm:mt-10 lg:mt-12">
+        <div className="flex justify-between items-center mt-6 sm:mt-8 md:mt-10 lg:mt-12">
 
           {/* Dots */}
-          <div className="flex items-center gap-2">
-            <span className="w-6 h-1 rounded-full bg-mh-green"></span>
-            <span className="w-2 h-1 rounded-full bg-green-200"></span>
-            <span className="w-2 h-1 rounded-full bg-green-200"></span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="w-5 h-0.5 sm:w-6 sm:h-1 rounded-full bg-mh-green"></span>
+            <span className="w-1.5 h-0.5 sm:w-2 sm:h-1 rounded-full bg-green-200"></span>
+            <span className="w-1.5 h-0.5 sm:w-2 sm:h-1 rounded-full bg-green-200"></span>
           </div>
 
           {/* Arrows */}
-          <div className="flex gap-2 sm:gap-3">
-            <button className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-green-100 text-mh-green flex items-center justify-center hover:bg-green-200 transition text-sm sm:text-base">
+          <div className="flex gap-1.5 sm:gap-2 md:gap-3">
+            <button className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-lg bg-green-100 text-mh-green flex items-center justify-center hover:bg-green-200 transition text-xs sm:text-sm md:text-base">
               ‹
             </button>
-            <button className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-mh-green text-mh-white flex items-center justify-center hover:opacity-90 transition text-sm sm:text-base">
+            <button className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-lg bg-mh-green text-mh-white flex items-center justify-center hover:opacity-90 transition text-xs sm:text-sm md:text-base">
               ›
             </button>
           </div>
@@ -705,32 +703,32 @@ function HomePage() {
 
     {/* FAQ Section  */}
     
-    <section className="bg-mh-white py-12 md:py-16 lg:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <section className="bg-mh-white py-8 sm:py-12 md:py-16 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-16 items-start">
 
           {/* LEFT CONTENT */}
           <div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark mb-3 sm:mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-mh-dark mb-2 sm:mb-3 md:mb-4">
               Frequently Asked <br className="hidden sm:block" /> Questions
             </h2>
 
-            <p className="text-gray-600 text-sm sm:text-base mb-6 sm:mb-8">
+            <p className="text-gray-600 text-xs sm:text-sm md:text-base mb-4 sm:mb-6 md:mb-8">
               If you still have questions?
             </p>
 
-            <button className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-mh-gradient text-mh-white text-sm sm:text-base font-semibold hover:opacity-90 transition">
+            <button className="px-5 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm md:text-base font-semibold hover:opacity-90 transition w-full sm:w-auto">
               Contact Us
             </button>
           </div>
 
           {/* RIGHT FAQ */}
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-2 sm:space-y-3 md:space-y-4">
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className={`rounded-xl sm:rounded-2xl border transition ${
+                className={`rounded-lg sm:rounded-xl md:rounded-2xl border transition ${
                   activeIndex === index
                     ? 'bg-green-50 border-green-100'
                     : 'bg-mh-white border-gray-200'
@@ -740,18 +738,18 @@ function HomePage() {
                   onClick={() =>
                     setActiveIndex(activeIndex === index ? -1 : index)
                   }
-                  className="w-full flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 text-left"
+                  className="w-full flex justify-between items-center px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-5 text-left"
                 >
-                  <span className="text-sm sm:text-base font-bold text-mh-dark pr-4">
+                  <span className="text-xs sm:text-sm md:text-base font-bold text-mh-dark pr-3 sm:pr-4">
                     {faq.question}
                   </span>
-                  <span className="text-lg sm:text-xl font-semibold flex-shrink-0">
+                  <span className="text-base sm:text-lg md:text-xl font-semibold flex-shrink-0">
                     {activeIndex === index ? '−' : '+'}
                   </span>
                 </button>
 
                 {activeIndex === index && faq.answer && (
-                  <div className="px-4 sm:px-6 pb-4 sm:pb-6 text-gray-600 text-xs sm:text-sm leading-relaxed">
+                  <div className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6 text-gray-600 text-[11px] sm:text-xs md:text-sm leading-relaxed">
                     {faq.answer}
                   </div>
                 )}
