@@ -19,10 +19,19 @@ exports.listAll = asyncHandler(async (req, res) => {
       { category: { $regex: search, $options: "i" } }
     ];
   }
-  if (isActive === "true") {
-    filter.isActive = true;
-  } else if (isActive === "false") {
+  // Filter by isActive status
+  // Default behavior: only show active tests (exclude deleted tests)
+  // "all" means show all tests (both active and inactive) - for admin to view deleted tests
+  if (isActive === "false") {
     filter.isActive = false;
+  } else if (isActive === "true") {
+    filter.isActive = true;
+  } else if (isActive === "all") {
+    // Show all tests (both active and inactive) - no filter applied
+    // This allows admin to see deleted tests when explicitly requested
+  } else {
+    // Default: show only active tests (exclude deleted tests) if parameter is not provided or invalid
+    filter.isActive = true;
   }
 
   const [tests, total] = await Promise.all([

@@ -7,7 +7,7 @@ function AdminAssessments() {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [isActiveFilter, setIsActiveFilter] = useState('');
+  const [isActiveFilter, setIsActiveFilter] = useState('true'); // Default to showing only active tests
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
   const [selectedTest, setSelectedTest] = useState(null);
@@ -62,7 +62,7 @@ function AdminAssessments() {
         page,
         limit: 20,
         ...(search && { search }),
-        ...(isActiveFilter && { isActive: isActiveFilter })
+        isActive: isActiveFilter // "true" for active, "false" for inactive, "all" for all
       };
       const response = await getAdminTests(params);
       if (response.success && response.data) {
@@ -514,7 +514,7 @@ function AdminAssessments() {
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
             >
-              <option value="">All Status</option>
+              <option value="all">All Status</option>
               <option value="true">Active</option>
               <option value="false">Inactive</option>
             </select>
