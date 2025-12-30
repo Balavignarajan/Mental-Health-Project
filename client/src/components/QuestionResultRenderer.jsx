@@ -63,7 +63,7 @@ function SubQuestionResultRenderer({ subQuestion, index, questionId, answers }) 
             key={option.value}
             option={option}
             questionId={subQId}
-            checked={answer === option.value}
+            checked={String(answer) === String(option.value)}
           />
         ))}
       </div>
@@ -97,7 +97,7 @@ function QuestionResultRenderer({ question, index, answers }) {
               key={option.value}
               option={option}
               questionId={questionId}
-              checked={answer === option.value}
+              checked={String(answer) === String(option.value)}
             />
           ))}
         </div>

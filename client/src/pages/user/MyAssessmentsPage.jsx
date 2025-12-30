@@ -111,7 +111,7 @@ function MyAssessmentsPage() {
 
   // Handle continue attempt
   const handleContinueAttempt = (testId) => {
-    navigate(`/test/${testId}`);
+    navigate(`/assessment-test/${testId}`);
   };
 
   // Format date

@@ -86,8 +86,8 @@ function App() {
         <Route path="/user/about" element={<Layout isLoggedIn={true}><AboutUsPage /></Layout>} />
         <Route path="/user/contact" element={<Layout isLoggedIn={true}><ContactUsPage /></Layout>} />
         <Route path="/my-assessments" element={<Layout isLoggedIn={true}><MyAssessmentsPage /></Layout>} />
-        <Route path="/assessment-test/:id" element={<Layout isLoggedIn={true} showHeaderFooter={false}><AssessmentTestPage /></Layout>} />
-        <Route path="/test-result/:id" element={<Layout isLoggedIn={true} showHeaderFooter={false}><AssessmentTestResultPage /></Layout>} />
+        <Route path="/assessment-test/:id" element={<Layout isLoggedIn={true}><AssessmentTestPage /></Layout>} />
+        <Route path="/test-result/:id" element={<Layout isLoggedIn={true}><AssessmentTestResultPage /></Layout>} />
         
         {/* Assessment Via Link Routes */}
         <Route path="/assessment-link" element={<Layout showHeaderFooter={false}><AssessmentViaLinkPage1 /></Layout>} />
