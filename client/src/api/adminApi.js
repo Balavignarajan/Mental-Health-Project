@@ -83,6 +83,42 @@ export const getLinkResults = async (linkId, params = {}) => {
 };
 
 /**
+ * Send assessment link via email (admin only)
+ * @param {string} linkId - Assessment link ID
+ * @param {string|string[]} recipientEmails - Single email or array of emails
+ * @param {string} customMessage - Optional custom message
+ * @returns {Promise} API response with sending results
+ */
+export const sendAssessmentLinkEmail = async (linkId, recipientEmails, customMessage = '') => {
+  const response = await axiosInstance.post(`/admin/assessment-links/${linkId}/send-email`, {
+    recipientEmails,
+    customMessage
+  });
+  return response.data;
+};
+
+/**
+ * Get email history for a specific assessment link (admin only)
+ * @param {string} linkId - Assessment link ID
+ * @param {Object} params - Query parameters (page, limit, status)
+ * @returns {Promise} API response with email history
+ */
+export const getLinkEmailHistory = async (linkId, params = {}) => {
+  const response = await axiosInstance.get(`/admin/assessment-links/${linkId}/email-history`, { params });
+  return response.data;
+};
+
+/**
+ * Get all email history across all assessment links (admin only)
+ * @param {Object} params - Query parameters (page, limit, status, linkId)
+ * @returns {Promise} API response with email history
+ */
+export const getAllEmailHistory = async (params = {}) => {
+  const response = await axiosInstance.get('/admin/assessment-links/email-history/all', { params });
+  return response.data;
+};
+
+/**
  * Get all users (admin only)
  * @param {Object} params - Query parameters (page, limit, search, role)
  * @returns {Promise} API response with users list

@@ -12,6 +12,37 @@ router.get(
   assessmentLinkController.getLinkResults
 );
 
+// Get email history for a specific assessment link (admin only) - Must be before /:linkId route
+router.get(
+  "/:linkId/email-history",
+  authMiddleware,
+  requireRole("admin"),
+  assessmentLinkController.getEmailHistory
+);
+
+// Send assessment link via email (admin only) - Must be before /:linkId route
+router.post(
+  "/:linkId/send-email",
+  authMiddleware,
+  requireRole("admin"),
+  validateBody(Joi.object({
+    recipientEmails: Joi.alternatives().try(
+      Joi.string().email(),
+      Joi.array().items(Joi.string().email()).min(1)
+    ).required(),
+    customMessage: Joi.string().allow("").optional()
+  })),
+  assessmentLinkController.sendEmail
+);
+
+// Get all email history (admin only) - Must be before / route
+router.get(
+  "/email-history/all",
+  authMiddleware,
+  requireRole("admin"),
+  assessmentLinkController.getAllEmailHistory
+);
+
 // Get all assessment links (admin only)
 router.get(
   "/",
