@@ -1,7 +1,9 @@
-import { useState, useLayoutEffect, useRef } from 'react';
+import { useState, useLayoutEffect, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
+import { getAllAssessments } from '../../api/assessmentApi';
+import { getImageUrl as getNormalizedImageUrl } from '../../utils/imageUtils';
 
 import heroImage from '../../assets/images/hero-home.png';
 import f1 from '../../assets/images/f1.png'
@@ -14,40 +16,70 @@ import soukya from '../../assets/images/soukya.png'
 gsap.registerPlugin(ScrollTrigger);
 
 function HomePage() {
-
+  const navigate = useNavigate();
   const sectionRef = useRef(null);
   const cardsRef = useRef([]);
+  const [featuredTests, setFeaturedTests] = useState([]);
+  const [allTests, setAllTests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const cards = [
-    {
-      title: "Anxiety Assessment",
-      description: "A quick screening that helps identify symptoms of excessive worry, tension, and emotional overwhelm.",
-      duration: "10–12 minutes",
-      questions: "20 questions",
-      image: f1,
-      bg: "#FBEBDC"
-    },
-    {
-      title: "Depression Screening",
-      description: "Evaluates mood patterns, motivation levels, and emotional well-being to detect signs of low mood or persistent sadness.",
-      duration: "10–12 minutes",
-      questions: "20 questions",
-      image: f2,
-      bg: "#D5DCEE"
-    },
-    {
-      title: "ADHD / Attention Difficulty Screening",
-      description: "Assesses focus, impulsivity, and attention-related challenges to support early understanding of ADHD-like symptoms.",
-      duration: "10–12 minutes",
-      questions: "20 questions",
-      image: f3,
-      bg: "#F7E3EE"
-    },
-  ];
+  // Background colors for featured cards (cycle through these)
+  const bgColors = ["#FBEBDC", "#D5DCEE", "#F7E3EE"];
+
+  // Fetch featured assessments
+  useEffect(() => {
+    fetchFeaturedAssessments();
+    fetchAllAssessments();
+  }, []);
+
+  const fetchFeaturedAssessments = async () => {
+    try {
+      const response = await getAllAssessments({ popularity: 'true', limit: 3 });
+      if (response.success && response.data) {
+        setFeaturedTests(response.data.slice(0, 3));
+      }
+    } catch (err) {
+      console.error('Error fetching featured assessments:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllAssessments = async () => {
+    try {
+      const response = await getAllAssessments({ limit: 6 });
+      if (response.success && response.data) {
+        setAllTests(response.data.slice(0, 6));
+      }
+    } catch (err) {
+      console.error('Error fetching all assessments:', err);
+    }
+  };
+
+  // Use the utility function for image URL normalization
+  // getNormalizedImageUrl is imported from utils/imageUtils
+
+  // Convert tests to cards format for GSAP animation
+  const cards = featuredTests.map((test, index) => ({
+    _id: test._id,
+    title: test.title,
+    description: test.shortDescription || test.longDescription || 'No description available',
+    duration: test.durationMinutesMin && test.durationMinutesMax
+      ? `${test.durationMinutesMin}–${test.durationMinutesMax} minutes`
+      : test.durationMinutesMin
+      ? `${test.durationMinutesMin} minutes`
+      : "10–12 minutes",
+    questions: test.questionsCount ? `${test.questionsCount} questions` : "20 questions",
+    image: getNormalizedImageUrl(test.imageUrl, f1),
+    bg: bgColors[index % bgColors.length]
+  }));
 
   useLayoutEffect(() => {
+    // Only setup GSAP if we have cards
+    if (cards.length === 0) return;
+
     const ctx = gsap.context(() => {
-      const els = cardsRef.current;
+      const els = cardsRef.current.filter(el => el !== null);
 
       // Setup with better initial positioning
       gsap.set(els, { 
@@ -57,32 +89,38 @@ function HomePage() {
       });
       
       // Initial states - cards stacked with depth
-      gsap.set(els[0], { 
-        y: 0, 
-        scale: 1, 
-        opacity: 1,
-        zIndex: 30,
-        rotateX: 0,
-        filter: "blur(0px)"
-      });
+      if (els[0]) {
+        gsap.set(els[0], { 
+          y: 0, 
+          scale: 1, 
+          opacity: 1,
+          zIndex: 30,
+          rotateX: 0,
+          filter: "blur(0px)"
+        });
+      }
       
-      gsap.set(els[1], { 
-        y: 40, 
-        scale: 0.96, 
-        opacity: 0.7,
-        zIndex: 20,
-        rotateX: 3,
-        filter: "blur(1px)"
-      });
+      if (els[1]) {
+        gsap.set(els[1], { 
+          y: 40, 
+          scale: 0.96, 
+          opacity: 0.7,
+          zIndex: 20,
+          rotateX: 3,
+          filter: "blur(1px)"
+        });
+      }
       
-      gsap.set(els[2], { 
-        y: 80, 
-        scale: 0.92, 
-        opacity: 0.4,
-        zIndex: 10,
-        rotateX: 6,
-        filter: "blur(2px)"
-      });
+      if (els[2]) {
+        gsap.set(els[2], { 
+          y: 80, 
+          scale: 0.92, 
+          opacity: 0.4,
+          zIndex: 10,
+          rotateX: 6,
+          filter: "blur(2px)"
+        });
+      }
 
       // Enhanced transition function with smoother animation
       const createTransition = (prevIndex, nextIndex) => {
@@ -153,9 +191,13 @@ function HomePage() {
         },
       });
 
-      // Add transitions with refined spacing
-      tl.add(createTransition(0, 1), "+=0.5");
-      tl.add(createTransition(1, 2), "+=0.5");
+      // Add transitions with refined spacing (only if we have enough cards)
+      if (els.length > 1) {
+        tl.add(createTransition(0, 1), "+=0.5");
+      }
+      if (els.length > 2) {
+        tl.add(createTransition(1, 2), "+=0.5");
+      }
       
       // Final hold
       tl.to({}, { duration: 1.5 });
@@ -163,18 +205,15 @@ function HomePage() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
-
-  const assessments = [
-    { img: f1 },
-    { img: f2 },
-    { img: f3 },
-    { img: f2 },
-    { img: f3 },
-    { img: f1 },
-  ];
+  }, [cards]);
 
   const [activeIndex, setActiveIndex] = useState(-1);
+
+  const handleCardClick = (testId) => {
+    if (testId) {
+      navigate(`/assessment-detail/${testId}`);
+    }
+  };
 
   const faqs = [
     {
@@ -284,7 +323,17 @@ function HomePage() {
 
           {/* Cards Container */}
           <div className="relative w-full h-[45vh] xs:h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[60vh] flex items-center justify-center" style={{ perspective: "1200px" }}>
-            {cards.map((card, i) => (
+            {loading ? (
+              <div className="text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-mh-green"></div>
+                <p className="mt-4 text-gray-600">Loading featured assessments...</p>
+              </div>
+            ) : cards.length === 0 ? (
+              <div className="text-center text-gray-600">
+                <p>No featured assessments available</p>
+              </div>
+            ) : (
+              cards.map((card, i) => (
               <div
                 key={i}
                 ref={(el) => (cardsRef.current[i] = el)}
@@ -317,7 +366,10 @@ function HomePage() {
                     </div>
                   </div>
 
-                  <button className="px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-full bg-mh-gradient text-mh-white text-sm  hover:opacity-90 transition">
+                  <button 
+                    onClick={() => handleCardClick(card._id)}
+                    className="px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-full bg-mh-gradient text-mh-white text-sm  hover:opacity-90 transition"
+                  >
                     View Details
                   </button>
                 </div>
@@ -331,10 +383,14 @@ function HomePage() {
                     src={card.image}
                     alt={card.title}
                     className="rounded-lg sm:rounded-xl md:rounded-2xl w-full h-[150px] xs:h-[180px] sm:h-[200px] md:h-[250px] lg:h-[300px] object-cover"
+                    onError={(e) => {
+                      e.target.src = f1;
+                    }}
                   />
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section> 
@@ -440,51 +496,71 @@ function HomePage() {
 
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
-            {assessments.map((item, index) => (
-              <div
-                key={index}
-                className="bg-mh-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition"
-              >
-                {/* Image */}
-                <div className="relative">
-                  <img
-                    src={item.img}
-                    alt="Assessment"
-                    className="w-full h-[160px] xs:h-[180px] sm:h-[200px] md:h-[220px] object-cover"
-                  />
+            {loading ? (
+              <div className="col-span-full text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-mh-green"></div>
+                <p className="mt-4 text-gray-600">Loading assessments...</p>
+              </div>
+            ) : allTests.length === 0 ? (
+              <div className="col-span-full text-center py-12 text-gray-600">
+                <p>No assessments available</p>
+              </div>
+            ) : (
+              allTests.map((test) => (
+                <div
+                  key={test._id}
+                  onClick={() => navigate(`/assessment-detail/${test._id}`)}
+                  className="bg-mh-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition cursor-pointer"
+                >
+                  {/* Image */}
+                  <div className="relative">
+                    <img
+                      src={getNormalizedImageUrl(test.imageUrl, f1)}
+                      alt={test.title}
+                      className="w-full h-[160px] xs:h-[180px] sm:h-[200px] md:h-[220px] object-cover"
+                      onError={(e) => {
+                        e.target.src = f1;
+                      }}
+                    />
 
-                  {/* Badge */}
-                  <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-mh-white text-[9px] sm:text-[10px] md:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full shadow">
-                    Research-Based
-                  </span>
-                </div>
+                    {/* Badge */}
+                    {test.tag && (
+                      <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-mh-white text-[9px] sm:text-[10px] md:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full shadow">
+                        {test.tag}
+                      </span>
+                    )}
+                  </div>
 
-                {/* Content */}
-                <div className="p-3 sm:p-4 md:p-5">
-                  <h3 className="text-xs sm:text-sm md:text-base font-semibold text-mh-dark mb-1.5 sm:mb-2">
-                    Anxiety Assessment
-                  </h3>
+                  {/* Content */}
+                  <div className="p-3 sm:p-4 md:p-5">
+                    <h3 className="text-xs sm:text-sm md:text-base font-semibold text-mh-dark mb-1.5 sm:mb-2">
+                      {test.title}
+                    </h3>
 
-                  <p className="text-[11px] sm:text-xs md:text-sm text-gray-600 mb-2 sm:mb-3 md:mb-4 line-clamp-2">
-                    A quick screening that helps identify symptoms of excessive
-                    worry, tension, and emotional overwhelm.
-                  </p>
+                    <p className="text-[11px] sm:text-xs md:text-sm text-gray-600 mb-2 sm:mb-3 md:mb-4 line-clamp-2">
+                      {test.shortDescription || test.longDescription || 'No description available'}
+                    </p>
 
-                  {/* Rating */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs md:text-sm">
-                    <span className="flex items-center gap-0.5 sm:gap-1 text-mh-green font-semibold">
-                      ⭐ 4.9
-                    </span>
-                    <span className="text-gray-500">190 Reviews</span>
+                    {/* Rating */}
+                    {test.popularityScore > 0 && (
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs md:text-sm">
+                        <span className="flex items-center gap-0.5 sm:gap-1 text-mh-green font-semibold">
+                          ⭐ {test.popularityScore.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Bottom CTA */}
           <div className="flex justify-center mt-6 sm:mt-8 md:mt-12 lg:mt-14">
-            <button className="px-6 sm:px-8 md:px-10 py-2 sm:py-2.5 md:py-3 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm md:text-base font-semibold hover:opacity-90 transition w-full sm:w-auto max-w-xs sm:max-w-none">
+            <button 
+              onClick={() => navigate('/assessments')}
+              className="px-6 sm:px-8 md:px-10 py-2 sm:py-2.5 md:py-3 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm md:text-base font-semibold hover:opacity-90 transition w-full sm:w-auto max-w-xs sm:max-w-none"
+            >
               View All Assessment
             </button>
           </div>

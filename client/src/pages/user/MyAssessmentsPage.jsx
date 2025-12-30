@@ -7,6 +7,7 @@ import f2 from '../../assets/images/f2.png';
 import Breadcrumb from '../../components/Breadcrumb';
 import { getMyResults, downloadReport, getOngoingAttempts } from '../../api/assessmentApi';
 import { getMe } from '../../api/authApi';
+import { getImageUrl } from '../../utils/imageUtils';
 
 function MyAssessmentsPage() {
   const [activeTab, setActiveTab] = useState('ongoing');
@@ -121,11 +122,8 @@ function MyAssessmentsPage() {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
-  // Get image URL or fallback
-  const getImageUrl = (imageUrl) => {
-    if (imageUrl) return imageUrl;
-    return f1; // Fallback to default image
-  };
+  // Use the utility function for image URL normalization
+  const getNormalizedImageUrl = (imageUrl) => getImageUrl(imageUrl, f1);
 
   // Get band color class
   const getBandColorClass = (band) => {
@@ -245,7 +243,7 @@ function MyAssessmentsPage() {
                   <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                     <div className="relative flex-shrink-0 self-center lg:self-start">
                       <img
-                        src={getImageUrl(test?.imageUrl)}
+                        src={getNormalizedImageUrl(test?.imageUrl)}
                         alt={test?.title || 'Assessment'}
                         className="w-full max-w-xs sm:w-48 lg:w-60 h-32 sm:h-36 lg:h-44 object-cover rounded-lg opacity-75"
                         onError={(e) => {
@@ -359,7 +357,7 @@ function MyAssessmentsPage() {
                   <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                     <div className="relative flex-shrink-0 self-center lg:self-start">
                       <img
-                        src={getImageUrl(test?.imageUrl)}
+                        src={getNormalizedImageUrl(test?.imageUrl)}
                         alt={test?.title || 'Assessment'}
                         className="w-full max-w-xs sm:w-48 lg:w-60 h-32 sm:h-36 lg:h-44 object-cover rounded-lg opacity-75"
                         onError={(e) => {

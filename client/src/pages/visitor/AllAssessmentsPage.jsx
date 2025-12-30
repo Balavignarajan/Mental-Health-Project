@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Breadcrumb from '../../components/Breadcrumb';
 import { getAllAssessments } from '../../api/assessmentApi';
+import { getImageUrl } from '../../utils/imageUtils';
 import f1 from '../../assets/images/f1.png'; // Fallback image
 
 function AllAssessmentsPage() {
@@ -53,6 +54,15 @@ function AllAssessmentsPage() {
       console.log('API Response:', response); // Debug log
       if (response.success) {
         const data = response.data || [];
+        // Debug: Log imageUrl for each test
+        if (Array.isArray(data) && data.length > 0) {
+          console.log('Sample test data with imageUrl:', data.slice(0, 2).map(t => ({
+            title: t.title,
+            imageUrl: t.imageUrl,
+            hasImageUrl: !!t.imageUrl,
+            _id: t._id
+          })));
+        }
         setAssessments(Array.isArray(data) ? data : []);
         if (data.length === 0) {
           console.log('No assessments found in database. Please create test data.');
@@ -121,11 +131,8 @@ function AllAssessmentsPage() {
     { value: 'paid', label: 'Paid Only' }
   ];
 
-  // Get image URL or fallback
-  const getImageUrl = (imageUrl) => {
-    if (imageUrl) return imageUrl;
-    return f1; // Fallback to default image
-  };
+  // Use the utility function for image URL normalization
+  const getNormalizedImageUrl = (imageUrl) => getImageUrl(imageUrl, f1);
 
   return (
     <section className="bg-mh-white py-12 sm:py-16 lg:py-20">
@@ -269,11 +276,24 @@ function AllAssessmentsPage() {
                   {/* Image */}
                   <div className="relative">
                     <img
-                      src={getImageUrl(test.imageUrl)}
+                      src={getNormalizedImageUrl(test.imageUrl)}
                       alt={test.title}
                       className="w-full h-[180px] sm:h-[200px] object-cover"
                       onError={(e) => {
-                        e.target.src = f1;
+                        // Only set fallback if we haven't already tried the fallback
+                        if (e.target.src !== f1 && !e.target.dataset.fallbackUsed) {
+                          console.error(`Image failed to load for test "${test.title}":`, {
+                            originalSrc: e.target.src,
+                            imageUrl: test.imageUrl
+                          });
+                          e.target.dataset.fallbackUsed = 'true';
+                          e.target.src = f1;
+                        }
+                      }}
+                      onLoad={() => {
+                        if (test.imageUrl) {
+                          console.log(`Image loaded successfully for test "${test.title}":`, test.imageUrl);
+                        }
                       }}
                     />
 

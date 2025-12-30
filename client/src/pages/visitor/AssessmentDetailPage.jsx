@@ -5,6 +5,7 @@ import { Star } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumb';
 import { getAssessmentById, getAllAssessments } from '../../api/assessmentApi';
 import { isAuthenticated } from '../../utils/auth';
+import { getImageUrl } from '../../utils/imageUtils';
 import f1 from '../../assets/images/f1.png'; // Fallback image
 import f2 from '../../assets/images/f2.png'; // Fallback image
 
@@ -111,11 +112,8 @@ function AssessmentDetailPage() {
     return { current: `$${price}`, original: null };
   };
 
-  // Get image URL or fallback
-  const getImageUrl = (imageUrl) => {
-    if (imageUrl) return imageUrl;
-    return f2; // Fallback to default image
-  };
+  // Use the utility function for image URL normalization
+  const getNormalizedImageUrl = (imageUrl) => getImageUrl(imageUrl, f2);
 
   const faqs = [
     {
@@ -169,7 +167,7 @@ function AssessmentDetailPage() {
             {/* Image */}
             <div>
               <img
-                src={getImageUrl(test.imageUrl)}
+                src={getNormalizedImageUrl(test.imageUrl)}
                 alt={test.title}
                 className="rounded-2xl w-full h-[300px] object-cover"
                 onError={(e) => {
@@ -256,7 +254,7 @@ function AssessmentDetailPage() {
                     >
                       <div className="flex gap-4">
                         <img
-                          src={getImageUrl(featuredTest.imageUrl)}
+                          src={getNormalizedImageUrl(featuredTest.imageUrl)}
                           alt={featuredTest.title}
                           className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
                           onError={(e) => {

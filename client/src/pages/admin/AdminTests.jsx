@@ -150,8 +150,11 @@ function AdminAssessments() {
       });
 
       if (response.data.success) {
-        setCreateForm({ ...createForm, imageUrl: response.data.data.imageUrl });
-        setImagePreview(response.data.data.imageUrl);
+        const uploadedImageUrl = response.data.data.imageUrl;
+        console.log('Image uploaded successfully, imageUrl:', uploadedImageUrl);
+        // Use functional update to ensure we get the latest state
+        setCreateForm(prev => ({ ...prev, imageUrl: uploadedImageUrl }));
+        setImagePreview(uploadedImageUrl);
         showToast.success('Image uploaded successfully!');
       } else {
         showToast.error(response.data.message || 'Failed to upload image');
@@ -180,11 +183,30 @@ function AdminAssessments() {
       return;
     }
 
+    // Check if user is still authenticated before creating
+    const { getAccessToken } = await import('../../utils/auth');
+    const token = getAccessToken();
+    if (!token) {
+      showToast.error('Session expired. Please log in again.');
+      setTimeout(() => {
+        window.location.href = '/admin-login';
+      }, 1500);
+      return;
+    }
+
     // Update questionsCount based on actual questions
     const formData = {
       ...createForm,
       questionsCount: createForm.schemaJson.questions.length
     };
+
+    // Debug: Log the formData to see if imageUrl is included
+    console.log('Creating test with formData:', {
+      title: formData.title,
+      imageUrl: formData.imageUrl,
+      hasImageUrl: !!formData.imageUrl,
+      tokenExists: !!token
+    });
 
     try {
       setCreating(true);
@@ -197,7 +219,22 @@ function AdminAssessments() {
       }
     } catch (error) {
       console.error('Failed to create test:', error);
-      showToast.error(error.response?.data?.message || 'Failed to create test');
+      console.error('Error details:', {
+        status: error.response?.status,
+        message: error.response?.data?.message,
+        url: error.config?.url
+      });
+      
+      // If 401, suggest re-login
+      if (error.response?.status === 401) {
+        showToast.error('Session expired. Please log in again.');
+        // The axios interceptor should handle redirect, but we can also do it here
+        setTimeout(() => {
+          window.location.href = '/admin-login';
+        }, 2000);
+      } else {
+        showToast.error(error.response?.data?.message || 'Failed to create test');
+      }
     } finally {
       setCreating(false);
     }

@@ -69,6 +69,13 @@ exports.create = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, message: "Title and schemaJson are required" });
   }
 
+  // Debug: Log imageUrl if present
+  if (testData.imageUrl) {
+    console.log('Creating test with imageUrl:', testData.imageUrl);
+  } else {
+    console.log('Creating test without imageUrl (imageUrl is:', testData.imageUrl, ')');
+  }
+
   const newTest = await Test.create(testData);
 
   await writeAudit({ userId: req.user._id, action: "ADMIN_CREATE_TEST", resourceType: "test", resourceId: String(newTest._id), req });

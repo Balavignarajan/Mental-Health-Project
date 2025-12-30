@@ -60,7 +60,21 @@ async function createApp() {
   app.use("/api/upload", uploadRoutes);
   
   // Serve uploaded files
-  app.use("/uploads", express.static(path.join(__dirname, "../../uploads")));
+  // Express static middleware automatically handles URL decoding (e.g., %20 -> space)
+  app.use("/uploads", express.static(path.join(__dirname, "../uploads"), {
+    setHeaders: (res, filePath) => {
+      // Ensure proper content-type headers for images
+      if (filePath.endsWith('.png')) {
+        res.setHeader('Content-Type', 'image/png');
+      } else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
+        res.setHeader('Content-Type', 'image/jpeg');
+      } else if (filePath.endsWith('.gif')) {
+        res.setHeader('Content-Type', 'image/gif');
+      } else if (filePath.endsWith('.webp')) {
+        res.setHeader('Content-Type', 'image/webp');
+      }
+    }
+  }));
 
   // Frontend serving
   if (cfg.NODE_ENV === "development") {
@@ -75,7 +89,8 @@ async function createApp() {
     });
     
     app.use((req, res, next) => {
-      if (req.originalUrl.startsWith('/api/')) {
+      // Skip Vite middleware for API routes and uploaded files
+      if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/uploads/')) {
         return next();
       }
       vite.middlewares(req, res, next);
