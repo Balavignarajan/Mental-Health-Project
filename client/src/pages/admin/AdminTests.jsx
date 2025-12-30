@@ -13,6 +13,8 @@ function AdminAssessments() {
   const [selectedTest, setSelectedTest] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [testIdToDelete, setTestIdToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [createForm, setCreateForm] = useState({
     title: '',
     category: '',
@@ -100,19 +102,55 @@ function AdminAssessments() {
     }
   };
 
-  const handleDeleteTest = async (testId) => {
-    if (!window.confirm('Are you sure you want to delete this test? This will deactivate it.')) {
-      return;
-    }
+  const handleDeleteClick = (testId) => {
+    setTestIdToDelete(testId);
+  };
+
+  const handleDeleteCancel = () => {
+    setTestIdToDelete(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!testIdToDelete) return;
+    
+    const testId = testIdToDelete;
     try {
+      setDeleting(true);
       const response = await deleteTest(testId);
       if (response.success) {
+        // Immediately remove the test from UI for better UX
+        setTests(prevTests => {
+          const updatedTests = prevTests.filter(test => test._id !== testId);
+          
+          // If current page becomes empty and there are previous pages, navigate back
+          if (updatedTests.length === 0 && page > 1) {
+            setPage(page - 1);
+          }
+          
+          return updatedTests;
+        });
+        
+        // Update pagination total count
+        setPagination(prev => {
+          const newTotal = Math.max(0, prev.total - 1);
+          const newPages = Math.ceil(newTotal / prev.limit) || 1;
+          return {
+            ...prev,
+            total: newTotal,
+            pages: newPages
+          };
+        });
+        
+        setTestIdToDelete(null);
         showToast.success('Test deleted successfully!');
-        fetchTests();
       }
     } catch (error) {
       console.error('Failed to delete test:', error);
       showToast.error('Failed to delete test');
+      // Refetch on error to ensure UI is in sync
+      fetchTests();
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -501,7 +539,7 @@ function AdminAssessments() {
                   {test.isActive ? 'Deactivate' : 'Activate'}
                 </button>
                 <button
-                  onClick={() => handleDeleteTest(test._id)}
+                  onClick={() => handleDeleteClick(test._id)}
                   className="bg-red-100 text-red-800 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors text-sm"
                 >
                   Delete
@@ -1200,6 +1238,52 @@ function AdminAssessments() {
                   className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
                 >
                   Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {testIdToDelete && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+          <div className="relative mx-auto p-6 border w-full max-w-sm shadow-xl rounded-lg bg-white">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Delete Assessment?
+              </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                This will deactivate the assessment and it will no longer be visible to users. This action cannot be undone.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={handleDeleteCancel}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteConfirm}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                >
+                  {deleting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete'
+                  )}
                 </button>
               </div>
             </div>
