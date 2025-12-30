@@ -391,7 +391,7 @@ function AdminAssessments() {
             resetCreateForm();
             setShowCreateModal(true);
           }}
-          className="bg-mh-green text-white px-6 py-2 rounded-lg hover:bg-[#027a4f] transition-colors"
+          className="bg-mh-gradient text-white px-6 py-2 rounded-lg hover:opacity-90 transition-colors"
         >
           Create Assessment
         </button>
@@ -425,7 +425,7 @@ function AdminAssessments() {
           </div>
           <button
             type="submit"
-            className="bg-mh-green text-white px-6 py-2 rounded-lg hover:bg-[#027a4f] transition-colors"
+            className="bg-mh-gradient text-white px-6 py-2 rounded-lg hover:opacity-90 transition-colors"
           >
             Search
           </button>
@@ -557,7 +557,7 @@ function AdminAssessments() {
                       onClick={() => setPage(pageNum)}
                       className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                         page === pageNum
-                          ? 'z-10 bg-mh-green border-mh-green text-white'
+                          ? 'z-10 bg-mh-gradient border-mh-green text-white'
                           : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                       }`}
                     >
@@ -1014,7 +1014,7 @@ function AdminAssessments() {
                             <button
                               type="button"
                               onClick={addOption}
-                              className="bg-mh-green text-white px-4 py-1 rounded text-sm hover:bg-[#027a4f] transition-colors"
+                              className="bg-mh-gradient text-white px-4 py-1 rounded text-sm hover:opacity-90 transition-colors"
                             >
                               Add Option
                             </button>
@@ -1038,7 +1038,7 @@ function AdminAssessments() {
                           type="button"
                           onClick={addQuestion}
                           disabled={!currentQuestion.id || !currentQuestion.text.trim() || currentQuestion.options.length < 2}
-                          className="w-full bg-mh-green text-white px-4 py-3 rounded-lg hover:bg-[#027a4f] transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                          className="w-full bg-mh-gradient text-white px-4 py-3 rounded-lg hover:opacity-90 transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                         >
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -1114,7 +1114,7 @@ function AdminAssessments() {
                   <button
                     type="submit"
                     disabled={creating || createForm.schemaJson.questions.length === 0}
-                    className="bg-mh-green text-white px-6 py-2 rounded-lg hover:bg-[#027a4f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                    className="bg-mh-gradient text-white px-6 py-2 rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                   >
                     {creating ? (
                       <>

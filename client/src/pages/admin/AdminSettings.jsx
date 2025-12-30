@@ -69,7 +69,7 @@ function AdminSettings() {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-mh-green text-white px-6 py-2 rounded-lg hover:bg-[#027a4f] transition-colors"
+              className="bg-mh-gradient text-white px-6 py-2 rounded-lg hover:opacity-90 transition-colors"
             >
               Save Settings
             </button>

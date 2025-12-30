@@ -106,7 +106,7 @@ function AdminUsers() {
           </div>
           <button
             type="submit"
-            className="bg-mh-green text-white px-6 py-2 rounded-lg hover:bg-[#027a4f] transition-colors"
+            className="bg-mh-gradient text-white px-6 py-2 rounded-lg hover:opacity-90 transition-colors"
           >
             Search
           </button>
@@ -230,7 +230,7 @@ function AdminUsers() {
                       onClick={() => setPage(i + 1)}
                       className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                         page === i + 1
-                          ? 'z-10 bg-mh-green border-mh-green text-white'
+                          ? 'z-10 bg-mh-gradient border-mh-green text-white'
                           : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                       }`}
                     >
