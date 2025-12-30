@@ -11,6 +11,8 @@ const REFRESH_TOKEN_KEY = 'refreshToken';
 export const setTokens = (accessToken, refreshToken) => {
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  // Dispatch custom event for auth change
+  window.dispatchEvent(new Event('auth-change'));
 };
 
 /**
@@ -35,6 +37,8 @@ export const getRefreshToken = () => {
 export const clearTokens = () => {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+  // Dispatch custom event for auth change
+  window.dispatchEvent(new Event('auth-change'));
 };
 
 /**

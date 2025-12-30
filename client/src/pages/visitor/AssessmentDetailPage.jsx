@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Star } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumb';
 import { getAssessmentById, getAllAssessments } from '../../api/assessmentApi';
+import { isAuthenticated } from '../../utils/auth';
 import f1 from '../../assets/images/f1.png'; // Fallback image
 import f2 from '../../assets/images/f2.png'; // Fallback image
 
@@ -14,11 +15,34 @@ function AssessmentDetailPage() {
   const [featuredTests, setFeaturedTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
-  const location = useLocation();
   const navigate = useNavigate();
   const { id: testId } = useParams();
-  const isLoggedIn = location.pathname.startsWith('/user');
+
+  useEffect(() => {
+    // Check authentication status
+    setIsLoggedIn(isAuthenticated());
+    
+    // Listen for storage changes (when user logs in/out)
+    const handleStorageChange = (e) => {
+      if (e.key === 'accessToken' || e.key === null) {
+        setIsLoggedIn(isAuthenticated());
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Check periodically (in case token was set in same tab)
+    const interval = setInterval(() => {
+      setIsLoggedIn(isAuthenticated());
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     if (testId) {
@@ -63,6 +87,13 @@ function AssessmentDetailPage() {
   };
 
   const handleBuyNow = () => {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      // Redirect to login with return URL
+      navigate('/login', { state: { returnTo: `/assessment-test/${testId}` } });
+      return;
+    }
+
     if (test?.price === 0 || !test?.price) {
       // Free test - navigate to start attempt
       navigate(`/assessment-test/${testId}`);

@@ -62,7 +62,7 @@ function App() {
         }}
       />
       <Routes>
-        {/* Visitor Routes */}
+        {/* Public Routes - Header determined by auth status */}
         <Route path="/" element={<Layout><HomePage /></Layout>} />
         <Route path="/assessments" element={<Layout><AllAssessmentsPage /></Layout>} />
         <Route path="/assessment-detail/:id" element={<Layout><AssessmentDetailPage /></Layout>} />
