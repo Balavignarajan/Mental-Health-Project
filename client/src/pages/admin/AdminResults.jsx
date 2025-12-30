@@ -139,10 +139,14 @@ function AdminResults() {
                   <tr key={result._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {result.userId?.email || 'N/A'}
+                        {result.userId?.email || (result.linkToken ? 'Anonymous (Link)' : 'Anonymous')}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {result.userId?.firstName || ''} {result.userId?.lastName || ''}
+                        {result.userId ? (
+                          `${result.userId.firstName || ''} ${result.userId.lastName || ''}`.trim() || 'N/A'
+                        ) : (
+                          result.linkToken ? `Link: ${result.linkToken.substring(0, 12)}...` : 'No user info'
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -276,10 +280,14 @@ function AdminResults() {
                   <div>
                     <label className="text-sm font-medium text-gray-700">User</label>
                     <p className="text-sm text-gray-900">
-                      {selectedResult.userId?.email || 'N/A'}
+                      {selectedResult.userId?.email || (selectedResult.linkToken ? 'Anonymous (Link)' : 'Anonymous')}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {selectedResult.userId?.firstName || ''} {selectedResult.userId?.lastName || ''}
+                      {selectedResult.userId ? (
+                        `${selectedResult.userId.firstName || ''} ${selectedResult.userId.lastName || ''}`.trim() || 'N/A'
+                      ) : (
+                        selectedResult.linkToken ? `Link Token: ${selectedResult.linkToken}` : 'No user info'
+                      )}
                     </p>
                   </div>
                   <div>

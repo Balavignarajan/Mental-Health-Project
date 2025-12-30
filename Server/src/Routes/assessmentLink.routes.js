@@ -4,6 +4,14 @@ const { authMiddleware, requireRole } = require("../middleware/auth.middleware")
 const { validateBody } = require("../middleware/validate.middleware");
 const assessmentLinkController = require("../controller/assessmentLink.controller");
 
+// Get results for a specific assessment link (admin only) - Must be before /:linkId route
+router.get(
+  "/:linkId/results",
+  authMiddleware,
+  requireRole("admin"),
+  assessmentLinkController.getLinkResults
+);
+
 // Get all assessment links (admin only)
 router.get(
   "/",

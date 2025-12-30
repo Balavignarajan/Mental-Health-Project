@@ -161,7 +161,7 @@ exports.listResults = asyncHandler(async (req, res) => {
     Result.find(filter)
       .populate("userId", "email firstName lastName")
       .populate("testId", "title category")
-      .populate("attemptId", "startedAt submittedAt")
+      .populate("attemptId", "startedAt submittedAt linkToken")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
@@ -169,13 +169,14 @@ exports.listResults = asyncHandler(async (req, res) => {
     Result.countDocuments(filter)
   ]);
 
-  // Filter by search if provided (search in user email, test title)
+  // Filter by search if provided (search in user email, test title, linkToken)
   let filteredResults = results;
   if (search) {
     const searchLower = search.toLowerCase();
     filteredResults = results.filter(r => 
       (r.userId?.email && r.userId.email.toLowerCase().includes(searchLower)) ||
-      (r.testId?.title && r.testId.title.toLowerCase().includes(searchLower))
+      (r.testId?.title && r.testId.title.toLowerCase().includes(searchLower)) ||
+      (r.linkToken && r.linkToken.toLowerCase().includes(searchLower))
     );
   }
 

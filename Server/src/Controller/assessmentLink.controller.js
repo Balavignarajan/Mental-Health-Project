@@ -113,3 +113,51 @@ exports.list = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * Get results for a specific assessment link (admin only)
+ */
+exports.getLinkResults = asyncHandler(async (req, res) => {
+  const { Result } = require("../model/Result");
+  const { linkId } = req.params;
+  const { page = 1, limit = 20 } = req.query;
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+  const skip = (pageNum - 1) * limitNum;
+
+  // Find the assessment link first
+  const linkDoc = await AssessmentLink.findById(linkId);
+  if (!linkDoc) {
+    return res.status(404).json({ success: false, message: "Assessment link not found" });
+  }
+
+  // Find all results for this link token
+  const filter = { linkToken: linkDoc.linkToken };
+
+  const [results, total] = await Promise.all([
+    Result.find(filter)
+      .populate("testId", "title category")
+      .populate("attemptId", "startedAt submittedAt answers")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean(),
+    Result.countDocuments(filter)
+  ]);
+
+  return ok(res, "Link results", {
+    results,
+    link: {
+      _id: linkDoc._id,
+      linkToken: linkDoc.linkToken,
+      campaignName: linkDoc.campaignName,
+      currentAttempts: linkDoc.currentAttempts
+    },
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      pages: Math.ceil(total / limitNum)
+    }
+  });
+});
+

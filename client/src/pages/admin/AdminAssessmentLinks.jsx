@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAssessmentLinks, createAssessmentLink, getAdminTests } from '../../api/adminApi';
+import { getAssessmentLinks, createAssessmentLink, getAdminTests, getLinkResults } from '../../api/adminApi';
 import { showToast } from '../../utils/toast';
 
 function AdminAssessmentLinks() {
@@ -18,6 +18,12 @@ function AdminAssessmentLinks() {
     maxAttempts: ''
   });
   const [createdLink, setCreatedLink] = useState(null);
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [selectedLink, setSelectedLink] = useState(null);
+  const [linkResults, setLinkResults] = useState([]);
+  const [loadingResults, setLoadingResults] = useState(false);
+  const [resultsPage, setResultsPage] = useState(1);
+  const [resultsPagination, setResultsPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
 
   useEffect(() => {
     fetchLinks();
@@ -98,6 +104,51 @@ function AdminAssessmentLinks() {
     }).catch(() => {
       showToast.error('Failed to copy link');
     });
+  };
+
+  const handleViewResults = async (link) => {
+    try {
+      setSelectedLink(link);
+      setShowResultsModal(true);
+      setLoadingResults(true);
+      setResultsPage(1);
+      
+      const response = await getLinkResults(link._id, { page: 1, limit: 20 });
+      if (response.success && response.data) {
+        setLinkResults(response.data.results || []);
+        setResultsPagination(response.data.pagination || {});
+      }
+    } catch (error) {
+      console.error('Failed to fetch link results:', error);
+      showToast.error('Failed to load results');
+    } finally {
+      setLoadingResults(false);
+    }
+  };
+
+  const fetchLinkResults = async (linkId, pageNum) => {
+    try {
+      setLoadingResults(true);
+      const response = await getLinkResults(linkId, { page: pageNum, limit: 20 });
+      if (response.success && response.data) {
+        setLinkResults(response.data.results || []);
+        setResultsPagination(response.data.pagination || {});
+      }
+    } catch (error) {
+      console.error('Failed to fetch link results:', error);
+      showToast.error('Failed to load results');
+    } finally {
+      setLoadingResults(false);
+    }
+  };
+
+  const getBandColorClass = (band) => {
+    if (!band) return 'bg-gray-100 text-gray-700';
+    const bandLower = band.toLowerCase();
+    if (bandLower.includes('low')) return 'bg-green-100 text-green-700';
+    if (bandLower.includes('moderate') || bandLower.includes('medium')) return 'bg-orange-100 text-orange-700';
+    if (bandLower.includes('high') || bandLower.includes('severe')) return 'bg-red-100 text-red-700';
+    return 'bg-gray-100 text-gray-700';
   };
 
   const formatDate = (dateString) => {
@@ -220,12 +271,20 @@ function AdminAssessmentLinks() {
                       {new Date(link.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() => handleCopyLink(link.linkToken)}
-                        className="text-mh-green hover:text-green-700 font-medium"
-                      >
-                        Copy Link
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => handleViewResults(link)}
+                          className="text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          View Results
+                        </button>
+                        <button
+                          onClick={() => handleCopyLink(link.linkToken)}
+                          className="text-mh-green hover:text-green-700 font-medium"
+                        >
+                          Copy Link
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -388,6 +447,148 @@ function AdminAssessmentLinks() {
                   </div>
                 </form>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Results Modal */}
+      {showResultsModal && selectedLink && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-mh-dark">Assessment Link Results</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {selectedLink.campaignName || 'No campaign name'} - {selectedLink.testId?.title || 'N/A'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Total Participants: {selectedLink.currentAttempts || 0} | 
+                    Completed: {linkResults.length > 0 ? resultsPagination.total : 0}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowResultsModal(false);
+                    setSelectedLink(null);
+                    setLinkResults([]);
+                    setResultsPage(1);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              {loadingResults ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-mh-green mb-4"></div>
+                    <p className="text-gray-600">Loading results...</p>
+                  </div>
+                </div>
+              ) : linkResults.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">No results found for this assessment link</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Score</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Band</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Risk Flags</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Completed</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {linkResults.map((result) => (
+                          <tr key={result._id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <div className="text-sm font-semibold text-mh-dark">{result.score || 0}</div>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              {result.band ? (
+                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getBandColorClass(result.band)}`}>
+                                  {result.band}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-gray-500">-</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              {result.riskFlags && Object.keys(result.riskFlags).length > 0 ? (
+                                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                  {Object.keys(result.riskFlags).length} flag(s)
+                                </span>
+                              ) : (
+                                <span className="text-xs text-gray-500">None</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                              {result.createdAt ? new Date(result.createdAt).toLocaleString() : '-'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination */}
+                  {resultsPagination.pages > 1 && (
+                    <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                      <div className="text-sm text-gray-700">
+                        Showing {((resultsPagination.page - 1) * resultsPagination.limit) + 1} to {Math.min(resultsPagination.page * resultsPagination.limit, resultsPagination.total)} of {resultsPagination.total} results
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            const newPage = resultsPage - 1;
+                            setResultsPage(newPage);
+                            fetchLinkResults(selectedLink._id, newPage);
+                          }}
+                          disabled={resultsPage === 1}
+                          className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        >
+                          Previous
+                        </button>
+                        <button
+                          onClick={() => {
+                            const newPage = resultsPage + 1;
+                            setResultsPage(newPage);
+                            fetchLinkResults(selectedLink._id, newPage);
+                          }}
+                          disabled={resultsPage >= resultsPagination.pages}
+                          className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex justify-end">
+              <button
+                onClick={() => {
+                  setShowResultsModal(false);
+                  setSelectedLink(null);
+                  setLinkResults([]);
+                  setResultsPage(1);
+                }}
+                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

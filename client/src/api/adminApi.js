@@ -72,6 +72,17 @@ export const createAssessmentLink = async (data) => {
 };
 
 /**
+ * Get results for a specific assessment link (admin only)
+ * @param {string} linkId - Assessment link ID
+ * @param {Object} params - Query parameters (page, limit)
+ * @returns {Promise} API response with results list
+ */
+export const getLinkResults = async (linkId, params = {}) => {
+  const response = await axiosInstance.get(`/admin/assessment-links/${linkId}/results`, { params });
+  return response.data;
+};
+
+/**
  * Get all users (admin only)
  * @param {Object} params - Query parameters (page, limit, search, role)
  * @returns {Promise} API response with users list
