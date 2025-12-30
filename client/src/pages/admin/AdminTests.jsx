@@ -13,6 +13,7 @@ function AdminAssessments() {
   const [selectedTest, setSelectedTest] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingTestId, setEditingTestId] = useState(null);
   const [testIdToDelete, setTestIdToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [createForm, setCreateForm] = useState({
@@ -85,6 +86,57 @@ function AdminAssessments() {
       }
     } catch (error) {
       console.error('Failed to load test:', error);
+      showToast.error('Failed to load test details');
+    }
+  };
+
+  const handleEditTest = async (testId) => {
+    try {
+      const response = await getAdminTestById(testId);
+      if (response.success && response.data) {
+        const testData = response.data;
+        // Populate form with existing test data
+        setCreateForm({
+          title: testData.title || '',
+          category: testData.category || '',
+          shortDescription: testData.shortDescription || '',
+          longDescription: testData.longDescription || '',
+          durationMinutesMin: testData.durationMinutesMin || 10,
+          durationMinutesMax: testData.durationMinutesMax || 12,
+          questionsCount: testData.questionsCount || 0,
+          price: testData.price || 0,
+          mrp: testData.mrp || 0,
+          imageUrl: testData.imageUrl || '',
+          tag: testData.tag || 'Research-Based',
+          timeLimitSeconds: testData.timeLimitSeconds || 0,
+          isActive: testData.isActive !== undefined ? testData.isActive : true,
+          popularityScore: testData.popularityScore || 0,
+          schemaJson: testData.schemaJson || { questions: [] },
+          eligibilityRules: testData.eligibilityRules || {},
+          scoringRules: testData.scoringRules || {},
+          riskRules: testData.riskRules || {}
+        });
+        setImagePreview(testData.imageUrl || '');
+        setEditingTestId(testId);
+        // Reset current question form for adding new questions
+        const questions = testData.schemaJson?.questions || [];
+        const nextId = `q${questions.length + 1}`;
+        const nextOrder = questions.length + 1;
+        setCurrentQuestion({
+          id: nextId,
+          text: '',
+          type: 'radio',
+          required: true,
+          order: nextOrder,
+          isCritical: false,
+          helpText: '',
+          options: []
+        });
+        setCurrentOption({ value: '', label: '' });
+        setShowCreateModal(true);
+      }
+    } catch (error) {
+      console.error('Failed to load test for editing:', error);
       showToast.error('Failed to load test details');
     }
   };
@@ -221,7 +273,7 @@ function AdminAssessments() {
       return;
     }
 
-    // Check if user is still authenticated before creating
+    // Check if user is still authenticated
     const { getAccessToken } = await import('../../utils/auth');
     const token = getAccessToken();
     if (!token) {
@@ -238,25 +290,30 @@ function AdminAssessments() {
       questionsCount: createForm.schemaJson.questions.length
     };
 
-    // Debug: Log the formData to see if imageUrl is included
-    console.log('Creating test with formData:', {
-      title: formData.title,
-      imageUrl: formData.imageUrl,
-      hasImageUrl: !!formData.imageUrl,
-      tokenExists: !!token
-    });
-
     try {
       setCreating(true);
-      const response = await createTest(formData);
-      if (response.success) {
-        showToast.success('Test created successfully!');
-        setShowCreateModal(false);
-        resetCreateForm();
-        fetchTests();
+      let response;
+      if (editingTestId) {
+        // Update existing test
+        response = await updateTest(editingTestId, formData);
+        if (response.success) {
+          showToast.success('Test updated successfully!');
+          setShowCreateModal(false);
+          resetCreateForm();
+          fetchTests();
+        }
+      } else {
+        // Create new test
+        response = await createTest(formData);
+        if (response.success) {
+          showToast.success('Test created successfully!');
+          setShowCreateModal(false);
+          resetCreateForm();
+          fetchTests();
+        }
       }
     } catch (error) {
-      console.error('Failed to create test:', error);
+      console.error(`Failed to ${editingTestId ? 'update' : 'create'} test:`, error);
       console.error('Error details:', {
         status: error.response?.status,
         message: error.response?.data?.message,
@@ -266,12 +323,11 @@ function AdminAssessments() {
       // If 401, suggest re-login
       if (error.response?.status === 401) {
         showToast.error('Session expired. Please log in again.');
-        // The axios interceptor should handle redirect, but we can also do it here
         setTimeout(() => {
           window.location.href = '/admin-login';
         }, 2000);
       } else {
-        showToast.error(error.response?.data?.message || 'Failed to create test');
+        showToast.error(error.response?.data?.message || `Failed to ${editingTestId ? 'update' : 'create'} test`);
       }
     } finally {
       setCreating(false);
@@ -300,6 +356,7 @@ function AdminAssessments() {
       riskRules: {}
     });
     setImagePreview('');
+    setEditingTestId(null);
     setCurrentQuestion({
       id: 'q1',
       text: '',
@@ -427,6 +484,7 @@ function AdminAssessments() {
         <button
           onClick={() => {
             resetCreateForm();
+            setEditingTestId(null);
             setShowCreateModal(true);
           }}
           className="bg-mh-gradient text-white px-6 py-2 rounded-lg hover:opacity-90 transition-colors"
@@ -529,6 +587,12 @@ function AdminAssessments() {
                   View
                 </button>
                 <button
+                  onClick={() => handleEditTest(test._id)}
+                  className="flex-1 bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors text-sm"
+                >
+                  Edit
+                </button>
+                <button
                   onClick={() => handleToggleActive(test)}
                   className={`flex-1 px-4 py-2 rounded-lg transition-colors text-sm ${
                     test.isActive
@@ -622,7 +686,9 @@ function AdminAssessments() {
           <div className="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white mb-10">
             <div className="mt-3">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-2xl font-semibold text-mh-dark">Create New Assessment</h3>
+                <h3 className="text-2xl font-semibold text-mh-dark">
+                  {editingTestId ? 'Edit Assessment' : 'Create New Assessment'}
+                </h3>
                 <button
                   onClick={() => {
                     setShowCreateModal(false);
@@ -1157,10 +1223,10 @@ function AdminAssessments() {
                     {creating ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        <span>Creating...</span>
+                        <span>{editingTestId ? 'Updating...' : 'Creating...'}</span>
                       </>
                     ) : (
-                      <span>Create Assessment</span>
+                      <span>{editingTestId ? 'Update Assessment' : 'Create Assessment'}</span>
                     )}
                   </button>
                 </div>
