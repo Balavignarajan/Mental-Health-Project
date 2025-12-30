@@ -213,9 +213,9 @@ function AdminLayout({ children }) {
               <span>Users</span>
             </Link>
             <Link
-              to="/admin/tests"
+              to="/admin/assessments"
               className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive('/admin/tests')
+                isActive('/admin/assessments')
                   ? 'bg-[#E8F1EE] text-mh-green font-semibold'
                   : 'text-mh-dark hover:bg-gray-50'
               }`}
@@ -223,7 +223,20 @@ function AdminLayout({ children }) {
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              <span>Tests</span>
+              <span>Assessments</span>
+            </Link>
+            <Link
+              to="/admin/results"
+              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive('/admin/results')
+                  ? 'bg-[#E8F1EE] text-mh-green font-semibold'
+                  : 'text-mh-dark hover:bg-gray-50'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Assessment Results</span>
             </Link>
             <Link
               to="/admin/settings"

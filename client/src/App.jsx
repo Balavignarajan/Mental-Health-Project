@@ -34,7 +34,8 @@ import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminReports from './pages/admin/AdminReports';
 import AdminUsers from './pages/admin/AdminUsers';
-import AdminTests from './pages/admin/AdminTests';
+import AdminAssessments from './pages/admin/AdminTests';
+import AdminResults from './pages/admin/AdminResults';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminRoute from './components/AdminRoute';
 import AdminLayout from './components/AdminLayout';
@@ -140,11 +141,21 @@ function App() {
           } 
         />
         <Route 
-          path="/admin/tests" 
+          path="/admin/assessments" 
           element={
             <AdminRoute>
               <AdminLayout>
-                <AdminTests />
+                <AdminAssessments />
+              </AdminLayout>
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/admin/results" 
+          element={
+            <AdminRoute>
+              <AdminLayout>
+                <AdminResults />
               </AdminLayout>
             </AdminRoute>
           } 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAdminTests, getAdminTestById, updateTest, deleteTest, createTest } from '../../api/adminApi';
 import { showToast } from '../../utils/toast';
 
-function AdminTests() {
+function AdminAssessments() {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -36,8 +36,11 @@ function AdminTests() {
   const [currentQuestion, setCurrentQuestion] = useState({
     id: '',
     text: '',
-    type: 'radio',
+    type: 'radio', // Fixed to radio only
     required: true,
+    order: 1,
+    isCritical: false,
+    helpText: '',
     options: []
   });
   const [currentOption, setCurrentOption] = useState({ value: '', label: '' });
@@ -177,8 +180,11 @@ function AdminTests() {
     setCurrentQuestion({
       id: 'q1',
       text: '',
-      type: 'radio',
+      type: 'radio', // Fixed to radio only
       required: true,
+      order: 1,
+      isCritical: false,
+      helpText: '',
       options: []
     });
     setCurrentOption({ value: '', label: '' });
@@ -190,31 +196,47 @@ function AdminTests() {
       return;
     }
 
-    if (currentQuestion.type === 'radio' && currentQuestion.options.length < 2) {
-      showToast.error('Radio questions need at least 2 options');
+    if (currentQuestion.options.length < 2) {
+      showToast.error('At least 2 options with scores are required');
+      return;
+    }
+
+    // Validate that all options have numeric scores
+    const invalidOptions = currentQuestion.options.filter(opt => 
+      opt.value === null || opt.value === undefined || opt.value === '' || isNaN(Number(opt.value))
+    );
+    if (invalidOptions.length > 0) {
+      showToast.error('All options must have valid numeric scores');
       return;
     }
 
     const newQuestion = {
       ...currentQuestion,
-      options: currentQuestion.type === 'radio' ? [...currentQuestion.options] : []
+      options: [...currentQuestion.options] // Always radio, so always include options
     };
+
+    // Add question and sort by order
+    const updatedQuestions = [...createForm.schemaJson.questions, newQuestion].sort((a, b) => (a.order || 0) - (b.order || 0));
 
     setCreateForm({
       ...createForm,
       schemaJson: {
         ...createForm.schemaJson,
-        questions: [...createForm.schemaJson.questions, newQuestion]
+        questions: updatedQuestions
       }
     });
 
     // Reset question form
     const nextId = `q${createForm.schemaJson.questions.length + 2}`;
+    const nextOrder = createForm.schemaJson.questions.length + 1;
     setCurrentQuestion({
       id: nextId,
       text: '',
-      type: 'radio',
+      type: 'radio', // Fixed to radio only
       required: true,
+      order: nextOrder,
+      isCritical: false,
+      helpText: '',
       options: []
     });
     setCurrentOption({ value: '', label: '' });
@@ -270,8 +292,8 @@ function AdminTests() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-mh-dark">Tests</h1>
-          <p className="text-gray-600 mt-1">Manage mental health assessments</p>
+          <h1 className="text-3xl font-bold text-mh-dark">Assessments</h1>
+          <p className="text-gray-600 mt-1">Create and manage mental health assessments</p>
         </div>
         <button
           onClick={() => {
@@ -280,7 +302,7 @@ function AdminTests() {
           }}
           className="bg-mh-green text-white px-6 py-2 rounded-lg hover:bg-[#027a4f] transition-colors"
         >
-          Create Test
+          Create Assessment
         </button>
       </div>
 
@@ -471,7 +493,7 @@ function AdminTests() {
           <div className="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white mb-10">
             <div className="mt-3">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-2xl font-semibold text-mh-dark">Create New Test</h3>
+                <h3 className="text-2xl font-semibold text-mh-dark">Create New Assessment</h3>
                 <button
                   onClick={() => {
                     setShowCreateModal(false);
@@ -642,7 +664,7 @@ function AdminTests() {
                   <div className="bg-gray-50 p-4 rounded-lg mb-4">
                     <h5 className="text-sm font-semibold text-gray-700 mb-3">Add New Question</h5>
                     <div className="space-y-3">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Question ID *</label>
                           <input
@@ -654,18 +676,21 @@ function AdminTests() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Question Type</label>
-                          <select
-                            value={currentQuestion.type}
-                            onChange={(e) => setCurrentQuestion({ ...currentQuestion, type: e.target.value, options: e.target.value === 'radio' ? currentQuestion.options : [] })}
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Order *</label>
+                          <input
+                            type="number"
+                            value={currentQuestion.order}
+                            onChange={(e) => setCurrentQuestion({ ...currentQuestion, order: Number(e.target.value) || 1 })}
+                            min="1"
                             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                          >
-                            <option value="radio">Radio (Multiple Choice)</option>
-                            <option value="text">Text Input</option>
-                            <option value="textarea">Textarea</option>
-                          </select>
+                          />
                         </div>
                         <div className="flex items-end">
+                          <div className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+                            Radio (Multiple Choice)
+                          </div>
+                        </div>
+                        <div className="flex items-end space-x-3">
                           <label className="flex items-center space-x-2">
                             <input
                               type="checkbox"
@@ -674,6 +699,15 @@ function AdminTests() {
                               className="rounded border-gray-300 text-mh-green focus:ring-mh-green"
                             />
                             <span className="text-xs text-gray-700">Required</span>
+                          </label>
+                          <label className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={currentQuestion.isCritical}
+                              onChange={(e) => setCurrentQuestion({ ...currentQuestion, isCritical: e.target.checked })}
+                              className="rounded border-gray-300 text-red-600 focus:ring-red-600"
+                            />
+                            <span className="text-xs text-gray-700">Is Critical</span>
                           </label>
                         </div>
                       </div>
@@ -687,51 +721,79 @@ function AdminTests() {
                           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
                         />
                       </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Help Text</label>
+                        <textarea
+                          value={currentQuestion.helpText}
+                          onChange={(e) => setCurrentQuestion({ ...currentQuestion, helpText: e.target.value })}
+                          placeholder="Optional help text for this question"
+                          rows="2"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                        />
+                      </div>
 
-                      {/* Options for Radio Questions */}
-                      {currentQuestion.type === 'radio' && (
-                        <div className="border-t border-gray-200 pt-3">
-                          <label className="block text-xs font-medium text-gray-700 mb-2">Options</label>
-                          <div className="space-y-2 mb-2">
-                            {currentQuestion.options.map((opt, idx) => (
-                              <div key={idx} className="flex items-center space-x-2 bg-white p-2 rounded">
-                                <span className="text-xs text-gray-600 w-16">{opt.value}:</span>
-                                <span className="text-xs text-gray-800 flex-1">{opt.label}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => removeOption(idx)}
-                                  className="text-red-600 hover:text-red-800 text-xs"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="flex space-x-2">
+                      {/* Options with Fixed Scores (0-3, etc.) */}
+                      <div className="border-t border-gray-200 pt-3">
+                        <label className="block text-xs font-medium text-gray-700 mb-2">
+                          Options with Fixed Scores * (e.g., 0-3, 0-4, etc.)
+                        </label>
+                        <p className="text-xs text-gray-500 mb-2">
+                          Each option must have a numeric score value (0, 1, 2, 3, etc.)
+                        </p>
+                        <div className="space-y-2 mb-2">
+                          {currentQuestion.options.map((opt, idx) => (
+                            <div key={idx} className="flex items-center space-x-2 bg-white p-2 rounded border border-gray-200">
+                              <span className="text-xs font-semibold text-mh-green w-12">Score: {opt.value}</span>
+                              <span className="text-xs text-gray-800 flex-1">{opt.label}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeOption(idx)}
+                                className="text-red-600 hover:text-red-800 text-xs px-2 py-1 hover:bg-red-50 rounded"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex space-x-2">
+                          <div className="w-28">
+                            <label className="block text-xs text-gray-600 mb-1">Score *</label>
                             <input
                               type="number"
                               value={currentOption.value}
                               onChange={(e) => setCurrentOption({ ...currentOption, value: e.target.value })}
-                              placeholder="Value"
-                              className="w-24 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                              placeholder="0"
+                              min="0"
+                              step="1"
+                              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-mh-green focus:border-transparent"
                             />
+                          </div>
+                          <div className="flex-1">
+                            <label className="block text-xs text-gray-600 mb-1">Option Label *</label>
                             <input
                               type="text"
                               value={currentOption.label}
                               onChange={(e) => setCurrentOption({ ...currentOption, label: e.target.value })}
-                              placeholder="Option label"
-                              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                              placeholder="e.g., Not at all, Several days, etc."
+                              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-mh-green focus:border-transparent"
                             />
+                          </div>
+                          <div className="flex items-end">
                             <button
                               type="button"
                               onClick={addOption}
-                              className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300 transition-colors"
+                              className="bg-mh-green text-white px-4 py-1 rounded text-sm hover:bg-[#027a4f] transition-colors"
                             >
                               Add Option
                             </button>
                           </div>
                         </div>
-                      )}
+                        {currentQuestion.options.length > 0 && (
+                          <p className="text-xs text-gray-500 mt-2">
+                            Current scores: {currentQuestion.options.map(opt => opt.value).join(', ')}
+                          </p>
+                        )}
+                      </div>
 
                       <button
                         type="button"
@@ -752,13 +814,23 @@ function AdminTests() {
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
                               <span className="text-xs font-semibold text-mh-green">{q.id}</span>
+                              <span className="text-xs text-gray-500">Order: {q.order || idx + 1}</span>
                               <span className="text-xs text-gray-500">({q.type})</span>
                               {q.required && <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">Required</span>}
+                              {q.isCritical && <span className="text-xs bg-red-200 text-red-900 px-2 py-0.5 rounded font-semibold">Critical</span>}
                             </div>
                             <p className="text-sm text-gray-800">{q.text}</p>
+                            {q.helpText && (
+                              <p className="text-xs text-gray-600 mt-1 italic">Help: {q.helpText}</p>
+                            )}
                             {q.options && q.options.length > 0 && (
-                              <div className="mt-2 text-xs text-gray-600">
-                                Options: {q.options.map(opt => `${opt.value}: ${opt.label}`).join(', ')}
+                              <div className="mt-2 space-y-1">
+                                <div className="text-xs font-medium text-gray-700">Options with Scores:</div>
+                                {q.options.map((opt, optIdx) => (
+                                  <div key={optIdx} className="text-xs text-gray-600 pl-2">
+                                    <span className="font-semibold text-mh-green">Score {opt.value}:</span> {opt.label}
+                                  </div>
+                                ))}
                               </div>
                             )}
                           </div>
@@ -801,7 +873,7 @@ function AdminTests() {
                         <span>Creating...</span>
                       </>
                     ) : (
-                      <span>Create Test</span>
+                      <span>Create Assessment</span>
                     )}
                   </button>
                 </div>
@@ -889,5 +961,5 @@ function AdminTests() {
   );
 }
 
-export default AdminTests;
+export default AdminAssessments;
 

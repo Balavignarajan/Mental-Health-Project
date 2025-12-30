@@ -43,5 +43,20 @@ router.put(
   adminController.updateUser
 );
 
+// Assessment results endpoints (admin only - read-only)
+router.get(
+  "/results",
+  authMiddleware,
+  requireRole("admin"),
+  adminController.listResults
+);
+
+router.get(
+  "/results/:resultId",
+  authMiddleware,
+  requireRole("admin"),
+  adminController.getResultById
+);
+
 module.exports = router;
 

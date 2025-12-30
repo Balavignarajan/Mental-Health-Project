@@ -77,14 +77,25 @@ function AllAssessmentsPage() {
     }
   };
 
-  const handleAssessmentClick = (testId) => {
+  const handleAssessmentClick = (e, testId) => {
+    // Check if the click originated from the button or its parent container
+    const target = e.target;
+    const isButtonClick = target.closest('button') !== null;
+    
+    // If clicking on button or price/CTA area, don't navigate
+    if (isButtonClick) {
+      return;
+    }
+    
     const route = isUserContext ? `/user/assessment-detail/${testId}` : `/assessment-detail/${testId}`;
     navigate(route);
   };
 
   const handleBuyNow = (e, testId) => {
     e.stopPropagation();
-    navigate('/payment', { state: { testId } });
+    e.preventDefault();
+    const route = isUserContext ? `/user/assessment-detail/${testId}` : `/assessment-detail/${testId}`;
+    navigate(route);
   };
 
   // Format price for display
@@ -252,7 +263,7 @@ function AllAssessmentsPage() {
               return (
                 <div
                   key={test._id}
-                  onClick={() => handleAssessmentClick(test._id)}
+                  onClick={(e) => handleAssessmentClick(e, test._id)}
                   className="bg-mh-light rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300 cursor-pointer"
                 >
                   {/* Image */}
@@ -293,7 +304,10 @@ function AllAssessmentsPage() {
                     )}
 
                     {/* Price + CTA */}
-                    <div className="flex items-center justify-between">
+                    <div 
+                      className="flex items-center justify-between"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="text-xs sm:text-sm">
                         <span className="font-semibold">{priceInfo.current}</span>
                         {priceInfo.original && (

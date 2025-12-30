@@ -141,3 +141,68 @@ exports.updateUser = asyncHandler(async (req, res) => {
 
   return ok(res, "User updated", userDoc);
 });
+
+/**
+ * Get all assessment results (admin only - read-only)
+ */
+exports.listResults = asyncHandler(async (req, res) => {
+  const { Result } = require("../model/Result");
+  const { page = 1, limit = 20, search = "", testId = "" } = req.query;
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+  const skip = (pageNum - 1) * limitNum;
+
+  const filter = {};
+  if (testId) {
+    filter.testId = testId;
+  }
+
+  const [results, total] = await Promise.all([
+    Result.find(filter)
+      .populate("userId", "email firstName lastName")
+      .populate("testId", "title category")
+      .populate("attemptId", "startedAt submittedAt")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean(),
+    Result.countDocuments(filter)
+  ]);
+
+  // Filter by search if provided (search in user email, test title)
+  let filteredResults = results;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredResults = results.filter(r => 
+      (r.userId?.email && r.userId.email.toLowerCase().includes(searchLower)) ||
+      (r.testId?.title && r.testId.title.toLowerCase().includes(searchLower))
+    );
+  }
+
+  return ok(res, "Results list", {
+    results: filteredResults,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total: search ? filteredResults.length : total,
+      pages: Math.ceil((search ? filteredResults.length : total) / limitNum)
+    }
+  });
+});
+
+/**
+ * Get result by ID (admin only - read-only)
+ */
+exports.getResultById = asyncHandler(async (req, res) => {
+  const { Result } = require("../model/Result");
+  const resultDoc = await Result.findById(req.params.resultId)
+    .populate("userId", "email firstName lastName")
+    .populate("testId")
+    .populate("attemptId");
+  
+  if (!resultDoc) {
+    return res.status(404).json({ success: false, message: "Result not found" });
+  }
+
+  return ok(res, "Result", resultDoc);
+});

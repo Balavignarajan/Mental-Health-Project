@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getUsers, getUserById, updateUser } from '../../api/adminApi';
+import { getUsers, getUserById } from '../../api/adminApi';
 import { showToast } from '../../utils/toast';
 
 function AdminUsers() {
@@ -10,8 +10,7 @@ function AdminUsers() {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
   const [selectedUser, setSelectedUser] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editForm, setEditForm] = useState({ role: '', firstName: '', lastName: '', isEmailVerified: false });
+  const [showViewModal, setShowViewModal] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -39,33 +38,16 @@ function AdminUsers() {
     }
   };
 
-  const handleEditUser = async (user) => {
+  const handleViewUser = async (userId) => {
     try {
-      setSelectedUser(user);
-      setEditForm({
-        role: user.role || '',
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        isEmailVerified: user.isEmailVerified || false
-      });
-      setShowEditModal(true);
-    } catch (error) {
-      console.error('Failed to load user:', error);
-    }
-  };
-
-  const handleUpdateUser = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await updateUser(selectedUser._id, editForm);
-      if (response.success) {
-        showToast.success('User updated successfully!');
-        setShowEditModal(false);
-        fetchUsers();
+      const response = await getUserById(userId);
+      if (response.success && response.data) {
+        setSelectedUser(response.data);
+        setShowViewModal(true);
       }
     } catch (error) {
-      console.error('Failed to update user:', error);
-      showToast.error(error.response?.data?.message || 'Failed to update user');
+      console.error('Failed to load user:', error);
+      showToast.error('Failed to load user details');
     }
   };
 
@@ -193,10 +175,10 @@ function AdminUsers() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
-                        onClick={() => handleEditUser(user)}
-                        className="text-mh-green hover:text-[#027a4f] mr-4"
+                        onClick={() => handleViewUser(user._id)}
+                        className="text-mh-green hover:text-[#027a4f]"
                       >
-                        Edit
+                        View
                       </button>
                     </td>
                   </tr>
@@ -269,78 +251,70 @@ function AdminUsers() {
         )}
       </div>
 
-      {/* Edit Modal */}
-      {showEditModal && selectedUser && (
+      {/* View Modal */}
+      {showViewModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
-              <h3 className="text-lg font-semibold text-mh-dark mb-4">Edit User</h3>
-              <form onSubmit={handleUpdateUser} className="space-y-4">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-lg font-semibold text-mh-dark">User Details</h3>
+                <button
+                  onClick={() => setShowViewModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                  <input
-                    type="email"
-                    value={selectedUser.email || ''}
-                    disabled
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                  <input
-                    type="text"
-                    value={editForm.firstName}
-                    onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <p className="text-sm text-gray-900">{selectedUser.email || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                  <input
-                    type="text"
-                    value={editForm.lastName}
-                    onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                  <p className="text-sm text-gray-900">{selectedUser.firstName || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                  <select
-                    value={editForm.role}
-                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                  >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                  <p className="text-sm text-gray-900">{selectedUser.lastName || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={editForm.isEmailVerified}
-                      onChange={(e) => setEditForm({ ...editForm, isEmailVerified: e.target.checked })}
-                      className="rounded border-gray-300 text-mh-green focus:ring-mh-green"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Email Verified</span>
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    selectedUser.role === 'admin' 
+                      ? 'bg-purple-100 text-purple-800' 
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {selectedUser.role || 'user'}
+                  </span>
                 </div>
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-mh-green text-white px-4 py-2 rounded-lg hover:bg-[#027a4f] transition-colors"
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowEditModal(false)}
-                    className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-                  >
-                    Cancel
-                  </button>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    selectedUser.isEmailVerified 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {selectedUser.isEmailVerified ? 'Verified' : 'Unverified'}
+                  </span>
                 </div>
-              </form>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Joined</label>
+                  <p className="text-sm text-gray-900">
+                    {selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'N/A'}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setShowViewModal(false)}
+                  className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

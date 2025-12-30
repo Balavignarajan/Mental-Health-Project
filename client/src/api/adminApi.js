@@ -129,3 +129,23 @@ export const deleteTest = async (testId) => {
   return response.data;
 };
 
+/**
+ * Get all assessment results (admin only - read-only)
+ * @param {Object} params - Query parameters (page, limit, search, testId)
+ * @returns {Promise} API response with results list
+ */
+export const getAdminResults = async (params = {}) => {
+  const response = await axiosInstance.get('/admin/results', { params });
+  return response.data;
+};
+
+/**
+ * Get result by ID (admin only - read-only)
+ * @param {string} resultId - Result ID
+ * @returns {Promise} API response with result data
+ */
+export const getAdminResultById = async (resultId) => {
+  const response = await axiosInstance.get(`/admin/results/${resultId}`);
+  return response.data;
+};
+
