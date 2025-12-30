@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Search, Filter, Star } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, SlidersHorizontal, Star, ChevronDown } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Breadcrumb from '../../components/Breadcrumb';
@@ -15,12 +15,25 @@ function AllAssessmentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFreeOnly, setShowFreeOnly] = useState(false);
+  const [filterType, setFilterType] = useState('all'); // 'all', 'free', 'paid'
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Fetch assessments on mount and when filters change
   useEffect(() => {
     fetchAssessments();
-  }, [showFreeOnly]);
+  }, [filterType, searchQuery]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowFilterDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const fetchAssessments = async () => {
     try {
@@ -30,8 +43,10 @@ function AllAssessmentsPage() {
       if (searchQuery.trim()) {
         params.q = searchQuery.trim();
       }
-      if (showFreeOnly) {
+      if (filterType === 'free') {
         params.free = 'true';
+      } else if (filterType === 'paid') {
+        params.paid = 'true';
       }
       
       const response = await getAllAssessments(params);
@@ -81,6 +96,20 @@ function AllAssessmentsPage() {
     return { current: `$${price}`, original: null };
   };
 
+  const getFilterLabel = () => {
+    switch (filterType) {
+      case 'free': return 'Free Only';
+      case 'paid': return 'Paid Only';
+      default: return 'All Programs';
+    }
+  };
+
+  const filterOptions = [
+    { value: 'all', label: 'All Programs' },
+    { value: 'free', label: 'Free Only' },
+    { value: 'paid', label: 'Paid Only' }
+  ];
+
   // Get image URL or fallback
   const getImageUrl = (imageUrl) => {
     if (imageUrl) return imageUrl;
@@ -94,18 +123,18 @@ function AllAssessmentsPage() {
         <Breadcrumb isLoggedIn={isUserContext} />
 
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6 mb-8 sm:mb-10 lg:mb-12">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-mh-dark">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6 mb-6 sm:mb-8 lg:mb-10">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-mh-dark">
             All Programs
           </h1>
 
           {/* Search + Filter */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="relative flex-1 sm:flex-initial">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-mh-green" size={16} />
               <input
                 type="text"
-                placeholder="Search assessments..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => {
@@ -113,7 +142,7 @@ function AllAssessmentsPage() {
                     handleSearch(e);
                   }
                 }}
-                className="input-field pl-14 pr-10 w-full sm:w-64"
+                className="input-field pl-10 sm:pl-12 pr-8 sm:pr-10 w-full sm:w-64 text-sm"
               />
               {searchQuery && (
                 <button
@@ -121,7 +150,7 @@ function AllAssessmentsPage() {
                     setSearchQuery('');
                     fetchAssessments();
                   }}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm"
                   title="Clear search"
                 >
                   ✕
@@ -131,22 +160,46 @@ function AllAssessmentsPage() {
             {searchQuery && (
               <button
                 onClick={handleSearch}
-                className="px-4 py-2 rounded-xl border bg-mh-green text-white flex items-center justify-center gap-2 text-sm hover:bg-green-700 transition-colors"
+                className="px-3 sm:px-4 py-2 rounded-xl border bg-mh-green text-white flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm hover:bg-green-700 transition-colors"
               >
-                <Search size={16} /> Search
+                <Search size={14} className="sm:w-4 sm:h-4" /> 
+                <span className="hidden sm:inline">Search</span>
               </button>
             )}
 
-            <button
-              onClick={() => {
-                setShowFreeOnly(!showFreeOnly);
-              }}
-              className={`px-4 py-2 rounded-xl border bg-mh-white flex items-center justify-center gap-2 text-sm hover:bg-gray-50 transition-colors ${
-                showFreeOnly ? 'border-mh-green text-mh-green' : ''
-              }`}
-            >
-              <Filter size={16} /> {showFreeOnly ? 'Show All' : 'Free Only'}
-            </button>
+            {/* Filter Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                className="input-field px-3 sm:px-4 py-2 rounded-xl border bg-mh-white flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm hover:bg-gray-50 transition-colors min-w-[100px] sm:min-w-[120px] h-[42px] sm:h-[44px]"
+              >
+                <SlidersHorizontal size={14} className="sm:w-4 sm:h-4 text-mh-green" />
+                <span className="hidden xs:inline">{getFilterLabel()}</span>
+                <span className="xs:hidden">
+                  {filterType === 'all' ? 'All' : filterType === 'free' ? 'Free' : 'Paid'}
+                </span>
+                <ChevronDown size={12} className={`transition-transform ${showFilterDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showFilterDropdown && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-xl shadow-lg z-10">
+                  {filterOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setFilterType(option.value);
+                        setShowFilterDropdown(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 first:rounded-t-xl last:rounded-b-xl transition-colors ${
+                        filterType === option.value ? 'text-mh-green font-medium' : 'text-gray-700'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -250,7 +303,7 @@ function AllAssessmentsPage() {
 
                       <button
                         onClick={(e) => handleBuyNow(e, test._id)}
-                        className="px-3 sm:px-5 py-2 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity"
+                        className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-mh-gradient text-mh-white text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
                       >
                         {test.price === 0 ? 'Start' : 'Buy Now'}
                       </button>
