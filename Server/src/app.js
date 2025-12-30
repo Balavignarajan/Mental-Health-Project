@@ -18,6 +18,8 @@ const reportRoutes = require("./routes/report.routes");
 const adminRoutes = require("./routes/admin.routes");
 const adminReportRoutes = require("./routes/adminreports.routes");
 const adminTestsRoutes = require("./routes/admintests.routes");
+const assessmentLinkRoutes = require("./routes/assessmentLink.routes");
+const publicAssessmentLinkRoutes = require("./routes/publicAssessmentLink.routes");
 const uploadRoutes = require("./routes/upload.routes");
 
 async function createApp() {
@@ -57,6 +59,8 @@ async function createApp() {
   app.use("/api/admin", adminRoutes);
   app.use("/api/admin/reports", adminReportRoutes);
   app.use("/api/admin/tests", adminTestsRoutes);
+  app.use("/api/admin/assessment-links", assessmentLinkRoutes);
+  app.use("/api/public/assessment-links", publicAssessmentLinkRoutes);
   app.use("/api/upload", uploadRoutes);
   
   // Serve uploaded files

@@ -1,14 +1,71 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Timer, Users } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import assessmentLinkImg from '../../assets/images/Assesment-link.png'
 import assLink1 from '../../assets/images/ass-link-1.png'
+import { validateAssessmentLink } from '../../api/publicAssessmentLinkApi'
 
 const AssessmentViaLinkPage1 = () => {
   const navigate = useNavigate()
+  const { token } = useParams()
+  const [loading, setLoading] = useState(true)
+  const [linkData, setLinkData] = useState(null)
+  const [testData, setTestData] = useState(null)
+  const [timeRemaining, setTimeRemaining] = useState(null)
+
+  useEffect(() => {
+    if (token) {
+      validateLink()
+    } else {
+      toast.error('Invalid assessment link')
+      setLoading(false)
+    }
+  }, [token])
+
+  useEffect(() => {
+    if (linkData?.expiresAt) {
+      const interval = setInterval(() => {
+        const now = new Date().getTime()
+        const expiry = new Date(linkData.expiresAt).getTime()
+        const remaining = Math.max(0, expiry - now)
+        
+        if (remaining > 0) {
+          const days = Math.floor(remaining / (1000 * 60 * 60 * 24))
+          const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+          setTimeRemaining({ days, hours })
+        } else {
+          setTimeRemaining(null)
+        }
+      }, 1000)
+
+      return () => clearInterval(interval)
+    }
+  }, [linkData?.expiresAt])
+
+  const validateLink = async () => {
+    try {
+      setLoading(true)
+      const response = await validateAssessmentLink(token)
+      
+      if (response.success && response.data) {
+        setLinkData(response.data.link)
+        setTestData(response.data.test)
+      } else {
+        toast.error(response.message || 'Invalid assessment link')
+      }
+    } catch (err) {
+      console.error('Error validating link:', err)
+      toast.error(err.response?.data?.message || 'Failed to validate assessment link')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleStartNow = () => {
-    navigate('/assessment-link/step2')
+    if (token) {
+      navigate(`/assessment-link/${token}/step2`)
+    }
   }
 
   return (
@@ -28,44 +85,69 @@ const AssessmentViaLinkPage1 = () => {
       {/* Right Side - Content */}
       <div className="w-full lg:w-1/2 bg-gray-50 flex items-center justify-center px-6 lg:px-12 py-8 lg:py-0">
         <div className="max-w-md w-full">
-          <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-4">
-            Let's Begin Your Wellness Assessment
-          </h1>
-          
-          <p className="text-sm lg:text-md text-gray-600 mb-6 leading-relaxed">
-            This assessment is part of an ongoing campaign organized by [Organization Name]. Please complete the test within the allotted time.
-          </p>
-          
-          <div className="bg-[#DDEFE7] border border-blue-100 rounded-lg p-4 mb-6">
-            <p className="text-sm text-gray-700 leading-relaxed">
-              Answer a set of short, research-based questions to help evaluate your mental well-being. Your responses are private and securely stored.
-            </p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-around space-y-4 sm:space-y-0 mb-8">
-            <div className="flex flex-col space-y-2">
-              <div className="flex items-center space-x-2">
-                <Timer className="w-4 h-4 text-blue-400" />
-                <p className="text-sm text-gray-500">Campaign Ends In</p>
-              </div>
-              <p className="text-xs text-mh-green font-bold ml-6">2 Days 12 Hours</p>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-mh-green"></div>
+              <p className="mt-4 text-gray-600">Loading assessment...</p>
             </div>
-            
-            <div className="flex flex-col space-y-2">
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4 text-rose-400" />
-                <p className="text-sm text-gray-500">Participants</p>
+          ) : linkData && testData ? (
+            <>
+              <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-4">
+                {testData.title || "Let's Begin Your Wellness Assessment"}
+              </h1>
+              
+              <p className="text-sm lg:text-md text-gray-600 mb-6 leading-relaxed">
+                {linkData.campaignName 
+                  ? `This assessment is part of an ongoing campaign organized by ${linkData.campaignName}. Please complete the test within the allotted time.`
+                  : "Please complete the test within the allotted time."
+                }
+              </p>
+              
+              <div className="bg-[#DDEFE7] border border-blue-100 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {testData.shortDescription || testData.longDescription || "Answer a set of short, research-based questions to help evaluate your mental well-being. Your responses are private and securely stored."}
+                </p>
               </div>
-              <p className="text-xs font-bold text-mh-green ml-6">450 joined so far</p>
+              
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-around space-y-4 sm:space-y-0 mb-8">
+                {timeRemaining && (
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Timer className="w-4 h-4 text-blue-400" />
+                      <p className="text-sm text-gray-500">Campaign Ends In</p>
+                    </div>
+                    <p className="text-xs text-mh-green font-bold ml-6">
+                      {timeRemaining.days > 0 ? `${timeRemaining.days} Day${timeRemaining.days > 1 ? 's' : ''} ` : ''}
+                      {timeRemaining.hours} Hour{timeRemaining.hours !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex flex-col space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Users className="w-4 h-4 text-rose-400" />
+                    <p className="text-sm text-gray-500">Participants</p>
+                  </div>
+                  <p className="text-xs font-bold text-mh-green ml-6">
+                    {linkData.currentAttempts || 0} joined so far
+                    {linkData.maxAttempts ? ` / ${linkData.maxAttempts}` : ''}
+                  </p>
+                </div>
+              </div>
+              
+              <button 
+                onClick={handleStartNow}
+                className="w-full bg-mh-gradient hover:bg-green-800 text-white font-medium py-3 px-6 rounded-full transition-colors duration-200"
+              >
+                Start Now
+              </button>
+            </>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-red-600 mb-4">Invalid or expired assessment link</p>
+              <p className="text-sm text-gray-600">Please contact the organizer for a valid link.</p>
             </div>
-          </div>
-          
-          <button 
-            onClick={handleStartNow}
-            className="w-full bg-mh-gradient hover:bg-green-800 text-white font-medium py-3 px-6 rounded-full transition-colors duration-200"
-          >
-            Start Now
-          </button>
+          )}
         </div>
       </div>
     </div>

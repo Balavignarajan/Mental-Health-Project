@@ -47,6 +47,30 @@ export const downloadUsageCsv = async () => {
   return response.data;
 };
 
+// ============================================================================
+// ASSESSMENT LINK APIs (Admin only)
+// ============================================================================
+
+/**
+ * Get all assessment links (admin only)
+ * @param {Object} params - Query parameters (page, limit, isActive)
+ * @returns {Promise} API response with links list
+ */
+export const getAssessmentLinks = async (params = {}) => {
+  const response = await axiosInstance.get('/admin/assessment-links', { params });
+  return response.data;
+};
+
+/**
+ * Create new assessment link (admin only)
+ * @param {Object} data - Link data (testId, campaignName, expiresAt, maxAttempts)
+ * @returns {Promise} API response with created link
+ */
+export const createAssessmentLink = async (data) => {
+  const response = await axiosInstance.post('/admin/assessment-links', data);
+  return response.data;
+};
+
 /**
  * Get all users (admin only)
  * @param {Object} params - Query parameters (page, limit, search, role)

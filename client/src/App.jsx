@@ -25,6 +25,7 @@ import ContactUsPage from './pages/shared/ContactUsPage';
 import AssessmentViaLinkPage1 from './pages/assessmentViaLink/AssessmentViaLinkPage1';
 import AssessmentViaLinkPage2 from './pages/assessmentViaLink/AssessmentViaLinkPage2';
 import AssessmentViaLinkTestPage from './pages/assessmentViaLink/AssessmentViaLinkTestPage';
+import AssessmentViaLinkResultPage from './pages/assessmentViaLink/AssessmentViaLinkResultPage';
 // Other Pages 
 import DashboardPage from './pages/dashboard/DashboardPage';
 import PaymentPage from './pages/payment/PaymentPage';
@@ -37,6 +38,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminAssessments from './pages/admin/AdminTests';
 import AdminResults from './pages/admin/AdminResults';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminAssessmentLinks from './pages/admin/AdminAssessmentLinks';
 import AdminRoute from './components/AdminRoute';
 import AdminLayout from './components/AdminLayout';
 
@@ -100,9 +102,10 @@ function App() {
         <Route path="/test-result/:id" element={<Layout isLoggedIn={true}><AssessmentTestResultPage /></Layout>} />
         
         {/* Assessment Via Link Routes */}
-        <Route path="/assessment-link" element={<Layout showHeaderFooter={false}><AssessmentViaLinkPage1 /></Layout>} />
-        <Route path="/assessment-link/step2" element={<Layout showHeaderFooter={false}><AssessmentViaLinkPage2 /></Layout>} />
-        <Route path="/assessment-link/test" element={<Layout showHeaderFooter={false}><AssessmentViaLinkTestPage /></Layout>} />
+        <Route path="/assessment-link/:token" element={<Layout showHeaderFooter={false}><AssessmentViaLinkPage1 /></Layout>} />
+        <Route path="/assessment-link/:token/step2" element={<Layout showHeaderFooter={false}><AssessmentViaLinkPage2 /></Layout>} />
+        <Route path="/assessment-link/:token/test/:attemptId" element={<Layout showHeaderFooter={false}><AssessmentViaLinkTestPage /></Layout>} />
+        <Route path="/assessment-link/:token/result/:resultId" element={<Layout showHeaderFooter={false}><AssessmentViaLinkResultPage /></Layout>} />
         
         {/* Assessment & Payment Routes */}
         <Route path="/dashboard" element={<Layout isLoggedIn={true}><DashboardPage /></Layout>} />
@@ -166,6 +169,16 @@ function App() {
             <AdminRoute>
               <AdminLayout>
                 <AdminSettings />
+              </AdminLayout>
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/admin/assessment-links" 
+          element={
+            <AdminRoute>
+              <AdminLayout>
+                <AdminAssessmentLinks />
               </AdminLayout>
             </AdminRoute>
           } 
