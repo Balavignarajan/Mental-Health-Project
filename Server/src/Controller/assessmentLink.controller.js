@@ -136,7 +136,7 @@ exports.getLinkResults = asyncHandler(async (req, res) => {
   const [results, total] = await Promise.all([
     Result.find(filter)
       .populate("testId", "title category")
-      .populate("attemptId", "startedAt submittedAt answers")
+      .populate("attemptId", "startedAt submittedAt answers participantInfo")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)

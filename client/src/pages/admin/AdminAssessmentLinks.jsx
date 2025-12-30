@@ -502,6 +502,7 @@ function AdminAssessmentLinks() {
                     <table className="w-full">
                       <thead className="bg-gray-50">
                         <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Participant</th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Score</th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Band</th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Risk Flags</th>
@@ -509,34 +510,49 @@ function AdminAssessmentLinks() {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {linkResults.map((result) => (
-                          <tr key={result._id} className="hover:bg-gray-50">
-                            <td className="px-4 py-3 whitespace-nowrap">
-                              <div className="text-sm font-semibold text-mh-dark">{result.score || 0}</div>
-                            </td>
-                            <td className="px-4 py-3 whitespace-nowrap">
-                              {result.band ? (
-                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getBandColorClass(result.band)}`}>
-                                  {result.band}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-gray-500">-</span>
-                              )}
-                            </td>
-                            <td className="px-4 py-3 whitespace-nowrap">
-                              {result.riskFlags && Object.keys(result.riskFlags).length > 0 ? (
-                                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                  {Object.keys(result.riskFlags).length} flag(s)
-                                </span>
-                              ) : (
-                                <span className="text-xs text-gray-500">None</span>
-                              )}
-                            </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                              {result.createdAt ? new Date(result.createdAt).toLocaleString() : '-'}
-                            </td>
-                          </tr>
-                        ))}
+                        {linkResults.map((result) => {
+                          const participantInfo = result.attemptId?.participantInfo || {};
+                          return (
+                            <tr key={result._id} className="hover:bg-gray-50">
+                              <td className="px-4 py-3">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {participantInfo.name || 'Anonymous'}
+                                </div>
+                                {participantInfo.email && (
+                                  <div className="text-xs text-gray-500">{participantInfo.email}</div>
+                                )}
+                                <div className="text-xs text-gray-500">
+                                  {participantInfo.gender && `${participantInfo.gender}`}
+                                  {participantInfo.dateOfBirth && ` • ${participantInfo.dateOfBirth}`}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-sm font-semibold text-mh-dark">{result.score || 0}</div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                {result.band ? (
+                                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getBandColorClass(result.band)}`}>
+                                    {result.band}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-gray-500">-</span>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                {result.riskFlags && Object.keys(result.riskFlags).length > 0 ? (
+                                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    {Object.keys(result.riskFlags).length} flag(s)
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-gray-500">None</span>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                {result.createdAt ? new Date(result.createdAt).toLocaleString() : '-'}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

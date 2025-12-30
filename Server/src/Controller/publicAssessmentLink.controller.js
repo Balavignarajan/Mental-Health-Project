@@ -112,6 +112,11 @@ exports.start = asyncHandler(async (req, res) => {
       existingAttempt.status = "expired";
       await existingAttempt.save();
     } else {
+      // Update participant info if provided and not already set
+      if (participantInfo && !existingAttempt.participantInfo) {
+        existingAttempt.participantInfo = participantInfo;
+        await existingAttempt.save();
+      }
       // Return existing attempt
       return ok(res, "Existing attempt found", {
         attempt: existingAttempt.toObject(),
@@ -139,6 +144,7 @@ exports.start = asyncHandler(async (req, res) => {
     linkToken: token,
     status: "in_progress",
     answers: {},
+    participantInfo: participantInfo || null, // Store participant info
     startedAt: new Date(),
     timeLimitSeconds: testDoc.timeLimitSeconds || 0,
     expiresAt

@@ -9,6 +9,7 @@ const testAttemptSchema = new mongoose.Schema(
     status: { type: String, enum: ["in_progress", "submitted", "expired"], default: "in_progress" },
 
     answers: { type: Object, default: {} }, // can be encrypted later
+    participantInfo: { type: Object, default: null }, // For anonymous link attempts: { name, email, dateOfBirth, gender }
     startedAt: { type: Date, required: true },
     lastSavedAt: { type: Date, default: null },
     submittedAt: { type: Date, default: null },
