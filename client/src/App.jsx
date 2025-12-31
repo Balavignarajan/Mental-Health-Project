@@ -37,7 +37,6 @@ import AdminReports from './pages/admin/AdminReports';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminAssessments from './pages/admin/AdminTests';
 import AdminResults from './pages/admin/AdminResults';
-import AdminSettings from './pages/admin/AdminSettings';
 import AdminAssessmentLinks from './pages/admin/AdminAssessmentLinks';
 import AdminRoute from './components/AdminRoute';
 import AdminLayout from './components/AdminLayout';
@@ -159,16 +158,6 @@ function App() {
             <AdminRoute>
               <AdminLayout>
                 <AdminResults />
-              </AdminLayout>
-            </AdminRoute>
-          } 
-        />
-        <Route 
-          path="/admin/settings" 
-          element={
-            <AdminRoute>
-              <AdminLayout>
-                <AdminSettings />
               </AdminLayout>
             </AdminRoute>
           } 

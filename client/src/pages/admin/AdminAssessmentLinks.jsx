@@ -522,30 +522,46 @@ function AdminAssessmentLinks() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(link.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex flex-col sm:flex-row gap-2">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <button
                           onClick={() => handleViewResults(link)}
-                          className="text-blue-600 hover:text-blue-700 font-medium text-left sm:text-center"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors whitespace-nowrap"
+                          title="View Results"
                         >
-                          View Results
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Results
                         </button>
                         <button
                           onClick={() => handleSendEmail(link)}
-                          className="text-purple-600 hover:text-purple-700 font-medium text-left sm:text-center"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 hover:border-purple-300 transition-colors whitespace-nowrap"
+                          title="Send Email"
                         >
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
                           Send Email
                         </button>
                         <button
                           onClick={() => handleViewEmailHistory(link)}
-                          className="text-indigo-600 hover:text-indigo-700 font-medium text-left sm:text-center"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 hover:border-indigo-300 transition-colors whitespace-nowrap"
+                          title="Email History"
                         >
-                          Email History
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          History
                         </button>
                         <button
                           onClick={() => handleCopyLink(link.linkToken)}
-                          className="text-mh-green hover:text-green-700 font-medium text-left sm:text-center"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-mh-green bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-colors whitespace-nowrap"
+                          title="Copy Link"
                         >
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
                           Copy Link
                         </button>
                       </div>
