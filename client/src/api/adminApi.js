@@ -90,9 +90,13 @@ export const getLinkResults = async (linkId, params = {}) => {
  * @returns {Promise} API response with sending results
  */
 export const sendAssessmentLinkEmail = async (linkId, recipientEmails, customMessage = '') => {
+  // Set longer timeout for bulk email sending (60 seconds)
+  // Bulk email operations can take time depending on number of recipients
   const response = await axiosInstance.post(`/admin/assessment-links/${linkId}/send-email`, {
     recipientEmails,
     customMessage
+  }, {
+    timeout: 60000 // 60 seconds timeout for email sending
   });
   return response.data;
 };

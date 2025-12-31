@@ -32,6 +32,12 @@ function AdminAssessmentLinks() {
   });
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailResults, setEmailResults] = useState(null);
+  const [emailCount, setEmailCount] = useState(0);
+  const [validEmails, setValidEmails] = useState([]);
+  const [invalidEmails, setInvalidEmails] = useState([]);
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [emailList, setEmailList] = useState([]); // List of added emails
+  const [currentEmailInput, setCurrentEmailInput] = useState(''); // Current email being typed
   const [showEmailHistoryModal, setShowEmailHistoryModal] = useState(false);
   const [selectedLinkForHistory, setSelectedLinkForHistory] = useState(null);
   const [emailHistory, setEmailHistory] = useState([]);
@@ -171,6 +177,61 @@ function AdminAssessmentLinks() {
     setShowEmailModal(true);
     setEmailForm({ recipientEmails: '', customMessage: '' });
     setEmailResults(null);
+    setEmailCount(0);
+    setValidEmails([]);
+    setInvalidEmails([]);
+    setShowEmailPreview(false);
+    setEmailList([]);
+    setCurrentEmailInput('');
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+      showToast.error('Please upload a CSV file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      // Parse CSV - simple implementation (assumes emails in first column)
+      const lines = text.split('\n').filter(line => line.trim());
+      const emails = lines
+        .map(line => line.split(',')[0].trim())
+        .filter(email => email.length > 0);
+      
+      // Convert to email list format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailListFromCsv = emails.map(email => ({
+        email,
+        isValid: emailRegex.test(email)
+      }));
+      
+      // Remove duplicates
+      const uniqueEmails = emailListFromCsv.filter((item, index, self) =>
+        index === self.findIndex(e => e.email.toLowerCase() === item.email.toLowerCase())
+      );
+      
+      setEmailList(prev => {
+        // Merge with existing, avoiding duplicates
+        const merged = [...prev];
+        uniqueEmails.forEach(newEmail => {
+          if (!merged.some(e => e.email.toLowerCase() === newEmail.email.toLowerCase())) {
+            merged.push(newEmail);
+          }
+        });
+        updateEmailCounts(merged);
+        return merged;
+      });
+      
+      showToast.success(`Loaded ${uniqueEmails.length} email(s) from CSV`);
+    };
+    reader.readAsText(file);
+    // Reset file input
+    e.target.value = '';
   };
 
   const handleViewEmailHistory = async (link) => {
@@ -225,21 +286,72 @@ function AdminAssessmentLinks() {
 
   const handleEmailFormChange = (e) => {
     const { name, value } = e.target;
-    setEmailForm(prev => ({ ...prev, [name]: value }));
+    if (name === 'customMessage') {
+      setEmailForm(prev => ({ ...prev, [name]: value }));
+    }
   };
 
-  const parseEmails = (emailString) => {
-    // Split by comma, semicolon, or newline, then trim and filter empty
-    return emailString
-      .split(/[,;\n]/)
-      .map(email => email.trim())
-      .filter(email => email.length > 0);
-  };
+  // Add email to list
+  const handleAddEmail = () => {
+    const email = currentEmailInput.trim();
+    if (!email) {
+      showToast.error('Please enter an email address');
+      return;
+    }
 
-  const validateEmails = (emails) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const invalid = emails.filter(email => !emailRegex.test(email));
-    return { valid: invalid.length === 0, invalid };
+    if (!emailRegex.test(email)) {
+      showToast.error('Please enter a valid email address');
+      return;
+    }
+
+    // Check if email already exists
+    if (emailList.some(e => e.email.toLowerCase() === email.toLowerCase())) {
+      showToast.error('This email is already in the list');
+      return;
+    }
+
+    // Add to list
+    const newEmail = { email, isValid: true };
+    setEmailList(prev => [...prev, newEmail]);
+    setCurrentEmailInput('');
+    
+    // Update counts
+    updateEmailCounts([...emailList, newEmail]);
+    
+    showToast.success('Email added successfully');
+  };
+
+  // Remove email from list
+  const handleRemoveEmail = (index) => {
+    const newList = emailList.filter((_, i) => i !== index);
+    setEmailList(newList);
+    updateEmailCounts(newList);
+  };
+
+  // Update email counts and validation
+  const updateEmailCounts = (list) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const valid = list.filter(e => e.isValid && emailRegex.test(e.email));
+    const invalid = list.filter(e => !e.isValid || !emailRegex.test(e.email));
+    
+    setEmailCount(list.length);
+    setValidEmails(valid.map(e => e.email));
+    setInvalidEmails(invalid.map(e => e.email));
+    
+    // Update form data for submission
+    setEmailForm(prev => ({
+      ...prev,
+      recipientEmails: list.map(e => e.email).join('\n')
+    }));
+  };
+
+  // Handle Enter key in email input
+  const handleEmailInputKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddEmail();
+    }
   };
 
   const handleSendEmailSubmit = async (e) => {
@@ -247,18 +359,18 @@ function AdminAssessmentLinks() {
     
     if (!selectedLinkForEmail) return;
 
-    // Parse emails from input
-    const emails = parseEmails(emailForm.recipientEmails);
+    // Get emails from emailList
+    const emails = emailList.map(e => e.email);
     
     if (emails.length === 0) {
-      showToast.error('Please enter at least one email address');
+      showToast.error('Please add at least one email address');
       return;
     }
 
-    // Validate emails
-    const validation = validateEmails(emails);
-    if (!validation.valid) {
-      showToast.error(`Invalid email addresses: ${validation.invalid.join(', ')}`);
+    // Check for invalid emails
+    const invalidEmails = emailList.filter(e => !e.isValid || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.email));
+    if (invalidEmails.length > 0) {
+      showToast.error(`Please remove ${invalidEmails.length} invalid email(s) before sending`);
       return;
     }
 
@@ -268,7 +380,7 @@ function AdminAssessmentLinks() {
 
       const response = await sendAssessmentLinkEmail(
         selectedLinkForEmail._id,
-        emails.length === 1 ? emails[0] : emails, // Send as string if single, array if multiple
+        emails.length === 1 ? emails[0] : emails,
         emailForm.customMessage || ''
       );
 
@@ -765,14 +877,23 @@ function AdminAssessmentLinks() {
       {/* Send Email Modal */}
       {showEmailModal && selectedLinkForEmail && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-bold text-mh-dark">Send Assessment Link via Email</h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {selectedLinkForEmail.campaignName || 'No campaign name'} - {selectedLinkForEmail.testId?.title || 'N/A'}
-                  </p>
+          <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className=" p-6">
+              <div className="flex justify-between items-start">
+                <div className="flex items-start gap-3">
+                  <div className=" bg-opacity-20 rounded-lg p-2">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold">Send Assessment Link via Email</h2>
+                    <p className="text-sm mt-1 opacity-95">
+                   
+                      {selectedLinkForEmail.campaignName || 'No campaign name'} • {selectedLinkForEmail.testId?.title || 'N/A'}
+                    </p>
+                  </div>
                 </div>
                 <button
                   onClick={() => {
@@ -780,8 +901,12 @@ function AdminAssessmentLinks() {
                     setSelectedLinkForEmail(null);
                     setEmailForm({ recipientEmails: '', customMessage: '' });
                     setEmailResults(null);
+                    setEmailCount(0);
+                    setValidEmails([]);
+                    setInvalidEmails([]);
+                    setShowEmailPreview(false);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-500 hover:text-mh-dark hover:bg-opacity-20 rounded-lg p-1 transition"
                 >
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -790,58 +915,96 @@ function AdminAssessmentLinks() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
               {emailResults ? (
-                <div className="space-y-4">
-                  <div className={`rounded-lg p-4 ${
+                <div className="space-y-6">
+                  {/* Success Summary Card */}
+                  <div className={`rounded-xl p-6 shadow-lg ${
                     emailResults.successful > 0 && emailResults.failed === 0
-                      ? 'bg-green-50 border border-green-200'
+                      ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300'
                       : emailResults.successful > 0 && emailResults.failed > 0
-                      ? 'bg-yellow-50 border border-yellow-200'
-                      : 'bg-red-50 border border-red-200'
+                      ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-300'
+                      : 'bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-300'
                   }`}>
-                    <h3 className="font-semibold text-lg mb-2">
-                      {emailResults.successful === emailResults.total
-                        ? '✅ All emails sent successfully!'
-                        : emailResults.successful > 0
-                        ? `⚠️ ${emailResults.successful} sent, ${emailResults.failed} failed`
-                        : '❌ Failed to send emails'}
-                    </h3>
-                    <p className="text-sm text-gray-700">
-                      Total: {emailResults.total} | Successful: {emailResults.successful} | Failed: {emailResults.failed}
-                    </p>
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className={`text-4xl ${
+                        emailResults.successful === emailResults.total ? 'text-green-600' :
+                        emailResults.successful > 0 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>
+                        {emailResults.successful === emailResults.total ? '✅' :
+                         emailResults.successful > 0 ? '⚠️' : '❌'}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-xl mb-1">
+                          {emailResults.successful === emailResults.total
+                            ? 'All emails sent successfully!'
+                            : emailResults.successful > 0
+                            ? `${emailResults.successful} sent, ${emailResults.failed} failed`
+                            : 'Failed to send emails'}
+                        </h3>
+                        <div className="flex gap-4 text-sm font-medium">
+                          <span className="text-gray-700">Total: <span className="font-bold">{emailResults.total}</span></span>
+                          <span className="text-green-700">Successful: <span className="font-bold">{emailResults.successful}</span></span>
+                          {emailResults.failed > 0 && (
+                            <span className="text-red-700">Failed: <span className="font-bold">{emailResults.failed}</span></span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
+                  {/* Detailed Results */}
                   {emailResults.results && emailResults.results.length > 0 && (
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Email Status:</h4>
-                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                      <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Email Status Details
+                      </h4>
+                      <div className="space-y-2 max-h-80 overflow-y-auto">
                         {emailResults.results.map((result, index) => (
                           <div
                             key={index}
-                            className={`p-3 rounded-lg text-sm ${
-                              result.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+                            className={`p-4 rounded-lg border-l-4 flex items-center justify-between transition ${
+                              result.success 
+                                ? 'bg-green-50 border-green-400 text-green-900' 
+                                : 'bg-red-50 border-red-400 text-red-900'
                             }`}
                           >
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium">{result.email}</span>
-                              <span>{result.success ? '✅ Sent' : `❌ ${result.error || 'Failed'}`}</span>
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <span className={`text-lg ${result.success ? 'text-green-600' : 'text-red-600'}`}>
+                                {result.success ? '✓' : '✗'}
+                              </span>
+                              <span className="font-medium truncate">{result.email}</span>
                             </div>
+                            {!result.success && (
+                              <span className="text-xs text-red-600 ml-2 flex-shrink-0">
+                                {result.error || 'Failed'}
+                              </span>
+                            )}
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  <div className="flex gap-3 pt-4">
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-2">
                     <button
                       onClick={() => {
                         setShowEmailModal(false);
                         setSelectedLinkForEmail(null);
                         setEmailForm({ recipientEmails: '', customMessage: '' });
                         setEmailResults(null);
+                        setEmailCount(0);
+                        setValidEmails([]);
+                        setInvalidEmails([]);
+                        setShowEmailPreview(false);
+                        setEmailList([]);
+                        setCurrentEmailInput('');
                       }}
-                      className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                      className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
                     >
                       Close
                     </button>
@@ -849,58 +1012,224 @@ function AdminAssessmentLinks() {
                       onClick={() => {
                         setEmailResults(null);
                         setEmailForm({ recipientEmails: '', customMessage: '' });
+                        setEmailCount(0);
+                        setValidEmails([]);
+                        setInvalidEmails([]);
+                        setShowEmailPreview(false);
+                        setEmailList([]);
+                        setCurrentEmailInput('');
                       }}
-                      className="flex-1 px-4 py-2 bg-mh-gradient text-white rounded-lg hover:opacity-90 transition"
+                      className="flex-1 px-6 py-3 bg-mh-gradient text-white rounded-lg hover:opacity-90 transition font-medium shadow-md"
                     >
                       Send Another
                     </button>
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSendEmailSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Recipient Email(s) <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      name="recipientEmails"
-                      value={emailForm.recipientEmails}
-                      onChange={handleEmailFormChange}
-                      placeholder="Enter email addresses separated by commas, semicolons, or new lines&#10;Example:&#10;email1@example.com&#10;email2@example.com&#10;email3@example.com"
-                      required
-                      rows={6}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent resize-none"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      You can enter multiple emails separated by commas, semicolons, or new lines
-                    </p>
+                <form onSubmit={handleSendEmailSubmit} className="space-y-6">
+                  {/* Email Input Section */}
+                  <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <label className="block text-sm font-semibold text-gray-800">
+                        Recipient Email(s) <span className="text-red-500">*</span>
+                      </label>
+                      {emailCount > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            invalidEmails.length === 0 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {emailCount} email{emailCount !== 1 ? 's' : ''}
+                          </span>
+                          {invalidEmails.length > 0 && (
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                              {invalidEmails.length} invalid
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Single Email Input with Add Button */}
+                    <div className="mb-4">
+                      <div className="flex gap-2">
+                        <input
+                          type="email"
+                          value={currentEmailInput}
+                          onChange={(e) => setCurrentEmailInput(e.target.value)}
+                          onKeyPress={handleEmailInputKeyPress}
+                          placeholder="Enter email address"
+                          className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-mh-green transition"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddEmail}
+                          disabled={!currentEmailInput.trim()}
+                          className="px-6 py-3 bg-mh-gradient text-white rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-md flex items-center gap-2"
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                          Add Email
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Press Enter or click "Add Email" to add to the list
+                      </p>
+                    </div>
+
+                    {/* CSV Upload Option */}
+                    <div className="mb-4 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                      <label htmlFor="csv-upload" className="flex items-center gap-3 text-sm text-gray-700 cursor-pointer hover:text-mh-green transition group">
+                        <div className="bg-white p-2 rounded-lg group-hover:bg-mh-green group-hover:text-white transition">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <span className="font-semibold block">Upload CSV for Bulk Import</span>
+                          <span className="text-xs text-gray-500">Click to upload or drag & drop CSV file</span>
+                        </div>
+                        <input
+                          id="csv-upload"
+                          type="file"
+                          accept=".csv"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
+                    {/* Email List Display */}
+                    {emailList.length > 0 && (
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-semibold text-gray-800">Email List ({emailList.length})</h4>
+                          {emailList.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEmailList([]);
+                                updateEmailCounts([]);
+                                showToast.success('Email list cleared');
+                              }}
+                              className="text-xs text-red-600 hover:text-red-700 font-medium"
+                            >
+                              Clear All
+                            </button>
+                          )}
+                        </div>
+                        <div className="max-h-60 overflow-y-auto space-y-2 border border-gray-200 rounded-lg p-3 bg-gray-50">
+                          {emailList.map((emailItem, index) => {
+                            const isValid = emailItem.isValid && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailItem.email);
+                            return (
+                              <div
+                                key={index}
+                                className={`flex items-center justify-between p-3 rounded-lg border-l-4 ${
+                                  isValid
+                                    ? 'bg-white border-green-400'
+                                    : 'bg-red-50 border-red-400'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <span className={`text-lg ${isValid ? 'text-green-600' : 'text-red-600'}`}>
+                                    {isValid ? '✓' : '✗'}
+                                  </span>
+                                  <span className={`font-mono text-sm truncate ${isValid ? 'text-gray-900' : 'text-red-800'}`}>
+                                    {emailItem.email}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveEmail(index)}
+                                  className="ml-2 text-red-600 hover:text-red-700 hover:bg-red-50 p-1 rounded transition"
+                                  title="Remove email"
+                                >
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {invalidEmails.length > 0 && (
+                          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <p className="text-xs text-red-700 font-semibold mb-1">
+                              ⚠️ {invalidEmails.length} invalid email(s) found. Please remove them before sending.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {emailList.length === 0 && (
+                      <div className="text-center py-8 text-gray-400">
+                        <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-sm">No emails added yet. Add emails individually or upload a CSV file.</p>
+                      </div>
+                    )}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Custom Message (Optional)
+                  {/* Custom Message Section */}
+                  <div className="bg-white rounded-xl shadow-md p-6">
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Custom Message <span className="text-gray-500 font-normal">(Optional)</span>
                     </label>
                     <textarea
                       name="customMessage"
                       value={emailForm.customMessage}
                       onChange={handleEmailFormChange}
-                      placeholder="Add a personal message that will appear in the email..."
+                      placeholder="Add a personal message that will appear prominently in the email..."
                       rows={4}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent resize-none"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-mh-green resize-none transition"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      This message will be displayed prominently in the email
+                    <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      This message will be displayed prominently in the email body
                     </p>
                   </div>
 
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-xs font-medium text-gray-700 mb-1">Link Preview:</p>
-                    <p className="text-xs text-gray-600 break-all">
-                      {window.location.origin}/assessment-link/{selectedLinkForEmail.linkToken}
-                    </p>
+                  {/* Link Preview Section */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-md p-6 border-2 border-blue-200">
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                        <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        Assessment Link Preview
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${window.location.origin}/assessment-link/${selectedLinkForEmail.linkToken}`);
+                          showToast.success('Link copied to clipboard!');
+                        }}
+                        className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition flex items-center gap-1"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Copy
+                      </button>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border border-blue-200">
+                      <p className="text-xs text-gray-700 break-all font-mono">
+                        {window.location.origin}/assessment-link/{selectedLinkForEmail.linkToken}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -908,17 +1237,33 @@ function AdminAssessmentLinks() {
                         setSelectedLinkForEmail(null);
                         setEmailForm({ recipientEmails: '', customMessage: '' });
                         setEmailResults(null);
+                        setEmailCount(0);
+                        setValidEmails([]);
+                        setInvalidEmails([]);
+                        setShowEmailPreview(false);
                       }}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      disabled={sendingEmail || !emailForm.recipientEmails.trim()}
-                      className="flex-1 px-4 py-2 bg-mh-gradient text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={sendingEmail || emailList.length === 0 || invalidEmails.length > 0}
+                      className="flex-1 px-6 py-3 bg-mh-gradient text-white rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg flex items-center justify-center gap-2"
                     >
-                      {sendingEmail ? 'Sending...' : 'Send Email(s)'}
+                      {sendingEmail ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          <span>Sending...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                          </svg>
+                          <span>Send {emailList.length > 0 ? `${emailList.length} Email${emailList.length !== 1 ? 's' : ''}` : 'Email(s)'}</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>
