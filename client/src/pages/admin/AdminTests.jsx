@@ -65,6 +65,14 @@ function AdminAssessments() {
   const [availableCategories, setAvailableCategories] = useState([]);
   const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
   const [newCategoryValue, setNewCategoryValue] = useState('');
+  const [openSections, setOpenSections] = useState({
+    basicInfo: true,
+    pricing: false,
+    uploadJson: false,
+    addQuestions: false,
+    viewQuestions: false,
+    eligibility: false
+  });
 
   useEffect(() => {
     fetchTests();
@@ -141,12 +149,12 @@ function AdminAssessments() {
       if (response.success && response.data) {
         const testData = response.data;
         const testCategory = testData.category || '';
-        
+
         // Ensure the test's category is in the available categories list
         if (testCategory && testCategory.trim() !== '' && !availableCategories.includes(testCategory)) {
           setAvailableCategories([...availableCategories, testCategory].sort());
         }
-        
+
         // Populate form with existing test data
         setCreateForm({
           title: testData.title || '',
@@ -218,7 +226,7 @@ function AdminAssessments() {
 
   const handleDeleteConfirm = async () => {
     if (!testIdToDelete) return;
-    
+
     const testId = testIdToDelete;
     try {
       setDeleting(true);
@@ -227,15 +235,15 @@ function AdminAssessments() {
         // Immediately remove the test from UI for better UX
         setTests(prevTests => {
           const updatedTests = prevTests.filter(test => test._id !== testId);
-          
+
           // If current page becomes empty and there are previous pages, navigate back
           if (updatedTests.length === 0 && page > 1) {
             setPage(page - 1);
           }
-          
+
           return updatedTests;
         });
-        
+
         // Update pagination total count
         setPagination(prev => {
           const newTotal = Math.max(0, prev.total - 1);
@@ -246,7 +254,7 @@ function AdminAssessments() {
             pages: newPages
           };
         });
-        
+
         setTestIdToDelete(null);
         showToast.success('Test deleted successfully!');
       }
@@ -315,7 +323,7 @@ function AdminAssessments() {
 
   const handleCreateTest = async (e) => {
     e.preventDefault();
-    
+
     // Comprehensive validation
     const validation = validateTestData(createForm);
     setValidationErrors(validation);
@@ -380,7 +388,7 @@ function AdminAssessments() {
         message: error.response?.data?.message,
         url: error.config?.url
       });
-      
+
       // If 401, suggest re-login
       if (error.response?.status === 401) {
         showToast.error('Session expired. Please log in again.');
@@ -444,15 +452,38 @@ function AdminAssessments() {
     setCurrentCondition({ questionId: '', operator: 'equals', value: '' });
     setJsonUploadError('');
     setUploadedJsonFileName('');
+    setOpenSections({
+      basicInfo: true,
+      pricing: false,
+      uploadJson: false,
+      addQuestions: false,
+      viewQuestions: false,
+      eligibility: false
+    });
     setIsProcessingJson(false);
     setValidationErrors({ errors: [], warnings: [], questionErrors: {} });
     setIsAddingNewCategory(false);
     setNewCategoryValue('');
+    setOpenSections({
+      basicInfo: true,
+      pricing: false,
+      uploadJson: false,
+      addQuestions: false,
+      viewQuestions: false,
+      eligibility: false
+    });
+  };
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
   };
 
   const buildShowIfCondition = () => {
     if (showIfMode === 'none') return null;
-    
+
     if (showIfMode === 'simple') {
       if (!currentCondition.questionId || currentCondition.value === '') return null;
       return {
@@ -460,7 +491,7 @@ function AdminAssessments() {
         equals: currentCondition.value
       };
     }
-    
+
     return null;
   };
 
@@ -483,7 +514,7 @@ function AdminAssessments() {
     }
 
     // Validate that all options have numeric scores
-    const invalidOptions = currentQuestion.options.filter(opt => 
+    const invalidOptions = currentQuestion.options.filter(opt =>
       opt.value === null || opt.value === undefined || opt.value === '' || isNaN(Number(opt.value))
     );
     if (invalidOptions.length > 0) {
@@ -526,7 +557,7 @@ function AdminAssessments() {
     setShowIfMode('none');
     setCurrentCondition({ questionId: '', operator: 'equals', value: '' });
     showToast.success('Question added!');
-    
+
     // Trigger validation after adding question
     const validation = validateTestData(createForm);
     setValidationErrors(validation);
@@ -557,7 +588,7 @@ function AdminAssessments() {
     };
     setCreateForm(updatedForm);
     showToast.success('Question removed');
-    
+
     // Trigger validation after removing question
     const validation = validateTestData(updatedForm);
     setValidationErrors(validation);
@@ -566,7 +597,7 @@ function AdminAssessments() {
   const handleValidateSchema = () => {
     const validation = validateTestData(createForm);
     setValidationErrors(validation);
-    
+
     if (validation.valid) {
       if (validation.warnings.length > 0) {
         showToast.warning(`Schema is valid but has ${validation.warnings.length} warning(s)`);
@@ -615,7 +646,7 @@ function AdminAssessments() {
     reader.onload = (event) => {
       try {
         const jsonData = JSON.parse(event.target.result);
-        
+
         // Validate JSON structure
         if (!jsonData.questions || !Array.isArray(jsonData.questions)) {
           throw new Error('JSON must contain a "questions" array');
@@ -628,7 +659,7 @@ function AdminAssessments() {
         // Validate each question
         const validatedQuestions = [];
         const questionIds = new Set();
-        
+
         jsonData.questions.forEach((q, index) => {
           // Validate required fields
           if (!q.id || typeof q.id !== 'string') {
@@ -712,7 +743,7 @@ function AdminAssessments() {
 
         setJsonUploadError('');
         showToast.success(`Successfully imported ${newQuestions.length} question(s)! ${duplicateCount > 0 ? `(${duplicateCount} duplicates skipped)` : ''}`);
-        
+
       } catch (error) {
         console.error('JSON parsing error:', error);
         setJsonUploadError(error.message);
@@ -721,7 +752,7 @@ function AdminAssessments() {
       } finally {
         setIsProcessingJson(false);
       }
-      
+
       // Reset file input
       e.target.value = '';
     };
@@ -805,7 +836,7 @@ function AdminAssessments() {
         }
       ]
     };
-    
+
     const blob = new Blob([JSON.stringify(sampleJson, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -899,15 +930,14 @@ function AdminAssessments() {
                   <p className="text-sm text-gray-600 mb-2">{test.category || 'Uncategorized'}</p>
                   <p className="text-xs text-gray-500 line-clamp-2">{test.shortDescription || 'No description'}</p>
                 </div>
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                  test.isActive 
-                    ? 'bg-green-100 text-green-800' 
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${test.isActive
+                    ? 'bg-green-100 text-green-800'
                     : 'bg-gray-100 text-gray-800'
-                }`}>
+                  }`}>
                   {test.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                 <div>
                   <span className="text-gray-600">Price:</span>
@@ -959,11 +989,10 @@ function AdminAssessments() {
                 </button>
                 <button
                   onClick={() => handleToggleActive(test)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg hover:shadow-sm transition-all duration-200 whitespace-nowrap ${
-                    test.isActive
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg hover:shadow-sm transition-all duration-200 whitespace-nowrap ${test.isActive
                       ? 'text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100 hover:border-orange-300'
                       : 'text-green-700 bg-green-50 border border-green-200 hover:bg-green-100 hover:border-green-300'
-                  }`}
+                    }`}
                   title={test.isActive ? 'Deactivate Assessment' : 'Activate Assessment'}
                 >
                   {test.isActive ? (
@@ -1041,11 +1070,10 @@ function AdminAssessments() {
                     <button
                       key={pageNum}
                       onClick={() => setPage(pageNum)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                        page === pageNum
+                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${page === pageNum
                           ? 'z-10 bg-mh-gradient border-mh-green text-white'
                           : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       {pageNum}
                     </button>
@@ -1064,365 +1092,251 @@ function AdminAssessments() {
         </div>
       )}
 
-      {/* Create Test Modal */}
+      {/* Create/Edit Test Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white mb-10">
-            <div className="mt-3">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-2xl font-semibold text-mh-dark">
-                  {editingTestId ? 'Edit Assessment' : 'Create New Assessment'}
-                </h3>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col my-8 overflow-hidden">
+            {/* Modal Header */}
+            <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-8 py-6">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-gradient-to-br from-mh-green/10 to-emerald-100 rounded-lg">
+                      <svg className="w-6 h-6 text-mh-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">
+                        {editingTestId ? 'Edit Assessment' : 'Create New Assessment'}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {createForm.schemaJson.questions.length > 0
+                          ? `${createForm.schemaJson.questions.length} question${createForm.schemaJson.questions.length !== 1 ? 's' : ''} added`
+                          : 'Design and configure your assessment'}
+                      </p>
+                    </div>
+                  </div>
+                  {/* Progress Steps */}
+                  <div className="flex items-center gap-4 mt-4">
+                    {['Basic Info', 'Content', 'Settings', 'Review'].map((step, index) => (
+                      <div key={step} className="flex items-center gap-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
+                    ${index === 0 ? 'bg-mh-green text-white' : 'bg-gray-100 text-gray-500'}`}>
+                          {index + 1}
+                        </div>
+                        <span className={`text-sm font-medium ${index === 0 ? 'text-gray-900' : 'text-gray-500'}`}>
+                          {step}
+                        </span>
+                        {index < 3 && (
+                          <div className="w-12 h-0.5 bg-gray-200 mx-2" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 <button
                   onClick={() => {
                     setShowCreateModal(false);
                     resetCreateForm();
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-2 transition-all duration-200"
+                  aria-label="Close modal"
                 >
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
+            </div>
 
-              <form onSubmit={handleCreateTest} className="space-y-6 max-h-[80vh] overflow-y-auto pr-2">
-                {/* Basic Information */}
-                <div className="border-b border-gray-200 pb-4">
-                  <h4 className="text-lg font-semibold text-mh-dark mb-4">Basic Information</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
-                      <input
-                        type="text"
-                        value={createForm.title}
-                        onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                        placeholder="e.g., Depression Screening Test"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                      {!isAddingNewCategory ? (
-                        <div className="space-y-2">
-                          <select
-                            value={createForm.category}
-                            onChange={(e) => {
-                              const selectedValue = e.target.value;
-                              if (selectedValue === '__add_new__') {
-                                setIsAddingNewCategory(true);
-                                setNewCategoryValue('');
-                              } else {
-                                setCreateForm({ ...createForm, category: selectedValue });
-                              }
-                            }}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                          >
-                            <option value="">Select a category...</option>
-                            {availableCategories.map((category) => (
-                              <option key={category} value={category}>
-                                {category}
-                              </option>
-                            ))}
-                            <option value="__add_new__" className="font-semibold text-mh-green">
-                              + Add New Category
-                            </option>
-                          </select>
+            <form onSubmit={handleCreateTest} className="flex-1 overflow-y-auto">
+              <div className="px-8 py-6 space-y-6">
+                {/* Section: Basic Information */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
                         </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={newCategoryValue}
-                              onChange={(e) => setNewCategoryValue(e.target.value)}
-                              onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  if (newCategoryValue.trim()) {
-                                    setCreateForm({ ...createForm, category: newCategoryValue.trim() });
-                                    // Add to available categories if not already present
-                                    if (!availableCategories.includes(newCategoryValue.trim())) {
-                                      setAvailableCategories([...availableCategories, newCategoryValue.trim()].sort());
-                                    }
-                                    setIsAddingNewCategory(false);
-                                    setNewCategoryValue('');
-                                  }
-                                }
-                              }}
-                              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                              placeholder="Enter new category name..."
-                              autoFocus
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (newCategoryValue.trim()) {
-                                  setCreateForm({ ...createForm, category: newCategoryValue.trim() });
-                                  // Add to available categories if not already present
-                                  if (!availableCategories.includes(newCategoryValue.trim())) {
-                                    setAvailableCategories([...availableCategories, newCategoryValue.trim()].sort());
-                                  }
-                                  setIsAddingNewCategory(false);
-                                  setNewCategoryValue('');
-                                }
-                              }}
-                              className="px-4 py-2 bg-mh-gradient text-white rounded-lg hover:opacity-90 transition-colors whitespace-nowrap"
-                            >
-                              Add
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setIsAddingNewCategory(false);
-                                setNewCategoryValue('');
-                                // Restore previous category if it exists in the list
-                                if (createForm.category && availableCategories.includes(createForm.category)) {
-                                  // Keep the current category
-                                } else {
-                                  setCreateForm({ ...createForm, category: '' });
-                                }
-                              }}
-                              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors whitespace-nowrap"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                          <p className="text-xs text-gray-500">Press Enter or click Add to save the new category</p>
+                        <div>
+                          <h4 className="text-lg font-semibold text-gray-900">Basic Information</h4>
+                          <p className="text-sm text-gray-500">Core assessment details</p>
                         </div>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Tag</label>
-                      <input
-                        type="text"
-                        value={createForm.tag}
-                        onChange={(e) => setCreateForm({ ...createForm, tag: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                        placeholder="e.g., Research-Based"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Short Description</label>
-                      <input
-                        type="text"
-                        value={createForm.shortDescription}
-                        onChange={(e) => setCreateForm({ ...createForm, shortDescription: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                        placeholder="Brief description (shown in lists)"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Long Description</label>
-                      <textarea
-                        value={createForm.longDescription}
-                        onChange={(e) => setCreateForm({ ...createForm, longDescription: e.target.value })}
-                        rows="3"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                        placeholder="Detailed description (shown on test detail page)"
-                      />
+                      </div>
+                      <span className="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Required</span>
                     </div>
                   </div>
-                </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="md:col-span-2">
+                        <label className="flex items-center gap-2 text-sm font-medium text-gray-800 mb-2">
+                          <span>Assessment Title</span>
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={createForm.title}
+                          onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
+                          required
+                          className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                          placeholder="e.g., Depression Screening Test"
+                        />
+                        <p className="text-xs text-gray-500 mt-2">Enter a clear, descriptive title for your assessment</p>
+                      </div>
 
-                {/* Pricing & Duration */}
-                <div className="border-b border-gray-200 pb-4">
-                  <h4 className="text-lg font-semibold text-mh-dark mb-4">Pricing & Duration</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
-                      <input
-                        type="number"
-                        value={createForm.price}
-                        onChange={(e) => setCreateForm({ ...createForm, price: Number(e.target.value) || 0 })}
-                        min="0"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">MRP (₹)</label>
-                      <input
-                        type="number"
-                        value={createForm.mrp}
-                        onChange={(e) => setCreateForm({ ...createForm, mrp: Number(e.target.value) || 0 })}
-                        min="0"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Min Duration (minutes)</label>
-                      <input
-                        type="number"
-                        value={createForm.durationMinutesMin}
-                        onChange={(e) => setCreateForm({ ...createForm, durationMinutesMin: Number(e.target.value) || 0 })}
-                        min="0"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Max Duration (minutes)</label>
-                      <input
-                        type="number"
-                        value={createForm.durationMinutesMax}
-                        onChange={(e) => setCreateForm({ ...createForm, durationMinutesMax: Number(e.target.value) || 0 })}
-                        min="0"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Time Limit (seconds, 0 = no limit)</label>
-                      <input
-                        type="number"
-                        value={createForm.timeLimitSeconds}
-                        onChange={(e) => setCreateForm({ ...createForm, timeLimitSeconds: Number(e.target.value) || 0 })}
-                        min="0"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Popularity Score</label>
-                      <input
-                        type="number"
-                        value={createForm.popularityScore}
-                        onChange={(e) => setCreateForm({ ...createForm, popularityScore: Number(e.target.value) || 0 })}
-                        min="0"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Assessment Image</label>
-                      <div className="space-y-3">
-                        {/* Image Preview */}
-                        {imagePreview && (
-                          <div className="relative w-full h-48 border border-gray-300 rounded-lg overflow-hidden bg-gray-100">
-                            <img
-                              src={imagePreview}
-                              alt="Preview"
-                              className="w-full h-full object-contain"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setImagePreview('');
-                                setCreateForm({ ...createForm, imageUrl: '' });
+                      <div>
+                        <label className="block text-sm font-medium text-gray-800 mb-2">Category</label>
+                        {!isAddingNewCategory ? (
+                          <div className="space-y-2">
+                            <select
+                              value={createForm.category}
+                              onChange={(e) => {
+                                const selectedValue = e.target.value;
+                                if (selectedValue === '__add_new__') {
+                                  setIsAddingNewCategory(true);
+                                  setNewCategoryValue('');
+                                } else {
+                                  setCreateForm({ ...createForm, category: selectedValue });
+                                }
                               }}
-                              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none"
                             >
-                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
+                              <option value="">Select a category...</option>
+                              {availableCategories.map((category) => (
+                                <option key={category} value={category}>
+                                  {category}
+                                </option>
+                              ))}
+                              <option value="__add_new__" className="font-semibold text-blue-600">
+                                + Add New Category
+                              </option>
+                            </select>
                           </div>
-                        )}
-                        
-                        {/* File Upload Input */}
-                        <div className="flex items-center space-x-3">
-                          <label className="flex-1 cursor-pointer">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleImageUpload}
-                              className="hidden"
-                              disabled={uploadingImage}
-                            />
-                            <div className={`w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-mh-green transition-colors ${uploadingImage ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
-                              {uploadingImage ? (
-                                <div className="flex items-center justify-center space-x-2">
-                                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-mh-green"></div>
-                                  <span className="text-sm text-gray-600">Uploading...</span>
-                                </div>
-                              ) : (
-                                <div className="flex flex-col items-center space-y-2">
-                                  <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                  </svg>
-                                  <span className="text-sm text-gray-600">
-                                    {imagePreview ? 'Click to change image' : 'Click to upload image'}
-                                  </span>
-                                  <span className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</span>
-                                </div>
-                              )}
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                value={newCategoryValue}
+                                onChange={(e) => setNewCategoryValue(e.target.value)}
+                                onKeyPress={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (newCategoryValue.trim()) {
+                                      handleAddCategory(newCategoryValue.trim());
+                                    }
+                                  }
+                                }}
+                                className="flex-1 px-4 py-3 bg-white border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                placeholder="Enter new category name..."
+                                autoFocus
+                              />
+                              <button
+                                type="button"
+                                onClick={() => newCategoryValue.trim() && handleAddCategory(newCategoryValue.trim())}
+                                className="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 whitespace-nowrap font-medium"
+                              >
+                                Add
+                              </button>
                             </div>
-                          </label>
-                        </div>
-                        
-                        {/* Current Image URL (if exists) */}
-                        {createForm.imageUrl && !imagePreview && (
-                          <div className="text-xs text-gray-500">
-                            Current: {createForm.imageUrl}
                           </div>
                         )}
                       </div>
-                    </div>
-                    <div className="flex items-center">
-                      <label className="flex items-center space-x-2">
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-800 mb-2">Tag</label>
                         <input
-                          type="checkbox"
-                          checked={createForm.isActive}
-                          onChange={(e) => setCreateForm({ ...createForm, isActive: e.target.checked })}
-                          className="rounded border-gray-300 text-mh-green focus:ring-mh-green"
+                          type="text"
+                          value={createForm.tag}
+                          onChange={(e) => setCreateForm({ ...createForm, tag: e.target.value })}
+                          className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                          placeholder="e.g., Research-Based, Clinical"
                         />
-                        <span className="text-sm font-medium text-gray-700">Active (visible to users)</span>
-                      </label>
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-800 mb-2">Short Description</label>
+                        <input
+                          type="text"
+                          value={createForm.shortDescription}
+                          onChange={(e) => setCreateForm({ ...createForm, shortDescription: e.target.value })}
+                          className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                          placeholder="Brief overview shown in assessment lists"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-800 mb-2">Detailed Description</label>
+                        <textarea
+                          value={createForm.longDescription}
+                          onChange={(e) => setCreateForm({ ...createForm, longDescription: e.target.value })}
+                          rows="4"
+                          className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
+                          placeholder="Comprehensive description shown on the assessment detail page"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Questions Section */}
-                <div className="border-b border-gray-200 pb-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-mh-dark">
-                      Questions ({createForm.schemaJson.questions.length})
-                    </h4>
-                    <div className="flex items-center space-x-3 flex-wrap gap-2">
-                      {/* JSON Upload Button */}
-                      {!uploadedJsonFileName ? (
-                        <label className="cursor-pointer">
-                          <input
-                            type="file"
-                            accept=".json"
-                            onChange={handleJsonUpload}
-                            className="hidden"
-                            disabled={isProcessingJson}
-                          />
-                          <span className={`inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm ${isProcessingJson ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                            {isProcessingJson ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                <span>Processing...</span>
-                              </>
-                            ) : (
-                              <>
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
-                                <span>Upload Questions JSON</span>
-                              </>
-                            )}
-                          </span>
-                        </label>
-                      ) : (
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg text-sm">
-                          <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                {/* Section: Assessment Content */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                           </svg>
-                          <span className="text-green-700 font-medium">File uploaded:</span>
-                          <span className="text-green-600 font-semibold">{uploadedJsonFileName}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setUploadedJsonFileName('');
-                              setJsonUploadError('');
-                            }}
-                            className="ml-2 text-green-600 hover:text-green-800 transition-colors"
-                            title="Clear file indication"
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-semibold text-gray-900">Assessment Content</h4>
+                          <p className="text-sm text-gray-500">Add questions and structure</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {createForm.schemaJson.questions.length > 0 && (
+                          <span className="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                            {createForm.schemaJson.questions.length} questions
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-6">
+                    {/* Upload Questions JSON - Primary Option */}
+                    <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-300 rounded-xl p-6 shadow-sm">
+                      <div className="flex items-start justify-between mb-5">
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                          </button>
-                          <label className="ml-2 cursor-pointer">
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h5 className="text-lg font-bold text-gray-900">Upload Questions JSON</h5>
+                              <span className="text-xs font-semibold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full">Recommended</span>
+                            </div>
+                            <p className="text-sm text-gray-600 leading-relaxed">Upload questions via JSON file for fast bulk import. This is the fastest way to add multiple questions at once.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 ml-4">
+                          {uploadedJsonFileName && (
+                            <span className="text-xs font-semibold text-green-700 bg-green-100 px-3 py-1.5 rounded-full border border-green-200">
+                              ✓ Imported
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        {!uploadedJsonFileName ? (
+                          <label className="cursor-pointer block">
                             <input
                               type="file"
                               accept=".json"
@@ -1430,615 +1344,606 @@ function AdminAssessments() {
                               className="hidden"
                               disabled={isProcessingJson}
                             />
-                            <span className="text-blue-600 hover:text-blue-800 text-xs font-medium underline">
-                              Change file
-                            </span>
+                            <div className={`w-full p-4 border-2 border-dashed border-blue-300 rounded-lg bg-white hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 ${isProcessingJson ? 'opacity-50' : ''}`}>
+                              <div className="flex flex-col items-center justify-center text-center">
+                                {isProcessingJson ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
+                                    <p className="text-sm font-medium text-gray-700">Processing JSON file...</p>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                                      <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                      </svg>
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-900 mb-1">Upload JSON File</p>
+                                    <p className="text-xs text-gray-500">Click or drag to upload your questions JSON</p>
+                                  </>
+                                )}
+                              </div>
+                            </div>
                           </label>
-                        </div>
-                      )}
-                      
-                      {createForm.schemaJson.questions.length > 0 && (
-                        <span className={`text-sm ${
-                          validationErrors.errors.length > 0 
-                            ? 'text-red-600' 
-                            : validationErrors.warnings.length > 0 
-                            ? 'text-yellow-600' 
-                            : 'text-gray-600'
-                        }`}>
-                          {validationErrors.errors.length > 0 
-                            ? `⚠️ ${validationErrors.errors.length} error(s)`
-                            : validationErrors.warnings.length > 0
-                            ? `⚠️ ${validationErrors.warnings.length} warning(s)`
-                            : `✓ ${createForm.schemaJson.questions.length} question${createForm.schemaJson.questions.length !== 1 ? 's' : ''} added`}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Validation Errors Display */}
-                  {validationErrors.errors.length > 0 && (
-                    <div className="mb-4 p-4 bg-red-50 border-2 border-red-300 rounded-lg">
-                      <div className="flex items-start mb-2">
-                        <svg className="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div className="flex-1">
-                          <p className="text-sm font-semibold text-red-800 mb-2">Schema Validation Errors ({validationErrors.errors.length}):</p>
-                          <ul className="list-disc list-inside space-y-1">
-                            {validationErrors.errors.slice(0, 5).map((error, idx) => (
-                              <li key={idx} className="text-xs text-red-700">{error}</li>
-                            ))}
-                            {validationErrors.errors.length > 5 && (
-                              <li className="text-xs text-red-600 italic">... and {validationErrors.errors.length - 5} more error(s)</li>
-                            )}
-                          </ul>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setValidationErrors({ errors: [], warnings: [], questionErrors: {} })}
-                          className="ml-2 text-red-600 hover:text-red-800"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Validation Warnings Display */}
-                  {validationErrors.warnings.length > 0 && (
-                    <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <div className="flex items-start">
-                        <svg className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-yellow-800 mb-1">Warnings ({validationErrors.warnings.length}):</p>
-                          <ul className="list-disc list-inside space-y-1">
-                            {validationErrors.warnings.slice(0, 3).map((warning, idx) => (
-                              <li key={idx} className="text-xs text-yellow-700">{warning}</li>
-                            ))}
-                            {validationErrors.warnings.length > 3 && (
-                              <li className="text-xs text-yellow-600 italic">... and {validationErrors.warnings.length - 3} more warning(s)</li>
-                            )}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* JSON Upload Error Display */}
-                  {jsonUploadError && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="flex items-start">
-                        <svg className="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div className="flex-1">
-                          <p className="text-sm text-red-800 font-medium mb-1">JSON Upload Error:</p>
-                          <p className="text-xs text-red-600">{jsonUploadError}</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setJsonUploadError('')}
-                          className="ml-2 text-red-600 hover:text-red-800"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* JSON Format Help */}
-                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="text-xs font-medium text-blue-900 mb-1">📄 JSON Upload Format:</p>
-                        <p className="text-xs text-blue-800 mb-2">
-                          Upload a JSON file with a "questions" array. Each question needs: <strong>id</strong>, <strong>text</strong>, <strong>type</strong>, <strong>options</strong> (for radio/checkbox/likert), <strong>order</strong>, <strong>required</strong>.
-                        </p>
-                        <p className="text-xs text-blue-700 mb-2">
-                          <strong>Supported types:</strong> radio, checkbox, text, textarea, numeric, boolean, likert
-                        </p>
-                        <button
-                          type="button"
-                          onClick={downloadSampleJson}
-                          className="text-xs text-blue-700 hover:text-blue-900 underline font-medium"
-                        >
-                          📥 Download Sample JSON Template
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Add Question Form */}
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 p-5 rounded-lg mb-4">
-                    <div className="mb-4">
-                      <h5 className="text-base font-semibold text-mh-dark mb-1">➕ Add New Question</h5>
-                      <p className="text-xs text-gray-600">
-                        Create a multiple-choice question with fixed score options (e.g., 0-3 scale)
-                      </p>
-                    </div>
-                    <div className="space-y-4">
-                      {/* Step 1: Basic Question Info */}
-                      <div className="bg-white p-4 rounded-lg border border-gray-200">
-                        <div className="flex items-center space-x-2 mb-3">
-                          <span className="bg-mh-green text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">1</span>
-                          <h6 className="text-sm font-semibold text-gray-800">Basic Information</h6>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                              Question ID <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              value={currentQuestion.id}
-                              onChange={(e) => setCurrentQuestion({ ...currentQuestion, id: e.target.value })}
-                              placeholder="e.g., q1, q2, q3"
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">Unique identifier for this question</p>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                              Display Order <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="number"
-                              value={currentQuestion.order}
-                              onChange={(e) => setCurrentQuestion({ ...currentQuestion, order: Number(e.target.value) || 1 })}
-                              min="1"
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">Order in which question appears (1, 2, 3...)</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Step 2: Question Text */}
-                      <div className="bg-white p-4 rounded-lg border border-gray-200">
-                        <div className="flex items-center space-x-2 mb-3">
-                          <span className="bg-mh-green text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">2</span>
-                          <h6 className="text-sm font-semibold text-gray-800">Question Text</h6>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Question <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={currentQuestion.text}
-                            onChange={(e) => setCurrentQuestion({ ...currentQuestion, text: e.target.value })}
-                            placeholder="e.g., How often do you feel sad or hopeless?"
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">The actual question text that users will see</p>
-                        </div>
-                      </div>
-
-                      {/* Step 3: Question Settings */}
-                      <div className="bg-white p-4 rounded-lg border border-gray-200">
-                        <div className="flex items-center space-x-2 mb-3">
-                          <span className="bg-mh-green text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">3</span>
-                          <h6 className="text-sm font-semibold text-gray-800">Question Settings</h6>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="flex items-center space-x-3">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={currentQuestion.required}
-                                onChange={(e) => setCurrentQuestion({ ...currentQuestion, required: e.target.checked })}
-                                className="rounded border-gray-300 text-mh-green focus:ring-mh-green w-4 h-4"
-                              />
-                              <span className="text-sm text-gray-700">Required Question</span>
-                            </label>
-                            <p className="text-xs text-gray-500">User must answer this question</p>
-                          </div>
-                          <div className="flex items-center space-x-3">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={currentQuestion.isCritical}
-                                onChange={(e) => setCurrentQuestion({ ...currentQuestion, isCritical: e.target.checked })}
-                                className="rounded border-gray-300 text-red-600 focus:ring-red-600 w-4 h-4"
-                              />
-                              <span className="text-sm font-semibold text-red-700">⚠️ Critical Question</span>
-                            </label>
-                            <p className="text-xs text-red-600">Requires help text for safety</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Step 4: Help Text (Required if Critical) */}
-                      <div className={`bg-white p-4 rounded-lg border-2 ${currentQuestion.isCritical ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}>
-                        <div className="flex items-center space-x-2 mb-3">
-                          <span className="bg-mh-green text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">4</span>
-                          <h6 className="text-sm font-semibold text-gray-800">
-                            Help Text {currentQuestion.isCritical && <span className="text-red-600">*</span>}
-                          </h6>
-                          {currentQuestion.isCritical && (
-                            <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-semibold">
-                              ⚠️ Required for Critical Questions
-                            </span>
-                          )}
-                        </div>
-                        <div>
-                          <textarea
-                            value={currentQuestion.helpText}
-                            onChange={(e) => setCurrentQuestion({ ...currentQuestion, helpText: e.target.value })}
-                            placeholder={currentQuestion.isCritical 
-                              ? "⚠️ REQUIRED: Provide safety/help information for this critical question (e.g., 'If you're experiencing thoughts of self-harm, please reach out for immediate help...')"
-                              : "Optional: Additional help text or instructions for this question"
-                            }
-                            rows="3"
-                            className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent ${
-                              currentQuestion.isCritical && !currentQuestion.helpText.trim()
-                                ? 'border-red-400 bg-red-50'
-                                : 'border-gray-300'
-                            }`}
-                          />
-                          {currentQuestion.isCritical ? (
-                            <p className="text-xs text-red-700 mt-1 font-medium">
-                              ⚠️ Critical questions must include help text for user safety and support guidance.
-                            </p>
-                          ) : (
-                            <p className="text-xs text-gray-500 mt-1">
-                              Optional: Provide additional context or instructions for users
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Step 5: Answer Options with Scores */}
-                      <div className="bg-white p-4 rounded-lg border border-gray-200">
-                        <div className="flex items-center space-x-2 mb-3">
-                          <span className="bg-mh-green text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">5</span>
-                          <h6 className="text-sm font-semibold text-gray-800">
-                            Answer Options with Fixed Scores <span className="text-red-500">*</span>
-                          </h6>
-                        </div>
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                          <p className="text-xs font-medium text-blue-900 mb-1">
-                            📊 How it works:
-                          </p>
-                          <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
-                            <li>Each option must have a numeric score (0, 1, 2, 3, etc.)</li>
-                            <li>Minimum 2 options required</li>
-                            <li>Scores are used for calculating the final assessment result</li>
-                            <li>Example: 0 = "Not at all", 1 = "Several days", 2 = "More than half", 3 = "Nearly every day"</li>
-                          </ul>
-                        </div>
-                        <div className="space-y-2 mb-2">
-                          {currentQuestion.options.map((opt, idx) => (
-                            <div key={idx} className="flex items-center space-x-2 bg-white p-2 rounded border border-gray-200">
-                              <span className="text-xs font-semibold text-mh-green w-12">Score: {opt.value}</span>
-                              <span className="text-xs text-gray-800 flex-1">{opt.label}</span>
+                        ) : (
+                          <div className="bg-white border border-green-200 rounded-lg p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">{uploadedJsonFileName}</p>
+                                  <p className="text-xs text-green-600">Successfully imported</p>
+                                </div>
+                              </div>
                               <button
                                 type="button"
-                                onClick={() => removeOption(idx)}
-                                className="text-red-600 hover:text-red-800 text-xs px-2 py-1 hover:bg-red-50 rounded"
+                                onClick={() => setUploadedJsonFileName('')}
+                                className="text-gray-400 hover:text-gray-600"
                               >
-                                Remove
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                               </button>
                             </div>
-                          ))}
-                        </div>
-                        <div className="flex space-x-2">
-                          <div className="w-28">
-                            <label className="block text-xs text-gray-600 mb-1">Score *</label>
-                            <input
-                              type="number"
-                              value={currentOption.value}
-                              onChange={(e) => setCurrentOption({ ...currentOption, value: e.target.value })}
-                              placeholder="0"
-                              min="0"
-                              step="1"
-                              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <label className="block text-xs text-gray-600 mb-1">Option Label *</label>
-                            <input
-                              type="text"
-                              value={currentOption.label}
-                              onChange={(e) => setCurrentOption({ ...currentOption, label: e.target.value })}
-                              placeholder="e.g., Not at all, Several days, etc."
-                              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                            />
-                          </div>
-                          <div className="flex items-end">
-                            <button
-                              type="button"
-                              onClick={addOption}
-                              className="bg-mh-gradient text-white px-4 py-1 rounded text-sm hover:opacity-90 transition-colors"
-                            >
-                              Add Option
-                            </button>
-                          </div>
-                        </div>
-                        {currentQuestion.options.length > 0 && (
-                          <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded">
-                            <p className="text-xs font-medium text-green-800">
-                              ✓ {currentQuestion.options.length} option{currentQuestion.options.length !== 1 ? 's' : ''} added
-                            </p>
-                            <p className="text-xs text-green-700 mt-1">
-                              Scores: {currentQuestion.options.map(opt => opt.value).join(', ')}
-                            </p>
                           </div>
                         )}
-                      </div>
 
-                      {/* Show If Condition Section */}
-                      <div className="border-t border-gray-200 pt-4 mt-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <label className="block text-sm font-semibold text-gray-700">
-                            Conditional Display (show_if)
-                          </label>
-                          <span className="text-xs text-gray-500">Optional</span>
-                        </div>
-                        <p className="text-xs text-gray-500 mb-3">
-                          This question will only appear if the condition is met
-                        </p>
-
-                        <div className="space-y-3">
-                          <select
-                            value={showIfMode}
-                            onChange={(e) => {
-                              setShowIfMode(e.target.value);
-                              if (e.target.value === 'none') {
-                                setCurrentCondition({ questionId: '', operator: 'equals', value: '' });
-                              }
-                            }}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                          >
-                            <option value="none">No condition (always show)</option>
-                            <option value="simple">Show if condition is met</option>
-                          </select>
-
-                          {showIfMode !== 'none' && (
-                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-3">
-                              {showIfMode === 'simple' && (
-                                <>
-                                  <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                                      Depends on Question
-                                    </label>
-                                    <select
-                                      value={currentCondition.questionId}
-                                      onChange={(e) => setCurrentCondition({ ...currentCondition, questionId: e.target.value })}
-                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-mh-green"
-                                    >
-                                      <option value="">Select a question...</option>
-                                      {createForm.schemaJson.questions
-                                        .filter(q => q.id !== currentQuestion.id) // Don't allow self-reference
-                                        .map(q => (
-                                          <option key={q.id} value={q.id}>
-                                            {q.id}: {q.text.substring(0, 50)}{q.text.length > 50 ? '...' : ''}
-                                          </option>
-                                        ))}
-                                    </select>
-                                  </div>
-
-                                  {currentCondition.questionId && (
-                                    <>
-                                      <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                                          Operator
-                                        </label>
-                                        <select
-                                          value={currentCondition.operator}
-                                          onChange={(e) => setCurrentCondition({ ...currentCondition, operator: e.target.value, value: '' })}
-                                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-mh-green"
-                                          disabled
-                                        >
-                                          <option value="equals">Equals (=)</option>
-                                        </select>
-                                      </div>
-
-                                      <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                                          Value
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={currentCondition.value}
-                                          onChange={(e) => setCurrentCondition({ ...currentCondition, value: e.target.value })}
-                                          placeholder="Enter value"
-                                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-mh-green"
-                                        />
-                                      </div>
-                                    </>
-                                  )}
-                                </>
-                              )}
-
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Add Question Button */}
-                      <div className="pt-2">
-                        <button
-                          type="button"
-                          onClick={addQuestion}
-                          disabled={!currentQuestion.id || !currentQuestion.text.trim() || currentQuestion.options.length < 2}
-                          className="w-full bg-mh-gradient text-white px-4 py-3 rounded-lg hover:opacity-90 transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                        >
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                          </svg>
-                          <span>Add This Question</span>
-                        </button>
-                        {(!currentQuestion.id || !currentQuestion.text.trim() || currentQuestion.options.length < 2) && (
-                          <p className="text-xs text-gray-500 mt-2 text-center">
-                            Complete all required fields to add question
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* List of Added Questions */}
-                  {createForm.schemaJson.questions.length > 0 && (
-                    <div className="space-y-2">
-                      <h6 className="text-sm font-semibold text-gray-700">Added Questions:</h6>
-                      {createForm.schemaJson.questions.map((q, idx) => {
-                        const questionErrors = validationErrors.questionErrors[q.id] || [];
-                        const hasErrors = questionErrors.length > 0;
-                        
-                        return (
-                          <div 
-                            key={idx} 
-                            className={`bg-white border-2 rounded-lg p-3 flex justify-between items-start ${
-                              hasErrors 
-                                ? 'border-red-400 bg-red-50' 
-                                : 'border-gray-200'
-                            }`}
-                          >
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-1">
-                                <span className={`text-xs font-semibold ${hasErrors ? 'text-red-700' : 'text-mh-green'}`}>
-                                  {q.id}
-                                  {hasErrors && (
-                                    <span className="ml-1 text-red-600" title={`${questionErrors.length} error(s)`}>
-                                      ⚠️
-                                    </span>
-                                  )}
-                                </span>
-                                <span className="text-xs text-gray-500">Order: {q.order || idx + 1}</span>
-                                <span className="text-xs text-gray-500">({q.type})</span>
-                                {q.required && <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">Required</span>}
-                                {q.isCritical && <span className="text-xs bg-red-200 text-red-900 px-2 py-0.5 rounded font-semibold">Critical</span>}
+                        {/* JSON Upload Error Display */}
+                        {jsonUploadError && (
+                          <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 animate-in fade-in slide-in-from-top-2">
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 mt-0.5">
+                                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                </div>
                               </div>
-                              <p className="text-sm text-gray-800">{q.text}</p>
-                              {hasErrors && (
-                                <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded text-xs">
-                                  <p className="font-semibold text-red-800 mb-1">Errors:</p>
-                                  <ul className="list-disc list-inside space-y-0.5">
-                                    {questionErrors.map((error, errIdx) => (
-                                      <li key={errIdx} className="text-red-700">{error}</li>
-                                    ))}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-3 mb-2">
+                                  <h6 className="text-sm font-semibold text-red-900">Upload Error</h6>
+                                  <button
+                                    type="button"
+                                    onClick={() => setJsonUploadError('')}
+                                    className="text-red-400 hover:text-red-600 transition-colors flex-shrink-0"
+                                    aria-label="Dismiss error"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                                <div className="bg-white border border-red-100 rounded-md p-3 mt-2">
+                                  <p className="text-sm text-red-800 font-medium whitespace-pre-wrap break-words leading-relaxed">
+                                    {jsonUploadError}
+                                  </p>
+                                </div>
+                                <div className="mt-3 pt-3 border-t border-red-200">
+                                  <p className="text-xs text-red-700 font-medium mb-1">💡 Quick Fix Tips:</p>
+                                  <ul className="text-xs text-red-600 space-y-1 ml-4 list-disc">
+                                    <li>Check that your JSON file has a valid structure with a "questions" array</li>
+                                    <li>Ensure all questions have required fields: id, text, and type</li>
+                                    <li>For radio, checkbox, and likert types, include at least 2 options</li>
+                                    <li>Each option must have both "value" and "label" fields</li>
+                                    <li>Download the JSON template below for reference</li>
                                   </ul>
                                 </div>
-                              )}
-                              {q.helpText && (
-                                <p className="text-xs text-gray-600 mt-1 italic">Help: {q.helpText}</p>
-                              )}
-                              {q.options && q.options.length > 0 && (
-                                <div className="mt-2 space-y-1">
-                                  <div className="text-xs font-medium text-gray-700">Options with Scores:</div>
-                                  {q.options.map((opt, optIdx) => (
-                                    <div key={optIdx} className="text-xs text-gray-600 pl-2">
-                                      <span className="font-semibold text-mh-green">Score {opt.value}:</span> {opt.label}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
+                              </div>
                             </div>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between">
+                          <button
+                            type="button"
+                            onClick={downloadSampleJson}
+                            className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Download JSON Template
+                          </button>
+
+                          <span className="text-xs text-gray-500">Supported formats: radio, checkbox, text, likert</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Add Questions Manually - Optional Accordion */}
+                    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                      <button
+                        type="button"
+                        onClick={() => toggleSection('addQuestions')}
+                        className="w-full bg-gradient-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-100 hover:from-gray-100 hover:to-gray-50 transition-all duration-200 flex items-center justify-between group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                            <svg className="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                          </div>
+                          <div className="text-left">
+                            <h5 className="text-base font-semibold text-gray-900 group-hover:text-gray-950">Add Questions Manually</h5>
+                            <p className="text-xs text-gray-500 mt-0.5">Optional: Add questions one by one</p>
+                          </div>
+                        </div>
+                        <svg
+                          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${openSections.addQuestions ? 'rotate-180' : ''}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      {openSections.addQuestions && (
+                        <div className="p-6 space-y-6">
+                        {/* Question Form */}
+                        <div className="space-y-6">
+                          {/* Basic Info */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-800 mb-2">
+                                Question ID <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={currentQuestion.id}
+                                onChange={(e) => setCurrentQuestion({ ...currentQuestion, id: e.target.value })}
+                                placeholder="e.g., q1, q2"
+                                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-800 mb-2">
+                                Display Order <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="number"
+                                value={currentQuestion.order}
+                                onChange={(e) => setCurrentQuestion({ ...currentQuestion, order: Number(e.target.value) || 1 })}
+                                min="1"
+                                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Question Text */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-800 mb-2">
+                              Question Text <span className="text-red-500">*</span>
+                            </label>
+                            <textarea
+                              value={currentQuestion.text}
+                              onChange={(e) => setCurrentQuestion({ ...currentQuestion, text: e.target.value })}
+                              rows="2"
+                              placeholder="Enter the question that users will see..."
+                              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 resize-none"
+                            />
+                          </div>
+
+                          {/* Options */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-800 mb-4">
+                              Answer Options <span className="text-red-500">*</span>
+                              <span className="text-xs font-normal text-gray-500 ml-2">Add at least 2 options with scores</span>
+                            </label>
+
+                            {/* Options List */}
+                            <div className="space-y-3 mb-4">
+                              {currentQuestion.options.map((opt, idx) => (
+                                <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                  <div className="w-16 flex-shrink-0">
+                                    <span className="text-sm font-semibold text-purple-600">Score: {opt.value}</span>
+                                  </div>
+                                  <div className="flex-1 text-gray-700">{opt.label}</div>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeOption(idx)}
+                                    className="text-gray-400 hover:text-red-500 transition-colors"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Add Option Form */}
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                              <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                                <div className="md:col-span-3">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">Score</label>
+                                  <input
+                                    type="number"
+                                    value={currentOption.value}
+                                    onChange={(e) => setCurrentOption({ ...currentOption, value: e.target.value })}
+                                    placeholder="0"
+                                    min="0"
+                                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-7">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">Option Label</label>
+                                  <input
+                                    type="text"
+                                    value={currentOption.label}
+                                    onChange={(e) => setCurrentOption({ ...currentOption, label: e.target.value })}
+                                    placeholder="Enter option text..."
+                                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2 flex items-end">
+                                  <button
+                                    type="button"
+                                    onClick={addOption}
+                                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded hover:shadow-lg transition-all duration-200 font-medium"
+                                  >
+                                    Add
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Settings */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex items-center gap-3">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <div className="relative">
+                                  <input
+                                    type="checkbox"
+                                    checked={currentQuestion.required}
+                                    onChange={(e) => setCurrentQuestion({ ...currentQuestion, required: e.target.checked })}
+                                    className="sr-only"
+                                  />
+                                  <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200 ${currentQuestion.required
+                                      ? 'bg-blue-500 border-blue-500'
+                                      : 'bg-white border-gray-300'
+                                    }`}>
+                                    {currentQuestion.required && (
+                                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    )}
+                                  </div>
+                                </div>
+                                <span className="text-sm font-medium text-gray-700">Required Question</span>
+                              </label>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <div className="relative">
+                                  <input
+                                    type="checkbox"
+                                    checked={currentQuestion.isCritical}
+                                    onChange={(e) => setCurrentQuestion({ ...currentQuestion, isCritical: e.target.checked })}
+                                    className="sr-only"
+                                  />
+                                  <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200 ${currentQuestion.isCritical
+                                      ? 'bg-red-500 border-red-500'
+                                      : 'bg-white border-gray-300'
+                                    }`}>
+                                    {currentQuestion.isCritical && (
+                                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    )}
+                                  </div>
+                                </div>
+                                <span className="text-sm font-medium text-red-600">Critical Question</span>
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Help Text */}
+                          {currentQuestion.isCritical && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                              <label className="block text-sm font-semibold text-red-700 mb-2">
+                                Help Text (Required for Critical Questions)
+                              </label>
+                              <textarea
+                                value={currentQuestion.helpText}
+                                onChange={(e) => setCurrentQuestion({ ...currentQuestion, helpText: e.target.value })}
+                                rows="3"
+                                placeholder="Provide safety information and support resources..."
+                                className="w-full px-4 py-3 bg-white border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none"
+                              />
+                              <p className="text-xs text-red-600 mt-2">⚠️ Critical questions must include safety information and support guidance.</p>
+                            </div>
+                          )}
+
+                          {/* Add Question Button */}
+                          <div>
                             <button
                               type="button"
-                              onClick={() => removeQuestion(idx)}
-                              className="text-red-600 hover:text-red-800 ml-2"
+                              onClick={addQuestion}
+                              disabled={!currentQuestion.id || !currentQuestion.text.trim() || currentQuestion.options.length < 2}
+                              className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-4 rounded-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-3"
                             >
-                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                               </svg>
+                              Add Question to Assessment
                             </button>
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {/* Eligibility Rules Section */}
-                <div className="border-b border-gray-200 pb-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-mh-dark">Eligibility Rules</h4>
-                    <span className="text-xs text-gray-500">Optional: Restrict who can take this assessment</span>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* Legacy: Simple minAge */}
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                      <label className="flex items-center space-x-2 mb-2">
-                        <input
-                          type="checkbox"
-                          checked={createForm.eligibilityRules.minAge !== undefined}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setCreateForm({
-                                ...createForm,
-                                eligibilityRules: { ...createForm.eligibilityRules, minAge: 18 }
-                              });
-                            } else {
-                              const newRules = { ...createForm.eligibilityRules };
-                              delete newRules.minAge;
-                              setCreateForm({ ...createForm, eligibilityRules: newRules });
-                            }
-                          }}
-                          className="rounded border-gray-300 text-mh-green focus:ring-mh-green"
-                        />
-                        <span className="text-sm font-medium text-gray-700">Set Minimum Age</span>
-                      </label>
-                      {createForm.eligibilityRules.minAge !== undefined && (
-                        <div className="mt-2 ml-6">
-                          <input
-                            type="number"
-                            value={createForm.eligibilityRules.minAge || ''}
-                            onChange={(e) => setCreateForm({
-                              ...createForm,
-                              eligibilityRules: { ...createForm.eligibilityRules, minAge: Number(e.target.value) || 0 }
-                            })}
-                            min="0"
-                            max="120"
-                            className="w-32 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
-                            placeholder="Minimum age"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">Users must be at least this age to take the assessment</p>
+                        </div>
                         </div>
                       )}
                     </div>
-
                   </div>
                 </div>
 
-                {/* Form Actions */}
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCreateModal(false);
-                      resetCreateForm();
-                    }}
-                    className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-                    disabled={creating}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={creating || createForm.schemaJson.questions.length === 0}
-                    className="bg-mh-gradient text-white px-6 py-2 rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                  >
-                    {creating ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        <span>{editingTestId ? 'Updating...' : 'Creating...'}</span>
-                      </>
-                    ) : (
-                      <span>{editingTestId ? 'Update Assessment' : 'Create Assessment'}</span>
-                    )}
-                  </button>
+                {/* Section: Settings */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-semibold text-gray-900">Settings & Configuration</h4>
+                          <p className="text-sm text-gray-500">Pricing, duration, and display settings</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Pricing */}
+                      <div className="space-y-4">
+                        <h5 className="text-sm font-semibold text-gray-900 mb-3">Pricing</h5>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                            <input
+                              type="number"
+                              value={createForm.price}
+                              onChange={(e) => setCreateForm({ ...createForm, price: Number(e.target.value) || 0 })}
+                              min="0"
+                              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">MRP (₹)</label>
+                            <input
+                              type="number"
+                              value={createForm.mrp}
+                              onChange={(e) => setCreateForm({ ...createForm, mrp: Number(e.target.value) || 0 })}
+                              min="0"
+                              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Duration */}
+                      <div className="space-y-4">
+                        <h5 className="text-sm font-semibold text-gray-900 mb-3">Duration</h5>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Min (minutes)</label>
+                            <input
+                              type="number"
+                              value={createForm.durationMinutesMin}
+                              onChange={(e) => setCreateForm({ ...createForm, durationMinutesMin: Number(e.target.value) || 0 })}
+                              min="0"
+                              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Max (minutes)</label>
+                            <input
+                              type="number"
+                              value={createForm.durationMinutesMax}
+                              onChange={(e) => setCreateForm({ ...createForm, durationMinutesMax: Number(e.target.value) || 0 })}
+                              min="0"
+                              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Additional Settings */}
+                      <div className="md:col-span-2 space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Time Limit (seconds)</label>
+                            <input
+                              type="number"
+                              value={createForm.timeLimitSeconds}
+                              onChange={(e) => setCreateForm({ ...createForm, timeLimitSeconds: Number(e.target.value) || 0 })}
+                              min="0"
+                              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                            />
+                            <p className="text-xs text-gray-500 mt-2">0 = no time limit</p>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Popularity Score</label>
+                            <input
+                              type="number"
+                              value={createForm.popularityScore}
+                              onChange={(e) => setCreateForm({ ...createForm, popularityScore: Number(e.target.value) || 0 })}
+                              min="0"
+                              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                            />
+                          </div>
+
+                          <div className="flex items-center">
+                            <label className="flex items-center gap-3 cursor-pointer">
+                              <div className="relative">
+                                <input
+                                  type="checkbox"
+                                  checked={createForm.isActive}
+                                  onChange={(e) => setCreateForm({ ...createForm, isActive: e.target.checked })}
+                                  className="sr-only"
+                                />
+                                <div className={`w-10 h-6 rounded-full transition-all duration-300 ${createForm.isActive
+                                    ? 'bg-emerald-500'
+                                    : 'bg-gray-300'
+                                  }`}>
+                                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${createForm.isActive
+                                      ? 'left-5'
+                                      : 'left-1'
+                                    }`} />
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-sm font-medium text-gray-700">Active</span>
+                                <p className="text-xs text-gray-500">Visible to users</p>
+                              </div>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </form>
-            </div>
+
+                {/* Questions List Preview */}
+                {createForm.schemaJson.questions.length > 0 && (
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center">
+                            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-semibold text-gray-900">Questions Preview</h4>
+                            <p className="text-sm text-gray-500">Review and manage your assessment questions</p>
+                          </div>
+                        </div>
+                        <span className="text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
+                          {createForm.schemaJson.questions.length} questions
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <div className="space-y-4">
+                        {createForm.schemaJson.questions.map((q, idx) => (
+                          <div key={idx} className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-all duration-200">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <span className="text-sm font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded">
+                                    Q{q.order || idx + 1}
+                                  </span>
+                                  <span className="text-sm text-gray-500">ID: {q.id}</span>
+                                  {q.required && (
+                                    <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                                      Required
+                                    </span>
+                                  )}
+                                  {q.isCritical && (
+                                    <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">
+                                      Critical
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-gray-800 mb-3">{q.text}</p>
+
+                                {q.options && q.options.length > 0 && (
+                                  <div className="bg-gray-50 rounded-lg p-3">
+                                    <p className="text-xs font-medium text-gray-700 mb-2">Options:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {q.options.map((opt, optIdx) => (
+                                        <div key={optIdx} className="text-xs bg-white border border-gray-200 rounded px-3 py-1.5">
+                                          <span className="font-semibold text-amber-600">[{opt.value}]</span>
+                                          <span className="text-gray-700 ml-2">{opt.label}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {q.helpText && (
+                                  <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
+                                    <span className="font-medium">Help:</span> {q.helpText}
+                                  </div>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeQuestion(idx)}
+                                className="text-gray-400 hover:text-red-500 transition-colors ml-4"
+                              >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Actions */}
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 px-8 py-6">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-600">
+                    {createForm.schemaJson.questions.length === 0 ? (
+                      <span className="text-amber-600 font-medium">⚠️ Add at least one question to continue</span>
+                    ) : validationErrors.errors.length > 0 ? (
+                      <span className="text-red-600 font-medium">⚠️ Fix errors before saving</span>
+                    ) : (
+                      <span className="text-green-600 font-medium">✓ Ready to save</span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCreateModal(false);
+                        resetCreateForm();
+                      }}
+                      className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
+                      disabled={creating}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={creating || createForm.schemaJson.questions.length === 0}
+                      className="px-8 py-3 bg-mh-gradient text-white rounded-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-3"
+                    >
+                      {creating ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          <span>{editingTestId ? 'Updating...' : 'Creating...'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>{editingTestId ? 'Update Assessment' : 'Create Assessment'}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -2095,11 +2000,10 @@ function AdminAssessments() {
                 <div>
                   <label className="text-sm font-medium text-gray-700">Status</label>
                   <p className="text-sm">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      selectedTest.isActive 
-                        ? 'bg-green-100 text-green-800' 
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${selectedTest.isActive
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'
-                    }`}>
+                      }`}>
                       {selectedTest.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </p>
