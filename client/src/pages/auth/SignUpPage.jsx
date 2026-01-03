@@ -11,7 +11,9 @@ function SignUpPage() {
     lastName: '',
     mobile: '',
     email: '',
-    password: ''
+    password: '',
+    dob: '',
+    gender: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,6 +48,26 @@ function SignUpPage() {
       showToast.error('Password must be at least 6 characters long');
       return false;
     }
+    if (!formData.dob) {
+      showToast.error('Date of birth is required');
+      return false;
+    }
+    // Validate age (must be at least 13 years old)
+    const today = new Date();
+    const birthDate = new Date(formData.dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    if (age < 13) {
+      showToast.error('You must be at least 13 years old to register');
+      return false;
+    }
+    if (age > 120) {
+      showToast.error('Please enter a valid date of birth');
+      return false;
+    }
     return true;
   };
 
@@ -63,7 +85,9 @@ function SignUpPage() {
         formData.email,
         formData.password,
         formData.firstName,
-        formData.lastName
+        formData.lastName,
+        formData.dob,
+        formData.gender
       );
 
       if (response.success) {
@@ -199,6 +223,39 @@ function SignUpPage() {
                     className="input-field"
                     required
                   />
+                </div>
+
+                {/* Date of Birth */}
+                <div>
+                  <label className="block text-sm font-medium text-mh-dark mb-2">
+                    Date of Birth <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.dob}
+                    onChange={(e) => handleInputChange('dob', e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
+                    className="input-field"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Required for age-restricted assessments</p>
+                </div>
+
+                {/* Gender */}
+                <div>
+                  <label className="block text-sm font-medium text-mh-dark mb-2">
+                    Gender
+                  </label>
+                  <select
+                    value={formData.gender}
+                    onChange={(e) => handleInputChange('gender', e.target.value)}
+                    className="input-field"
+                  >
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
 
                 {/* Password */}

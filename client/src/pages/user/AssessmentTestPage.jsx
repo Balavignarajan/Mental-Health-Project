@@ -135,21 +135,12 @@ function AssessmentTestPage() {
     } catch (err) {
       console.error('Error initializing test:', err);
       const errorMessage = err.response?.data?.message || 'Failed to load assessment';
-      const eligibilityDetails = err.response?.data?.eligibilityDetails || [];
       
       // Enhanced error message for eligibility issues
       if (err.response?.status === 400 && errorMessage.toLowerCase().includes('eligible')) {
-        let fullMessage = errorMessage;
-        if (eligibilityDetails.length > 0) {
-          fullMessage += '\n\nDetails:\n' + eligibilityDetails.map((detail, idx) => `• ${detail}`).join('\n');
-        }
-        setError(fullMessage);
+        setError(errorMessage);
         toast.error(errorMessage, {
-          duration: 5000,
-          style: {
-            maxWidth: '500px',
-            whiteSpace: 'pre-line'
-          }
+          duration: 5000
         });
       } else {
         setError(errorMessage);

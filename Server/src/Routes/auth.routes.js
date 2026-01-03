@@ -10,7 +10,9 @@ router.post(
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
     firstName: Joi.string().min(1).max(60).required(),
-    lastName: Joi.string().min(1).max(60).required()
+    lastName: Joi.string().min(1).max(60).required(),
+    dob: Joi.date().max('now').required(),
+    gender: Joi.string().allow("").optional()
   })),
   authController.signup
 );
@@ -74,6 +76,16 @@ router.post(
 );
 
 router.get("/me", authMiddleware, authController.me);
+
+router.put(
+  "/profile",
+  authMiddleware,
+  validateBody(Joi.object({
+    dob: Joi.date().allow(null).optional(),
+    gender: Joi.string().allow("").optional()
+  })),
+  authController.updateProfile
+);
 
 router.get("/google/start", authController.googleStart);
 router.get("/google/callback", authController.googleCallback);

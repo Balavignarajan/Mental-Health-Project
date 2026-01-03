@@ -438,7 +438,7 @@ function validateTestData(testData) {
 }
 
 /**
- * Validate eligibility rules
+ * Validate eligibility rules - only supports simple minAge
  * @param {Object} eligibilityRules - Eligibility rules to validate
  * @returns {Object} - { valid: boolean, errors: Array<string> }
  */
@@ -449,63 +449,10 @@ function validateEligibilityRules(eligibilityRules) {
     return { valid: true, errors: [] }; // Eligibility rules are optional
   }
 
-  // Support legacy format: simple minAge
+  // Only support simple minAge
   if (eligibilityRules.minAge !== undefined) {
     if (typeof eligibilityRules.minAge !== 'number' || eligibilityRules.minAge < 0) {
       errors.push('"minAge" must be a non-negative number');
-    }
-    return { valid: errors.length === 0, errors };
-  }
-
-  // New format: conditions with AND/OR
-  if (eligibilityRules.conditions) {
-    if (!Array.isArray(eligibilityRules.conditions)) {
-      errors.push('"conditions" in eligibilityRules must be an array');
-    } else if (eligibilityRules.conditions.length === 0) {
-      errors.push('"conditions" array cannot be empty');
-    } else {
-      // Validate operator
-      if (eligibilityRules.operator && !['AND', 'OR', 'and', 'or'].includes(eligibilityRules.operator)) {
-        errors.push('"operator" must be either "AND" or "OR"');
-      }
-
-      // Validate each condition
-      eligibilityRules.conditions.forEach((condition, index) => {
-        if (typeof condition !== 'object') {
-          errors.push(`Condition ${index + 1} must be an object`);
-          return;
-        }
-
-        // Age condition
-        if (condition.type === 'age' || condition.field === 'age') {
-          if (condition.minAge !== undefined && (typeof condition.minAge !== 'number' || condition.minAge < 0)) {
-            errors.push(`Condition ${index + 1}: "minAge" must be a non-negative number`);
-          }
-          if (condition.maxAge !== undefined && (typeof condition.maxAge !== 'number' || condition.maxAge < 0)) {
-            errors.push(`Condition ${index + 1}: "maxAge" must be a non-negative number`);
-          }
-          if (condition.minAge !== undefined && condition.maxAge !== undefined && condition.minAge > condition.maxAge) {
-            errors.push(`Condition ${index + 1}: "minAge" (${condition.minAge}) cannot be greater than "maxAge" (${condition.maxAge})`);
-          }
-        }
-
-        // Gender condition
-        if (condition.type === 'gender' || condition.field === 'gender') {
-          if (!condition.value && !condition.equals) {
-            errors.push(`Condition ${index + 1}: Gender condition requires "value" or "equals" field`);
-          }
-        }
-
-        // Custom field condition
-        if (condition.field && condition.field !== 'age' && condition.field !== 'gender') {
-          if (!condition.operator && !condition.equals && !condition.not_equals && !condition.in) {
-            errors.push(`Condition ${index + 1}: Custom field condition requires an operator (equals, not_equals, in)`);
-          }
-          if (condition.operator && !['equals', 'not_equals', 'in'].includes(condition.operator)) {
-            errors.push(`Condition ${index + 1}: Invalid operator "${condition.operator}". Valid operators: equals, not_equals, in`);
-          }
-        }
-      });
     }
   }
 

@@ -6,14 +6,18 @@ import axiosInstance from '../utils/config/axiosInstance';
  * @param {string} password - User password (min 6 characters)
  * @param {string} firstName - User first name
  * @param {string} lastName - User last name
+ * @param {string} dob - Date of birth (YYYY-MM-DD format)
+ * @param {string} gender - User gender (optional)
  * @returns {Promise} API response with userId
  */
-export const signup = async (email, password, firstName, lastName) => {
+export const signup = async (email, password, firstName, lastName, dob = null, gender = '') => {
   const response = await axiosInstance.post('/auth/signup', {
     email,
     password,
     firstName,
-    lastName
+    lastName,
+    dob,
+    gender
   });
   return response.data;
 };
@@ -146,6 +150,16 @@ export const loginWithOtp = async (email, code, deviceId = '') => {
  */
 export const getMe = async () => {
   const response = await axiosInstance.get('/auth/me');
+  return response.data;
+};
+
+/**
+ * Update user profile (DOB, gender, etc.)
+ * @param {Object} profileData - Profile data { dob: Date|string, gender: string }
+ * @returns {Promise} API response
+ */
+export const updateProfile = async (profileData) => {
+  const response = await axiosInstance.put('/auth/profile', profileData);
   return response.data;
 };
 

@@ -18,6 +18,7 @@ import UserHomePage from './pages/user/UserHomePage';
 import MyAssessmentsPage from './pages/user/MyAssessmentsPage';
 import AssessmentTestPage from './pages/user/AssessmentTestPage';
 import AssessmentTestResultPage from './pages/user/AssessmentTestResultPage';
+import ProfilePage from './pages/user/ProfilePage';
 // Shared Pages
 import AboutUsPage from './pages/shared/AboutUsPage';
 import ContactUsPage from './pages/shared/ContactUsPage';
@@ -97,6 +98,7 @@ function App() {
         <Route path="/user/about" element={<Layout isLoggedIn={true}><AboutUsPage /></Layout>} />
         <Route path="/user/contact" element={<Layout isLoggedIn={true}><ContactUsPage /></Layout>} />
         <Route path="/my-assessments" element={<Layout isLoggedIn={true}><MyAssessmentsPage /></Layout>} />
+        <Route path="/profile" element={<Layout isLoggedIn={true}><ProfilePage /></Layout>} />
         <Route path="/assessment-test/:id" element={<Layout isLoggedIn={true}><AssessmentTestPage /></Layout>} />
         <Route path="/test-result/:id" element={<Layout isLoggedIn={true}><AssessmentTestResultPage /></Layout>} />
         

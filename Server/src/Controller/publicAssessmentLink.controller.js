@@ -108,8 +108,7 @@ exports.start = asyncHandler(async (req, res) => {
   if (!eligibilityCheck.ok) {
     return res.status(400).json({ 
       success: false, 
-      message: eligibilityCheck.reason || "Not eligible for this assessment",
-      eligibilityDetails: eligibilityCheck.details || []
+      message: eligibilityCheck.reason || "Not eligible for this assessment"
     });
   }
 

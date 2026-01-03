@@ -14,7 +14,7 @@ function hashRaw(rawValue) {
 }
 
 exports.signup = asyncHandler(async (req, res) => {
-  const { email, password, firstName, lastName } = req.body;
+  const { email, password, firstName, lastName, dob, gender } = req.body;
 
   const existingUser = await User.findOne({ email: email.toLowerCase() });
   if (existingUser) return res.status(409).json({ success: false, message: "Email already registered" });
@@ -26,11 +26,21 @@ exports.signup = asyncHandler(async (req, res) => {
   const codeHash = hashRaw(verificationCode);
   const codeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
+  // Prepare profile data
+  const profileData = {};
+  if (dob) {
+    profileData.dob = new Date(dob);
+  }
+  if (gender) {
+    profileData.gender = gender;
+  }
+
   const newUser = await User.create({
     email: email.toLowerCase(),
     passwordHash: passwordHashValue,
     firstName,
     lastName,
+    profile: Object.keys(profileData).length > 0 ? profileData : undefined,
     isEmailVerified: false,
     emailVerificationCode: codeHash,
     emailVerificationCodeExpiresAt: codeExpiresAt
@@ -339,6 +349,38 @@ exports.loginWithOtp = asyncHandler(async (req, res) => {
 
 exports.me = asyncHandler(async (req, res) => {
   return ok(res, "Me", req.user);
+});
+
+/**
+ * Update user profile (DOB, gender, etc.)
+ */
+exports.updateProfile = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { dob, gender } = req.body;
+  
+  const userDoc = await User.findById(userId);
+  if (!userDoc) {
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+  
+  // Update profile fields
+  if (dob !== undefined) {
+    userDoc.profile = userDoc.profile || {};
+    userDoc.profile.dob = dob ? new Date(dob) : null;
+  }
+  
+  if (gender !== undefined) {
+    userDoc.profile = userDoc.profile || {};
+    userDoc.profile.gender = gender || "";
+  }
+  
+  await userDoc.save();
+  
+  await writeAudit({ userId, action: "UPDATE_PROFILE", resourceType: "user", resourceId: String(userId), req });
+  
+  return ok(res, "Profile updated successfully", {
+    profile: userDoc.profile
+  });
 });
 
 /**

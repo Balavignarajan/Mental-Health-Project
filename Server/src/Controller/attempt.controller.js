@@ -61,17 +61,41 @@ exports.loadTest = asyncHandler(async (req, res, next) => {
   // Attach test to request for use in subsequent middleware/controllers
   req.test = testDoc;
   
-  // Check eligibility (age, gender, custom fields, etc.)
+  // Check eligibility (only minAge supported)
   // Support participantInfo for anonymous users (from assessment links)
   const participantInfo = req.body?.participantInfo || null;
-  const eligibilityCheck = checkEligibility(req.user, testDoc, participantInfo);
-  req.eligibilityCheck = eligibilityCheck;
   
-  if (!eligibilityCheck.ok) {
-    return res.status(400).json({ 
+  try {
+    const eligibilityCheck = checkEligibility(req.user, testDoc, participantInfo);
+    req.eligibilityCheck = eligibilityCheck;
+    
+    if (!eligibilityCheck.ok) {
+      console.log('Eligibility check failed:', {
+        userId: req.user?._id,
+        testId: testDoc._id,
+        hasProfile: !!req.user?.profile,
+        hasDob: !!req.user?.profile?.dob,
+        participantInfo: participantInfo,
+        rules: testDoc.eligibilityRules,
+        reason: eligibilityCheck.reason
+      });
+      
+      return res.status(400).json({ 
+        success: false, 
+        message: eligibilityCheck.reason || "Not eligible for this test"
+      });
+    }
+  } catch (error) {
+    console.error('Eligibility check error:', error);
+    console.error('Error details:', {
+      userId: req.user?._id,
+      testId: testDoc?._id,
+      userProfile: req.user?.profile,
+      participantInfo: participantInfo
+    });
+    return res.status(500).json({ 
       success: false, 
-      message: eligibilityCheck.reason || "Not eligible for this test",
-      eligibilityDetails: eligibilityCheck.details || []
+      message: "Error checking eligibility. Please try again."
     });
   }
   
