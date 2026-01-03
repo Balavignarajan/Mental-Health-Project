@@ -6,6 +6,7 @@ import bgImage from '../../assets/images/Rectangle 40026.png';
 import signupImg from '../../assets/images/signup.png';
 import { signup } from '../../api/authApi';
 import { showToast } from '../../utils/toast';
+import DatePicker from '../../components/DatePicker';
 
 function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -231,12 +232,11 @@ function SignUpPage() {
                   <label className="block text-sm font-medium text-mh-dark mb-2">
                     Date of Birth <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={formData.dob}
                     onChange={(e) => handleInputChange('dob', e.target.value)}
                     max={new Date().toISOString().split('T')[0]}
-                    className="input-field"
+                    placeholder="Select your date of birth"
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">Required for age-restricted assessments</p>

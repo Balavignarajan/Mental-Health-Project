@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { getMe, updateProfile } from '../../api/authApi';
 import Breadcrumb from '../../components/Breadcrumb';
+import DatePicker from '../../components/DatePicker';
 
 function ProfilePage() {
   const navigate = useNavigate();
@@ -120,11 +121,11 @@ function ProfilePage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Date of Birth <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={formData.dob}
                     onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
                     max={new Date().toISOString().split('T')[0]}
+                    placeholder="Select your date of birth"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
                     required
                   />

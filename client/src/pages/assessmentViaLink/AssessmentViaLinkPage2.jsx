@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast'
 import assessmentLinkImg from '../../assets/images/Assesment-link.png'
 import assLink1 from '../../assets/images/ass-link-1.png'
 import { startLinkAttempt, validateAssessmentLink } from '../../api/publicAssessmentLinkApi'
+import DatePicker from '../../components/DatePicker'
 
 const AssessmentViaLinkPage2 = () => {
   const navigate = useNavigate()
@@ -162,17 +163,14 @@ const AssessmentViaLinkPage2 = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Date of Birth
               </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={formData.dateOfBirth}
-                  onChange={handleInputChange}
-                  max={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 pl-12 bg-gray-200 border-0 rounded-lg text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-                <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-              </div>
+              <DatePicker
+                value={formData.dateOfBirth}
+                onChange={handleInputChange}
+                max={new Date().toISOString().split('T')[0]}
+                placeholder="Select your date of birth"
+                className="w-full px-4 py-3 bg-gray-200 border-0 rounded-lg text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                name="dateOfBirth"
+              />
             </div>
             
             <div className="flex-1">
