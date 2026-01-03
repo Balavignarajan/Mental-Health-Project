@@ -50,6 +50,7 @@ function AdminAssessments() {
   const [currentOption, setCurrentOption] = useState({ value: '', label: '' });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
+  const [jsonUploadError, setJsonUploadError] = useState('');
 
   useEffect(() => {
     fetchTests();
@@ -368,6 +369,7 @@ function AdminAssessments() {
       options: []
     });
     setCurrentOption({ value: '', label: '' });
+    setJsonUploadError('');
   };
 
   const addQuestion = () => {
@@ -460,6 +462,211 @@ function AdminAssessments() {
       ...currentQuestion,
       options: currentQuestion.options.filter((_, i) => i !== optionIndex)
     });
+  };
+
+  const handleJsonUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.endsWith('.json')) {
+      showToast.error('Please select a JSON file');
+      setJsonUploadError('Invalid file type. Please select a .json file.');
+      e.target.value = '';
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showToast.error('File size must be less than 5MB');
+      setJsonUploadError('File size exceeds 5MB limit.');
+      e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const jsonData = JSON.parse(event.target.result);
+        
+        // Validate JSON structure
+        if (!jsonData.questions || !Array.isArray(jsonData.questions)) {
+          throw new Error('JSON must contain a "questions" array');
+        }
+
+        if (jsonData.questions.length === 0) {
+          throw new Error('Questions array cannot be empty');
+        }
+
+        // Validate each question
+        const validatedQuestions = [];
+        const questionIds = new Set();
+        
+        jsonData.questions.forEach((q, index) => {
+          // Validate required fields
+          if (!q.id || typeof q.id !== 'string') {
+            throw new Error(`Question ${index + 1}: "id" is required and must be a string`);
+          }
+
+          if (!q.text || typeof q.text !== 'string' || q.text.trim() === '') {
+            throw new Error(`Question ${index + 1}: "text" is required and cannot be empty`);
+          }
+
+          // Check for duplicate IDs
+          if (questionIds.has(q.id)) {
+            throw new Error(`Question ${index + 1}: Duplicate question ID "${q.id}"`);
+          }
+          questionIds.add(q.id);
+
+          // Validate question type
+          const validTypes = ['radio', 'checkbox', 'text', 'textarea', 'numeric', 'boolean', 'likert'];
+          const questionType = q.type || 'radio';
+          if (!validTypes.includes(questionType)) {
+            throw new Error(`Question ${index + 1}: Invalid type "${questionType}". Valid types: ${validTypes.join(', ')}`);
+          }
+
+          // Validate options for radio, checkbox, and likert types
+          if (['radio', 'checkbox', 'likert'].includes(questionType)) {
+            if (!q.options || !Array.isArray(q.options) || q.options.length < 2) {
+              throw new Error(`Question ${index + 1}: Must have at least 2 options for type "${questionType}"`);
+            }
+
+            // Validate each option
+            q.options.forEach((opt, optIndex) => {
+              if (opt.value === undefined || opt.value === null) {
+                throw new Error(`Question ${index + 1}, Option ${optIndex + 1}: "value" is required`);
+              }
+              if (!opt.label || typeof opt.label !== 'string' || opt.label.trim() === '') {
+                throw new Error(`Question ${index + 1}, Option ${optIndex + 1}: "label" is required and cannot be empty`);
+              }
+            });
+          }
+
+          // Set defaults for optional fields
+          const validatedQuestion = {
+            id: q.id.trim(),
+            text: q.text.trim(),
+            type: questionType,
+            required: q.required !== undefined ? q.required : true,
+            order: q.order !== undefined ? Number(q.order) : index + 1,
+            isCritical: q.isCritical || false,
+            helpText: q.helpText || '',
+            options: q.options ? q.options.map(opt => ({
+              value: typeof opt.value === 'number' ? opt.value : Number(opt.value) || opt.value,
+              label: String(opt.label).trim()
+            })) : []
+          };
+
+          validatedQuestions.push(validatedQuestion);
+        });
+
+        // Merge with existing questions (check for duplicates by ID)
+        const existingQuestions = createForm.schemaJson.questions || [];
+        const existingIds = new Set(existingQuestions.map(q => q.id));
+        const newQuestions = validatedQuestions.filter(q => !existingIds.has(q.id));
+        const duplicateCount = validatedQuestions.length - newQuestions.length;
+
+        if (duplicateCount > 0) {
+          showToast.warning(`${duplicateCount} question(s) were skipped due to duplicate IDs`);
+        }
+
+        // Merge and sort by order
+        const mergedQuestions = [...existingQuestions, ...newQuestions]
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        // Update form state
+        setCreateForm({
+          ...createForm,
+          schemaJson: {
+            ...createForm.schemaJson,
+            questions: mergedQuestions
+          }
+        });
+
+        setJsonUploadError('');
+        showToast.success(`Successfully imported ${newQuestions.length} question(s)! ${duplicateCount > 0 ? `(${duplicateCount} duplicates skipped)` : ''}`);
+        
+      } catch (error) {
+        console.error('JSON parsing error:', error);
+        setJsonUploadError(error.message);
+        showToast.error(`JSON Error: ${error.message}`);
+      }
+      
+      // Reset file input
+      e.target.value = '';
+    };
+
+    reader.onerror = () => {
+      showToast.error('Failed to read file');
+      setJsonUploadError('Failed to read file. Please try again.');
+      e.target.value = '';
+    };
+
+    reader.readAsText(file);
+  };
+
+  const downloadSampleJson = () => {
+    const sampleJson = {
+      questions: [
+        {
+          id: "q1",
+          text: "How often do you feel anxious or worried?",
+          type: "radio",
+          required: true,
+          order: 1,
+          isCritical: false,
+          helpText: "",
+          options: [
+            { value: 0, label: "Not at all" },
+            { value: 1, label: "Rarely" },
+            { value: 2, label: "Sometimes" },
+            { value: 3, label: "Often" }
+          ]
+        },
+        {
+          id: "q2",
+          text: "Do you experience difficulty sleeping?",
+          type: "radio",
+          required: true,
+          order: 2,
+          isCritical: false,
+          helpText: "",
+          options: [
+            { value: 0, label: "Never" },
+            { value: 1, label: "Seldom" },
+            { value: 2, label: "Occasionally" },
+            { value: 3, label: "Frequently" }
+          ]
+        },
+        {
+          id: "q3",
+          text: "Rate your overall mood (1-5 scale)",
+          type: "likert",
+          required: true,
+          order: 3,
+          isCritical: false,
+          helpText: "",
+          options: [
+            { value: 1, label: "Very Poor" },
+            { value: 2, label: "Poor" },
+            { value: 3, label: "Neutral" },
+            { value: 4, label: "Good" },
+            { value: 5, label: "Very Good" }
+          ]
+        }
+      ]
+    };
+    
+    const blob = new Blob([JSON.stringify(sampleJson, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sample-questions.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast.success('Sample JSON template downloaded!');
   };
 
   if (loading && tests.length === 0) {
@@ -938,11 +1145,75 @@ function AdminAssessments() {
                     <h4 className="text-lg font-semibold text-mh-dark">
                       Questions ({createForm.schemaJson.questions.length})
                     </h4>
-                    {createForm.schemaJson.questions.length > 0 && (
-                      <span className="text-sm text-gray-600">
-                        ✓ {createForm.schemaJson.questions.length} question{createForm.schemaJson.questions.length !== 1 ? 's' : ''} added
-                      </span>
-                    )}
+                    <div className="flex items-center space-x-3">
+                      {/* JSON Upload Button */}
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept=".json"
+                          onChange={handleJsonUpload}
+                          className="hidden"
+                        />
+                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          Upload Questions JSON
+                        </span>
+                      </label>
+                      
+                      {createForm.schemaJson.questions.length > 0 && (
+                        <span className="text-sm text-gray-600">
+                          ✓ {createForm.schemaJson.questions.length} question{createForm.schemaJson.questions.length !== 1 ? 's' : ''} added
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* JSON Upload Error Display */}
+                  {jsonUploadError && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-start">
+                        <svg className="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="flex-1">
+                          <p className="text-sm text-red-800 font-medium mb-1">JSON Upload Error:</p>
+                          <p className="text-xs text-red-600">{jsonUploadError}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setJsonUploadError('')}
+                          className="ml-2 text-red-600 hover:text-red-800"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* JSON Format Help */}
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-blue-900 mb-1">📄 JSON Upload Format:</p>
+                        <p className="text-xs text-blue-800 mb-2">
+                          Upload a JSON file with a "questions" array. Each question needs: <strong>id</strong>, <strong>text</strong>, <strong>type</strong>, <strong>options</strong> (for radio/checkbox/likert), <strong>order</strong>, <strong>required</strong>.
+                        </p>
+                        <p className="text-xs text-blue-700 mb-2">
+                          <strong>Supported types:</strong> radio, checkbox, text, textarea, numeric, boolean, likert
+                        </p>
+                        <button
+                          type="button"
+                          onClick={downloadSampleJson}
+                          className="text-xs text-blue-700 hover:text-blue-900 underline font-medium"
+                        >
+                          📥 Download Sample JSON Template
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Add Question Form */}

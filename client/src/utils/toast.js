@@ -9,6 +9,17 @@ export const showToast = {
     toast.error(message);
   },
   
+  warning: (message) => {
+    toast(message, {
+      icon: '⚠️',
+      duration: 4000,
+      style: {
+        background: '#FEF3C7',
+        color: '#92400E',
+      },
+    });
+  },
+  
   info: (message) => {
     toast(message, {
       icon: 'ℹ️',
