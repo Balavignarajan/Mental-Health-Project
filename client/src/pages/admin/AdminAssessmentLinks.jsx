@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAssessmentLinks, createAssessmentLink, getAdminTests, getLinkResults, sendAssessmentLinkEmail, getLinkEmailHistory } from '../../api/adminApi';
 import { showToast } from '../../utils/toast';
+import DatePicker from '../../components/DatePicker';
 
 function AdminAssessmentLinks() {
   const [links, setLinks] = useState([]);
@@ -85,6 +86,20 @@ function AdminAssessmentLinks() {
     }
   };
 
+  // Convert date-only (YYYY-MM-DD) to datetime (YYYY-MM-DDTHH:mm) for backend
+  const convertDateToDateTime = (dateString) => {
+    if (!dateString) return '';
+    // Set time to end of day (23:59) for expiration
+    return `${dateString}T23:59`;
+  };
+
+  // Convert datetime (YYYY-MM-DDTHH:mm) to date-only (YYYY-MM-DD) for DatePicker
+  const convertDateTimeToDate = (dateTimeString) => {
+    if (!dateTimeString) return '';
+    // Extract just the date part
+    return dateTimeString.split('T')[0];
+  };
+
   const handleCreateLink = async (e) => {
     e.preventDefault();
     
@@ -98,7 +113,7 @@ function AdminAssessmentLinks() {
       const linkData = {
         testId: formData.testId,
         campaignName: formData.campaignName || '',
-        expiresAt: formData.expiresAt || null,
+        expiresAt: formData.expiresAt ? convertDateToDateTime(formData.expiresAt) : null,
         maxAttempts: formData.maxAttempts ? parseInt(formData.maxAttempts) : null,
         linkType: formData.linkType || 'free',
         price: formData.linkType === 'paid' ? parseFloat(formData.price) || 0 : 0
@@ -702,12 +717,14 @@ function AdminAssessmentLinks() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Expiration Date (Optional)
                     </label>
-                    <input
-                      type="datetime-local"
-                      value={formData.expiresAt}
+                    <DatePicker
+                      value={formData.expiresAt && formData.expiresAt.includes('T') ? convertDateTimeToDate(formData.expiresAt) : formData.expiresAt || ''}
                       onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
+                      placeholder="Select expiration date"
+                      min={new Date().toISOString().split('T')[0]}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
                     />
+                    <p className="text-xs text-gray-500 mt-1">The link will expire at the end of the selected date</p>
                   </div>
 
                   <div>
