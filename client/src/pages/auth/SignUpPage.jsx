@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 import bgImage from '../../assets/images/Rectangle 40026.png';
 import signupImg from '../../assets/images/signup.png';
 import { signup } from '../../api/authApi';
@@ -196,18 +198,14 @@ function SignUpPage() {
                   <label className="block text-sm font-medium text-mh-dark mb-2">
                     Mobile number
                   </label>
-                  <div className="flex">
-                    <div className="flex items-center px-3 bg-mh-white border border-r-0 border-gray-300 rounded-l-xl">
-                      <span className="text-sm text-mh-dark">+1</span>
-                    </div>
-                    <input
-                      type="tel"
-                      value={formData.mobile}
-                      onChange={(e) => handleInputChange('mobile', e.target.value)}
-                      placeholder="Enter your mobile number"
-                      className="input-field rounded-l-none border-l-0"
-                    />
-                  </div>
+                  <PhoneInput
+                    international
+                    defaultCountry="US"
+                    value={formData.mobile}
+                    onChange={(value) => handleInputChange('mobile', value || '')}
+                    placeholder="Enter your mobile number"
+                    className="phone-input-wrapper"
+                  />
                 </div>
 
                 {/* Email */}

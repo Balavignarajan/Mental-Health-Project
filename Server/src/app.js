@@ -36,11 +36,27 @@ async function createApp() {
           scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
           connectSrc: ["'self'", "ws://localhost:*", "http://localhost:*"],
           styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", "data:", "https://purecatamphetamine.github.io"],
         },
       },
     }));
   } else {
-    app.use(helmet());
+    app.use(helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", "data:", "https://purecatamphetamine.github.io"],
+          fontSrc: ["'self'", "https:", "data:"],
+          formAction: ["'self'"],
+          frameAncestors: ["'self'"],
+          objectSrc: ["'none'"],
+          scriptSrcAttr: ["'none'"],
+          upgradeInsecureRequests: [],
+        },
+      },
+    }));
   }
   app.use(express.json({ limit: "2mb" }));
   app.use(express.urlencoded({ extended: true }));
