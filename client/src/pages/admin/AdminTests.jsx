@@ -59,6 +59,8 @@ function AdminAssessments() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
   const [jsonUploadError, setJsonUploadError] = useState('');
+  const [uploadedJsonFileName, setUploadedJsonFileName] = useState('');
+  const [isProcessingJson, setIsProcessingJson] = useState(false);
   const [validationErrors, setValidationErrors] = useState({ errors: [], warnings: [], questionErrors: {} });
   const [availableCategories, setAvailableCategories] = useState([]);
   const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
@@ -441,6 +443,8 @@ function AdminAssessments() {
     setShowIfMode('none');
     setCurrentCondition({ questionId: '', operator: 'equals', value: '' });
     setJsonUploadError('');
+    setUploadedJsonFileName('');
+    setIsProcessingJson(false);
     setValidationErrors({ errors: [], warnings: [], questionErrors: {} });
     setIsAddingNewCategory(false);
     setNewCategoryValue('');
@@ -590,6 +594,7 @@ function AdminAssessments() {
       showToast.error('Please select a JSON file');
       setJsonUploadError('Invalid file type. Please select a .json file.');
       e.target.value = '';
+      setUploadedJsonFileName('');
       return;
     }
 
@@ -598,8 +603,13 @@ function AdminAssessments() {
       showToast.error('File size must be less than 5MB');
       setJsonUploadError('File size exceeds 5MB limit.');
       e.target.value = '';
+      setUploadedJsonFileName('');
       return;
     }
+
+    setIsProcessingJson(true);
+    setJsonUploadError('');
+    setUploadedJsonFileName(file.name);
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -706,7 +716,10 @@ function AdminAssessments() {
       } catch (error) {
         console.error('JSON parsing error:', error);
         setJsonUploadError(error.message);
+        setUploadedJsonFileName('');
         showToast.error(`JSON Error: ${error.message}`);
+      } finally {
+        setIsProcessingJson(false);
       }
       
       // Reset file input
@@ -716,6 +729,8 @@ function AdminAssessments() {
     reader.onerror = () => {
       showToast.error('Failed to read file');
       setJsonUploadError('Failed to read file. Please try again.');
+      setUploadedJsonFileName('');
+      setIsProcessingJson(false);
       e.target.value = '';
     };
 
@@ -1360,34 +1375,67 @@ function AdminAssessments() {
                     <h4 className="text-lg font-semibold text-mh-dark">
                       Questions ({createForm.schemaJson.questions.length})
                     </h4>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3 flex-wrap gap-2">
                       {/* JSON Upload Button */}
-                      <label className="cursor-pointer">
-                        <input
-                          type="file"
-                          accept=".json"
-                          onChange={handleJsonUpload}
-                          className="hidden"
-                        />
-                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      {!uploadedJsonFileName ? (
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept=".json"
+                            onChange={handleJsonUpload}
+                            className="hidden"
+                            disabled={isProcessingJson}
+                          />
+                          <span className={`inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm ${isProcessingJson ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                            {isProcessingJson ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                <span>Processing...</span>
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <span>Upload Questions JSON</span>
+                              </>
+                            )}
+                          </span>
+                        </label>
+                      ) : (
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg text-sm">
+                          <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          Upload Questions JSON
-                        </span>
-                      </label>
-                      
-                      {/* Validate Schema Button */}
-                      <button
-                        type="button"
-                        onClick={handleValidateSchema}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium shadow-sm"
-                      >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Validate Schema
-                      </button>
+                          <span className="text-green-700 font-medium">File uploaded:</span>
+                          <span className="text-green-600 font-semibold">{uploadedJsonFileName}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUploadedJsonFileName('');
+                              setJsonUploadError('');
+                            }}
+                            className="ml-2 text-green-600 hover:text-green-800 transition-colors"
+                            title="Clear file indication"
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                          <label className="ml-2 cursor-pointer">
+                            <input
+                              type="file"
+                              accept=".json"
+                              onChange={handleJsonUpload}
+                              className="hidden"
+                              disabled={isProcessingJson}
+                            />
+                            <span className="text-blue-600 hover:text-blue-800 text-xs font-medium underline">
+                              Change file
+                            </span>
+                          </label>
+                        </div>
+                      )}
                       
                       {createForm.schemaJson.questions.length > 0 && (
                         <span className={`text-sm ${
