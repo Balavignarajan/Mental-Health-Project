@@ -198,14 +198,17 @@ function SignUpPage() {
                   <label className="block text-sm font-medium text-mh-dark mb-2">
                     Mobile number
                   </label>
-                  <PhoneInput
-                    international
-                    defaultCountry="US"
-                    value={formData.mobile}
-                    onChange={(value) => handleInputChange('mobile', value || '')}
-                    placeholder="Enter your mobile number"
-                    className="phone-input-wrapper"
-                  />
+                  <div className="relative">
+                    <PhoneInput
+                      international
+                      defaultCountry="US"
+                      value={formData.mobile}
+                      onChange={(value) => handleInputChange('mobile', value || '')}
+                      placeholder="Enter your mobile number"
+                      className="phone-input-wrapper w-full"
+                      inputClassName="w-full"
+                    />
+                  </div>
                 </div>
 
                 {/* Email */}
