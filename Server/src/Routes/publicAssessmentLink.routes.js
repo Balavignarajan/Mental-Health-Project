@@ -9,6 +9,27 @@ router.get(
   publicAssessmentLinkController.validate
 );
 
+// Create payment order for paid assessment link (public, no auth required)
+router.post(
+  "/:token/payment/order",
+  validateBody(Joi.object({
+    participantEmail: Joi.string().email().required(),
+    participantName: Joi.string().optional()
+  })),
+  publicAssessmentLinkController.createPaymentOrder
+);
+
+// Verify payment for assessment link (public, no auth required)
+router.post(
+  "/:token/payment/verify",
+  validateBody(Joi.object({
+    paymentId: Joi.string().required(),
+    orderId: Joi.string().required(),
+    participantEmail: Joi.string().email().required()
+  })),
+  publicAssessmentLinkController.verifyPayment
+);
+
 // Start anonymous assessment attempt (public, no auth required)
 router.post(
   "/:token/start",

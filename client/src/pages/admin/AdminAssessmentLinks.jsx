@@ -15,7 +15,9 @@ function AdminAssessmentLinks() {
     testId: '',
     campaignName: '',
     expiresAt: '',
-    maxAttempts: ''
+    maxAttempts: '',
+    linkType: 'free',
+    price: 0
   });
   const [createdLink, setCreatedLink] = useState(null);
   const [showResultsModal, setShowResultsModal] = useState(false);
@@ -97,14 +99,16 @@ function AdminAssessmentLinks() {
         testId: formData.testId,
         campaignName: formData.campaignName || '',
         expiresAt: formData.expiresAt || null,
-        maxAttempts: formData.maxAttempts ? parseInt(formData.maxAttempts) : null
+        maxAttempts: formData.maxAttempts ? parseInt(formData.maxAttempts) : null,
+        linkType: formData.linkType || 'free',
+        price: formData.linkType === 'paid' ? parseFloat(formData.price) || 0 : 0
       };
 
       const response = await createAssessmentLink(linkData);
       if (response.success && response.data) {
         showToast.success('Assessment link created successfully!');
         setCreatedLink(response.data);
-        setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '' });
+        setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '', linkType: 'free', price: 0 });
         fetchLinks();
       } else {
         showToast.error(response.message || 'Failed to create link');
@@ -480,6 +484,8 @@ function AdminAssessmentLinks() {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Test</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attempts</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
@@ -490,7 +496,7 @@ function AdminAssessmentLinks() {
             <tbody className="bg-white divide-y divide-gray-200">
               {links.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan="9" className="px-6 py-12 text-center text-gray-500">
                     No assessment links found
                   </td>
                 </tr>
@@ -505,6 +511,18 @@ function AdminAssessmentLinks() {
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900">
                         {link.testId?.title || 'N/A'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {link.linkType === 'paid' ? (
+                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Paid</span>
+                      ) : (
+                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">Free</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {link.linkType === 'paid' ? `₹${link.price || 0}` : 'Free'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -610,7 +628,7 @@ function AdminAssessmentLinks() {
                   onClick={() => {
                     setShowCreateModal(false);
                     setCreatedLink(null);
-                    setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '' });
+                    setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '', linkType: 'free', price: 0 });
                   }}
                   className="text-gray-400 hover:text-gray-600"
                 >
@@ -706,13 +724,53 @@ function AdminAssessmentLinks() {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Link Type <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.linkType}
+                      onChange={(e) => {
+                        const newLinkType = e.target.value;
+                        setFormData({ 
+                          ...formData, 
+                          linkType: newLinkType,
+                          price: newLinkType === 'free' ? 0 : formData.price
+                        });
+                      }}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                    >
+                      <option value="free">Free</option>
+                      <option value="paid">Paid</option>
+                    </select>
+                  </div>
+
+                  {formData.linkType === 'paid' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Price (₹) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        placeholder="e.g., 500"
+                        min="0"
+                        step="0.01"
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                      />
+                    </div>
+                  )}
+
                   <div className="flex gap-3 pt-4">
                     <button
                       type="button"
-                      onClick={() => {
-                        setShowCreateModal(false);
-                        setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '' });
-                      }}
+                    onClick={() => {
+                      setShowCreateModal(false);
+                      setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '', linkType: 'free', price: 0 });
+                    }}
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                     >
                       Cancel

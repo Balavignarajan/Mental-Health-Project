@@ -11,11 +11,28 @@ const { sendAssessmentLinkEmail } = require("../services/mail.service");
  * Create new assessment link (admin only)
  */
 exports.create = asyncHandler(async (req, res) => {
-  const { testId, campaignName, expiresAt, maxAttempts } = req.body;
+  const { testId, campaignName, expiresAt, maxAttempts, linkType, price } = req.body;
 
   // Validate required fields
   if (!testId) {
     return res.status(400).json({ success: false, message: "testId is required" });
+  }
+
+  // Validate linkType
+  if (linkType && !['free', 'paid'].includes(linkType)) {
+    return res.status(400).json({ success: false, message: "linkType must be 'free' or 'paid'" });
+  }
+
+  // Validate price for paid links
+  const finalLinkType = linkType || 'free';
+  const finalPrice = price || 0;
+  
+  if (finalLinkType === 'paid' && (!finalPrice || finalPrice <= 0)) {
+    return res.status(400).json({ success: false, message: "Price must be greater than 0 for paid links" });
+  }
+
+  if (finalLinkType === 'free' && finalPrice > 0) {
+    return res.status(400).json({ success: false, message: "Price must be 0 for free links" });
   }
 
   // Verify test exists and is active
@@ -57,7 +74,9 @@ exports.create = asyncHandler(async (req, res) => {
     expiresAt: expiresAtDate,
     maxAttempts: maxAttempts || null,
     currentAttempts: 0,
-    isActive: true
+    isActive: true,
+    linkType: finalLinkType,
+    price: finalPrice
   });
 
   await writeAudit({ 

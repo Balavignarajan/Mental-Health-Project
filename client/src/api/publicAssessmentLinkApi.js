@@ -15,6 +15,38 @@ export const validateAssessmentLink = async (token) => {
 };
 
 /**
+ * Create payment order for paid assessment link
+ * @param {string} token - Link token
+ * @param {string} participantEmail - Participant email
+ * @param {string} participantName - Participant name (optional)
+ * @returns {Promise} API response with payment order details
+ */
+export const createLinkPaymentOrder = async (token, participantEmail, participantName = '') => {
+  const response = await axiosInstance.post(`/public/assessment-links/${token}/payment/order`, {
+    participantEmail,
+    participantName
+  });
+  return response.data;
+};
+
+/**
+ * Verify payment for assessment link
+ * @param {string} token - Link token
+ * @param {string} paymentId - Razorpay payment ID
+ * @param {string} orderId - Razorpay order ID
+ * @param {string} participantEmail - Participant email
+ * @returns {Promise} API response with verification result
+ */
+export const verifyLinkPayment = async (token, paymentId, orderId, participantEmail) => {
+  const response = await axiosInstance.post(`/public/assessment-links/${token}/payment/verify`, {
+    paymentId,
+    orderId,
+    participantEmail
+  });
+  return response.data;
+};
+
+/**
  * Start anonymous assessment attempt via link
  * @param {string} token - Link token
  * @param {Object} participantInfo - Participant information (name, email, dateOfBirth, gender)

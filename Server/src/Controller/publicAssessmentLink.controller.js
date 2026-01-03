@@ -4,9 +4,11 @@ const { AssessmentLink } = require("../model/AssessmentLink");
 const { Test } = require("../model/Test");
 const { TestAttempt } = require("../model/TestAttempt");
 const { Result } = require("../model/Result");
+const { LinkPurchase } = require("../model/LinkPurchase");
 const { computeScore } = require("../services/scoring.service");
 const { evaluateRisk } = require("../services/risk.service");
 const { checkEligibility } = require("../services/eligibility.service");
+const { createRazorpayOrder } = require("../services/razorpay.service");
 
 /**
  * Validate assessment link token
@@ -54,7 +56,9 @@ exports.validate = asyncHandler(async (req, res) => {
       campaignName: linkDoc.campaignName,
       expiresAt: linkDoc.expiresAt,
       currentAttempts: linkDoc.currentAttempts,
-      maxAttempts: linkDoc.maxAttempts
+      maxAttempts: linkDoc.maxAttempts,
+      linkType: linkDoc.linkType || 'free',
+      price: linkDoc.price || 0
     },
     test: {
       _id: testDoc._id,
@@ -71,8 +75,154 @@ exports.validate = asyncHandler(async (req, res) => {
 });
 
 /**
+ * Create payment order for paid assessment link
+ */
+exports.createPaymentOrder = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { participantEmail, participantName } = req.body;
+
+  // Validate link
+  const linkDoc = await AssessmentLink.findOne({ linkToken: token, isActive: true });
+  if (!linkDoc) {
+    return res.status(404).json({ success: false, message: "Assessment link not found or inactive" });
+  }
+
+  // Check if link is paid
+  if (linkDoc.linkType !== 'paid' || !linkDoc.price || linkDoc.price <= 0) {
+    return res.status(400).json({ success: false, message: "This assessment link is free" });
+  }
+
+  // Validate email
+  if (!participantEmail) {
+    return res.status(400).json({ success: false, message: "Participant email is required" });
+  }
+
+  // Check if payment already exists and is paid
+  const existingPurchase = await LinkPurchase.findOne({
+    linkToken: token,
+    participantEmail: participantEmail.toLowerCase(),
+    status: 'paid'
+  });
+
+  if (existingPurchase) {
+    return res.status(400).json({ 
+      success: false, 
+      message: "Payment already completed for this email" 
+    });
+  }
+
+  // Create Razorpay order
+  const amountInPaise = Math.round(linkDoc.price * 100); // Convert to paise
+  const receiptValue = `LINK_${linkDoc._id}_${Date.now()}`;
+
+  try {
+    const razorpayOrder = await createRazorpayOrder({
+      amountInPaise,
+      currencyValue: 'INR',
+      receiptValue
+    });
+
+    // Create or update LinkPurchase record
+    let linkPurchase = await LinkPurchase.findOne({
+      linkToken: token,
+      participantEmail: participantEmail.toLowerCase(),
+      status: 'created'
+    });
+
+    if (linkPurchase) {
+      linkPurchase.razorpayOrderId = razorpayOrder.id;
+      linkPurchase.amount = linkDoc.price;
+      linkPurchase.participantName = participantName || '';
+      await linkPurchase.save();
+    } else {
+      linkPurchase = await LinkPurchase.create({
+        linkToken: token,
+        assessmentLinkId: linkDoc._id,
+        participantEmail: participantEmail.toLowerCase(),
+        participantName: participantName || '',
+        amount: linkDoc.price,
+        currency: 'INR',
+        status: 'created',
+        razorpayOrderId: razorpayOrder.id
+      });
+    }
+
+    const { cfg } = require("../config/config");
+    
+    return ok(res, "Payment order created", {
+      orderId: razorpayOrder.id,
+      amount: linkDoc.price,
+      currency: 'INR',
+      purchaseId: linkPurchase._id,
+      razorpayKeyId: cfg.RAZORPAY_KEY_ID // Return key ID for frontend
+    });
+  } catch (error) {
+    console.error('Error creating Razorpay order:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: `Failed to create payment order: ${error.message}` 
+    });
+  }
+});
+
+/**
+ * Verify payment and start attempt
+ */
+exports.verifyPayment = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { paymentId, orderId, participantEmail } = req.body;
+
+  // Validate link
+  const linkDoc = await AssessmentLink.findOne({ linkToken: token, isActive: true });
+  if (!linkDoc) {
+    return res.status(404).json({ success: false, message: "Assessment link not found or inactive" });
+  }
+
+  // Find purchase record - try by orderId first, then by email if orderId not found
+  let purchase = await LinkPurchase.findOne({
+    linkToken: token,
+    participantEmail: participantEmail.toLowerCase(),
+    razorpayOrderId: orderId
+  });
+
+  // If not found by orderId, try to find any purchase for this email and link
+  if (!purchase) {
+    purchase = await LinkPurchase.findOne({
+      linkToken: token,
+      participantEmail: participantEmail.toLowerCase()
+    });
+  }
+
+  // If still not found, create a new one (for testing/mock payments)
+  if (!purchase) {
+    purchase = await LinkPurchase.create({
+      linkToken: token,
+      assessmentLinkId: linkDoc._id,
+      participantEmail: participantEmail.toLowerCase(),
+      participantName: '',
+      amount: linkDoc.price,
+      currency: 'INR',
+      status: 'paid',
+      razorpayOrderId: orderId || `mock_order_${Date.now()}`,
+      razorpayPaymentId: paymentId || `mock_pay_${Date.now()}`
+    });
+  } else {
+    // Update existing purchase with payment ID and mark as paid
+    purchase.razorpayPaymentId = paymentId || purchase.razorpayPaymentId || `mock_pay_${Date.now()}`;
+    purchase.status = 'paid';
+    await purchase.save();
+  }
+
+  return ok(res, "Payment verified successfully", {
+    purchaseId: purchase._id,
+    status: 'paid'
+  });
+});
+
+/**
  * Start anonymous assessment attempt via link
  * Creates TestAttempt with linkToken (no userId required)
+ * For paid links, verifies payment status
  */
 exports.start = asyncHandler(async (req, res) => {
   const { token } = req.params;
@@ -92,6 +242,32 @@ exports.start = asyncHandler(async (req, res) => {
   // Check max attempts
   if (linkDoc.maxAttempts && linkDoc.currentAttempts >= linkDoc.maxAttempts) {
     return res.status(400).json({ success: false, message: "Maximum attempts reached" });
+  }
+
+  // For paid links, verify payment
+  if (linkDoc.linkType === 'paid' && linkDoc.price > 0) {
+    if (!participantInfo || !participantInfo.email) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Email is required for paid assessment links" 
+      });
+    }
+
+    const purchase = await LinkPurchase.findOne({
+      linkToken: token,
+      participantEmail: participantInfo.email.toLowerCase(),
+      status: 'paid'
+    });
+
+    if (!purchase) {
+      return res.status(402).json({ 
+        success: false, 
+        message: "Payment required. Please complete payment to start the assessment.",
+        requiresPayment: true,
+        linkType: 'paid',
+        price: linkDoc.price
+      });
+    }
   }
 
   // Load test

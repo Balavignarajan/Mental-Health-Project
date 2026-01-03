@@ -25,6 +25,7 @@ import ContactUsPage from './pages/shared/ContactUsPage';
 // Assessment Via Link Pages
 import AssessmentViaLinkPage1 from './pages/assessmentViaLink/AssessmentViaLinkPage1';
 import AssessmentViaLinkPage2 from './pages/assessmentViaLink/AssessmentViaLinkPage2';
+import AssessmentViaLinkPaymentPage from './pages/assessmentViaLink/AssessmentViaLinkPaymentPage';
 import AssessmentViaLinkTestPage from './pages/assessmentViaLink/AssessmentViaLinkTestPage';
 import AssessmentViaLinkResultPage from './pages/assessmentViaLink/AssessmentViaLinkResultPage';
 // Other Pages 
@@ -105,6 +106,7 @@ function App() {
         {/* Assessment Via Link Routes */}
         <Route path="/assessment-link/:token" element={<Layout showHeaderFooter={false}><AssessmentViaLinkPage1 /></Layout>} />
         <Route path="/assessment-link/:token/step2" element={<Layout showHeaderFooter={false}><AssessmentViaLinkPage2 /></Layout>} />
+        <Route path="/assessment-link/:token/payment" element={<Layout showHeaderFooter={false}><AssessmentViaLinkPaymentPage /></Layout>} />
         <Route path="/assessment-link/:token/test/:attemptId" element={<Layout showHeaderFooter={false}><AssessmentViaLinkTestPage /></Layout>} />
         <Route path="/assessment-link/:token/result/:resultId" element={<Layout showHeaderFooter={false}><AssessmentViaLinkResultPage /></Layout>} />
         

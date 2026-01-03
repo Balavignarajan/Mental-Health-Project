@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Calendar, ChevronDown } from 'lucide-react'
+import { Calendar, ChevronDown, Lock } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import assessmentLinkImg from '../../assets/images/Assesment-link.png'
 import assLink1 from '../../assets/images/ass-link-1.png'
-import { startLinkAttempt } from '../../api/publicAssessmentLinkApi'
+import { startLinkAttempt, validateAssessmentLink } from '../../api/publicAssessmentLinkApi'
 
 const AssessmentViaLinkPage2 = () => {
   const navigate = useNavigate()
@@ -17,13 +17,28 @@ const AssessmentViaLinkPage2 = () => {
     consent: false
   })
   const [loading, setLoading] = useState(false)
+  const [linkData, setLinkData] = useState(null)
 
   useEffect(() => {
     if (!token) {
       toast.error('Invalid assessment link')
       navigate('/')
+    } else {
+      loadLinkData()
     }
   }, [token, navigate])
+
+  const loadLinkData = async () => {
+    try {
+      const response = await validateAssessmentLink(token)
+      if (response.success && response.data) {
+        setLinkData(response.data.link)
+      }
+    } catch (err) {
+      console.error('Error loading link data:', err)
+    }
+  }
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -44,16 +59,25 @@ const AssessmentViaLinkPage2 = () => {
       return
     }
 
+    // Store participant info for payment page
+    const participantInfo = {
+      name: formData.fullName,
+      email: formData.email,
+      dateOfBirth: formData.dateOfBirth,
+      gender: formData.gender
+    }
+    localStorage.setItem(`linkParticipant_${token}`, JSON.stringify(participantInfo))
+
+    // If payment is required, redirect to payment page
+    if (linkData && linkData.linkType === 'paid' && linkData.price > 0) {
+      navigate(`/assessment-link/${token}/payment`)
+      return
+    }
+
+    // For free links, proceed directly
     try {
       setLoading(true)
       
-      const participantInfo = {
-        name: formData.fullName,
-        email: formData.email,
-        dateOfBirth: formData.dateOfBirth,
-        gender: formData.gender
-      }
-
       const response = await startLinkAttempt(token, participantInfo)
       
       if (response.success && response.data?.attempt) {
@@ -69,7 +93,6 @@ const AssessmentViaLinkPage2 = () => {
       console.error('Error starting attempt:', err)
       const errorMessage = err.response?.data?.message || 'Failed to start assessment'
       
-      // Enhanced error message for eligibility issues
       if (err.response?.status === 400 && errorMessage.toLowerCase().includes('eligible')) {
         toast.error(errorMessage, {
           duration: 6000
@@ -141,14 +164,14 @@ const AssessmentViaLinkPage2 = () => {
               </label>
               <div className="relative">
                 <input
-                  type="text"
+                  type="date"
                   name="dateOfBirth"
                   value={formData.dateOfBirth}
                   onChange={handleInputChange}
-                  placeholder="DD/MM/YYYY"
+                  max={new Date().toISOString().split('T')[0]}
                   className="w-full px-4 py-3 pl-12 bg-gray-200 border-0 rounded-lg text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
-                <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
               </div>
             </div>
             
@@ -172,6 +195,22 @@ const AssessmentViaLinkPage2 = () => {
               </div>
             </div>
           </div>
+
+          {/* Payment Section for Paid Links - UI Only */}
+          {linkData && linkData.linkType === 'paid' && linkData.price > 0 && (
+            <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Lock className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-gray-800">Payment Required</h3>
+                </div>
+                <span className="text-xl font-bold text-blue-600">₹{linkData.price}</span>
+              </div>
+              <p className="text-sm text-gray-600">
+                This assessment requires payment to proceed. Please complete the payment to continue.
+              </p>
+            </div>
+          )}
 
           {/* Consent Checkbox */}
           <div className="flex items-start space-x-3 mb-8">

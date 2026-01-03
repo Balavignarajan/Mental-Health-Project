@@ -60,7 +60,9 @@ router.post(
     testId: Joi.string().required(),
     campaignName: Joi.string().allow("").optional(),
     expiresAt: Joi.date().allow(null).optional(),
-    maxAttempts: Joi.number().integer().min(1).allow(null).optional()
+    maxAttempts: Joi.number().integer().min(1).allow(null).optional(),
+    linkType: Joi.string().valid('free', 'paid').optional(),
+    price: Joi.number().min(0).optional()
   })),
   assessmentLinkController.create
 );

@@ -38,6 +38,16 @@ const assessmentLinkSchema = new mongoose.Schema(
     isActive: { 
       type: Boolean, 
       default: true 
+    },
+    linkType: {
+      type: String,
+      enum: ['free', 'paid'],
+      default: 'free'
+    },
+    price: {
+      type: Number,
+      default: 0,
+      min: 0
     }
   },
   { timestamps: true }

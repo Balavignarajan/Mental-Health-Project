@@ -233,8 +233,6 @@ function AssessmentViaLinkTestPage() {
               key={getQuestionId(question, originalIndex)}
               question={question}
               index={displayIndex} // Use display index for numbering visible questions
-            question={question}
-            index={index}
               answers={answers}
               onAnswerChange={handleAnswerChange}
             />
