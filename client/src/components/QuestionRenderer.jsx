@@ -11,21 +11,31 @@ import { evaluateShowIf } from '../utils/branchingEngine';
  * Compare answer value with option value (handles 0, false, and other edge cases)
  */
 function isAnswerMatch(answer, optionValue) {
-  // Strict equality check (handles exact matches including 0, false, null, undefined)
+  // If answer is empty/null/undefined, it should never match (unless optionValue is also empty)
+  if (answer === '' || answer === null || answer === undefined) {
+    return false;
+  }
+  
+  // Strict equality check (handles exact matches including 0, false)
   if (answer === optionValue) {
     return true;
   }
   
-  // String comparison (handles type coercion)
-  if (String(answer) === String(optionValue)) {
+  // String comparison (handles type coercion, but only if both are non-empty)
+  const answerStr = String(answer);
+  const optionStr = String(optionValue);
+  if (answerStr !== '' && optionStr !== '' && answerStr === optionStr) {
     return true;
   }
   
   // Number comparison (handles string numbers like "0" vs 0)
-  const answerNum = Number(answer);
-  const optionNum = Number(optionValue);
-  if (!isNaN(answerNum) && !isNaN(optionNum) && answerNum === optionNum) {
-    return true;
+  // Only do number comparison if answer is not empty string
+  if (answerStr !== '') {
+    const answerNum = Number(answer);
+    const optionNum = Number(optionValue);
+    if (!isNaN(answerNum) && !isNaN(optionNum) && answerNum === optionNum) {
+      return true;
+    }
   }
   
   return false;
@@ -193,8 +203,223 @@ function SubQuestionRenderer({ subQuestion, index, parentQuestionId, parentAnswe
       </div>
     );
   }
+
+  // Render checkbox sub-question
+  if (subQType === 'checkbox' && subQOptions.length > 0) {
+    const answerArray = Array.isArray(answer) ? answer : (answer !== undefined && answer !== null && answer !== '' ? [String(answer)] : []);
+    
+    return (
+      <div className={`mb-4 ${depth > 0 ? 'ml-4' : ''}`}>
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-4 flex items-start">
+            <span className="text-gray-800 mr-2 mt-1">◆</span>
+            <span>{subQText}</span>
+          </h4>
+          <div className={`grid grid-cols-1 ${subQOptions.length > 3 ? 'sm:grid-cols-2 lg:flex lg:gap-4' : 'sm:flex sm:gap-4'} gap-3 mb-4`}>
+            {subQOptions.map((option) => {
+              const optionValueStr = String(option.value);
+              const isChecked = answerArray.includes(optionValueStr) || answerArray.includes(String(option.value));
+              return (
+                <CheckboxOption
+                  key={option.value}
+                  option={option}
+                  questionId={subQId}
+                  checked={isChecked}
+                  onChange={(values) => onAnswerChange(subQId, values)}
+                />
+              );
+            })}
+          </div>
+          
+          {/* Nested sub-questions */}
+          {subQSubQuestions.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-300">
+              {subQSubQuestions.map((nestedSubQ, nestedIndex) => (
+                <SubQuestionRenderer
+                  key={nestedIndex}
+                  subQuestion={nestedSubQ}
+                  index={nestedIndex}
+                  parentQuestionId={subQId}
+                  parentAnswer={answer}
+                  answers={answers}
+                  onAnswerChange={onAnswerChange}
+                  depth={depth + 1}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Render other sub-question types (text, textarea, numeric, boolean, likert)
+  if (subQType === 'text') {
+    const maxLength = subQuestion.maxLength !== undefined ? subQuestion.maxLength : undefined;
+    return (
+      <div className={`mb-4 ${depth > 0 ? 'ml-4' : ''}`}>
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-4 flex items-start">
+            <span className="text-gray-800 mr-2 mt-1">◆</span>
+            <span>{subQText}</span>
+          </h4>
+          <div className="max-w-2xl">
+            <input
+              type="text"
+              value={answer || ''}
+              onChange={(e) => onAnswerChange(subQId, e.target.value)}
+              maxLength={maxLength}
+              placeholder="Type your answer here"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-base"
+            />
+            {maxLength && (
+              <p className="text-xs text-gray-500 mt-2">
+                {String(answer || '').length}/{maxLength} characters
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (subQType === 'textarea') {
+    const rows = subQuestion.rows !== undefined ? subQuestion.rows : 4;
+    const maxLength = subQuestion.maxLength !== undefined ? subQuestion.maxLength : undefined;
+    return (
+      <div className={`mb-4 ${depth > 0 ? 'ml-4' : ''}`}>
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-4 flex items-start">
+            <span className="text-gray-800 mr-2 mt-1">◆</span>
+            <span>{subQText}</span>
+          </h4>
+          <div className="max-w-2xl">
+            <textarea
+              value={answer || ''}
+              onChange={(e) => onAnswerChange(subQId, e.target.value)}
+              rows={rows}
+              maxLength={maxLength}
+              placeholder="Type your answer here"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-base resize-y"
+            />
+            {maxLength && (
+              <p className="text-xs text-gray-500 mt-2">
+                {String(answer || '').length}/{maxLength} characters
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (subQType === 'numeric') {
+    const min = subQuestion.min !== undefined ? subQuestion.min : undefined;
+    const max = subQuestion.max !== undefined ? subQuestion.max : undefined;
+    const step = subQuestion.step !== undefined ? subQuestion.step : 1;
+    return (
+      <div className={`mb-4 ${depth > 0 ? 'ml-4' : ''}`}>
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-4 flex items-start">
+            <span className="text-gray-800 mr-2 mt-1">◆</span>
+            <span>{subQText}</span>
+          </h4>
+          <div className="max-w-md">
+            <input
+              type="number"
+              value={answer || ''}
+              onChange={(e) => {
+                const value = e.target.value === '' ? '' : Number(e.target.value);
+                onAnswerChange(subQId, value);
+              }}
+              min={min}
+              max={max}
+              step={step}
+              placeholder="Enter a number"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-base"
+            />
+            {(min !== undefined || max !== undefined) && (
+              <p className="text-xs text-gray-500 mt-2">
+                {min !== undefined && max !== undefined
+                  ? `Range: ${min} - ${max}`
+                  : min !== undefined
+                  ? `Minimum: ${min}`
+                  : `Maximum: ${max}`}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (subQType === 'boolean') {
+    const isYes = answer === true || answer === 'true' || String(answer).toLowerCase() === 'yes';
+    const isNo = answer === false || answer === 'false' || String(answer).toLowerCase() === 'no';
+    return (
+      <div className={`mb-4 ${depth > 0 ? 'ml-4' : ''}`}>
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-4 flex items-start">
+            <span className="text-gray-800 mr-2 mt-1">◆</span>
+            <span>{subQText}</span>
+          </h4>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => onAnswerChange(subQId, true)}
+              className={`flex-1 px-6 py-4 rounded-lg font-medium transition-colors ${
+                isYes
+                  ? 'bg-mh-green text-white shadow-md'
+                  : 'bg-mh-light text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Yes
+            </button>
+            <button
+              type="button"
+              onClick={() => onAnswerChange(subQId, false)}
+              className={`flex-1 px-6 py-4 rounded-lg font-medium transition-colors ${
+                isNo
+                  ? 'bg-red-500 text-white shadow-md'
+                  : 'bg-mh-light text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              No
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (subQType === 'likert' && subQOptions.length > 0) {
+    return (
+      <div className={`mb-4 ${depth > 0 ? 'ml-4' : ''}`}>
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-4 flex items-start">
+            <span className="text-gray-800 mr-2 mt-1">◆</span>
+            <span>{subQText}</span>
+          </h4>
+          <div className={`grid grid-cols-1 ${subQOptions.length > 4 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2 lg:flex lg:gap-4'} gap-3 mb-4`}>
+            {subQOptions.map((option) => {
+              const isChecked = isAnswerMatch(answer, option.value);
+              return (
+                <RadioOption
+                  key={option.value}
+                  option={option}
+                  questionId={subQId}
+                  checked={isChecked}
+                  onChange={(value) => onAnswerChange(subQId, value)}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
   
-  // For other types, render as before but with updated styling
+  // Fallback for unsupported types
   return (
     <div className={`mb-4 ${depth > 0 ? 'ml-4' : ''}`}>
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -202,7 +427,6 @@ function SubQuestionRenderer({ subQuestion, index, parentQuestionId, parentAnswe
           <span className="text-gray-800 mr-2 mt-1">◆</span>
           <span>{subQText}</span>
         </h4>
-        {/* Render other question types here if needed */}
         <p className="text-gray-500 text-sm">Sub-question type "{subQType}" rendering not yet implemented</p>
       </div>
     </div>

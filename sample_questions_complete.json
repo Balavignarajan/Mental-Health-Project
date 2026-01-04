@@ -1,0 +1,217 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "text": "How often do you experience feelings of anxiety or worry? (radio)",
+      "type": "radio",
+      "required": true,
+      "options": [
+        { "value": 0, "label": "Never" },
+        { "value": 1, "label": "Rarely" },
+        { "value": 2, "label": "Sometimes" },
+        { "value": 3, "label": "Often" },
+        { "value": 4, "label": "Always" }
+      ],
+      "subQuestions": [
+        {
+          "id": "q1_sub1",
+          "text": "When you experience anxiety, how long does it typically last?",
+          "type": "radio",
+          "show_if": {
+            "questionId": "q1",
+            "in": [2, 3, 4]
+          },
+          "options": [
+            { "value": 1, "label": "Less than 30 minutes" },
+            { "value": 2, "label": "30 minutes to 2 hours" },
+            { "value": 3, "label": "2 to 6 hours" },
+            { "value": 4, "label": "More than 6 hours" }
+          ]
+        },
+        {
+          "id": "q1_sub2",
+          "text": "Does anxiety interfere with your daily activities?",
+          "type": "radio",
+          "show_if": {
+            "questionId": "q1",
+            "in": [2, 3, 4]
+          },
+          "options": [
+            { "value": 1, "label": "Not at all" },
+            { "value": 2, "label": "Slightly" },
+            { "value": 3, "label": "Moderately" },
+            { "value": 4, "label": "Severely" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "q2",
+      "text": "Which of the following symptoms have you experienced in the past month? Select all that apply. (checkbox)",
+      "type": "checkbox",
+      "required": true,
+      "options": [
+        { "value": 1, "label": "Difficulty sleeping" },
+        { "value": 2, "label": "Loss of appetite" },
+        { "value": 3, "label": "Fatigue or low energy" },
+        { "value": 4, "label": "Difficulty concentrating" },
+        { "value": 5, "label": "Feeling restless" },
+        { "value": 6, "label": "Irritability" }
+      ],
+      "subQuestions": [
+        {
+          "id": "q2_sub1",
+          "text": "If you selected 'Difficulty sleeping', how many hours of sleep do you typically get per night?",
+          "type": "numeric",
+          "show_if": {
+            "questionId": "q2",
+            "in": [1]
+          },
+          "min": 0,
+          "max": 24,
+          "step": 0.5
+        }
+      ]
+    },
+    {
+      "id": "q3",
+      "text": "Have you sought professional help for mental health concerns in the past year? (boolean)",
+      "type": "boolean",
+      "required": true
+    },
+    {
+      "id": "q4",
+      "text": "On a scale of 0 to 10, how would you rate your overall stress level? (numeric)",
+      "type": "numeric",
+      "required": true,
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "id": "q5",
+      "text": "What is your primary occupation or current role? (text)",
+      "type": "text",
+      "required": true,
+      "maxLength": 100
+    },
+    {
+      "id": "q6",
+      "text": "Please describe any specific concerns or symptoms you have been experiencing. (textarea)",
+      "type": "textarea",
+      "required": false,
+      "rows": 5,
+      "maxLength": 500
+    },
+    {
+      "id": "q7",
+      "text": "Rate your agreement with the following statement: 'I feel supported by my family and friends.' (likert)",
+      "type": "likert",
+      "required": true,
+      "options": [
+        { "value": 1, "label": "Strongly Disagree" },
+        { "value": 2, "label": "Disagree" },
+        { "value": 3, "label": "Neutral" },
+        { "value": 4, "label": "Agree" },
+        { "value": 5, "label": "Strongly Agree" }
+      ]
+    },
+    {
+      "id": "q8",
+      "text": "How would you describe your current mood? (radio)",
+      "type": "radio",
+      "required": true,
+      "options": [
+        { "value": 1, "label": "Very positive" },
+        { "value": 2, "label": "Somewhat positive" },
+        { "value": 3, "label": "Neutral" },
+        { "value": 4, "label": "Somewhat negative" },
+        { "value": 5, "label": "Very negative" }
+      ],
+      "subQuestions": [
+        {
+          "id": "q8_sub1",
+          "text": "If your mood is negative, what factors contribute to it?",
+          "type": "checkbox",
+          "show_if": {
+            "questionId": "q8",
+            "in": [4, 5]
+          },
+          "options": [
+            { "value": 1, "label": "Work-related stress" },
+            { "value": 2, "label": "Relationship issues" },
+            { "value": 3, "label": "Financial concerns" },
+            { "value": 4, "label": "Health problems" },
+            { "value": 5, "label": "Other" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "q9",
+      "text": "How satisfied are you with your current work-life balance? (likert)",
+      "type": "likert",
+      "required": true,
+      "options": [
+        { "value": 1, "label": "Very Dissatisfied" },
+        { "value": 2, "label": "Dissatisfied" },
+        { "value": 3, "label": "Neutral" },
+        { "value": 4, "label": "Satisfied" },
+        { "value": 5, "label": "Very Satisfied" }
+      ],
+      "subQuestions": [
+        {
+          "id": "q9_sub1",
+          "text": "If you are dissatisfied, what would help improve your work-life balance?",
+          "type": "textarea",
+          "show_if": {
+            "questionId": "q9",
+            "in": [1, 2]
+          },
+          "rows": 4,
+          "maxLength": 300
+        }
+      ]
+    },
+    {
+      "id": "q10",
+      "text": "Which coping strategies do you currently use? Select all that apply. (checkbox)",
+      "type": "checkbox",
+      "required": true,
+      "options": [
+        { "value": 1, "label": "Exercise or physical activity" },
+        { "value": 2, "label": "Meditation or mindfulness" },
+        { "value": 3, "label": "Talking to friends or family" },
+        { "value": 4, "label": "Hobbies or creative activities" },
+        { "value": 5, "label": "Professional counseling" },
+        { "value": 6, "label": "Medication" },
+        { "value": 7, "label": "Other" }
+      ],
+      "subQuestions": [
+        {
+          "id": "q10_sub1",
+          "text": "If you selected 'Exercise or physical activity', how many times per week do you exercise?",
+          "type": "numeric",
+          "show_if": {
+            "questionId": "q10",
+            "in": [1]
+          },
+          "min": 0,
+          "max": 14,
+          "step": 1
+        },
+        {
+          "id": "q10_sub2",
+          "text": "If you selected 'Other', please specify:",
+          "type": "text",
+          "show_if": {
+            "questionId": "q10",
+            "in": [7]
+          },
+          "maxLength": 150
+        }
+      ]
+    }
+  ]
+}
+
