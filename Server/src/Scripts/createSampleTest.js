@@ -7,7 +7,7 @@
 
 const path = require('path');
 // Use the same .env path as server.js (root level, two levels up from this script)
-require('dotenv').config({ path: path.join(__dirname, '../../../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const mongoose = require('mongoose');
 const { Test } = require('../model/Test');
 
