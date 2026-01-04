@@ -78,9 +78,9 @@ function AdminLayout({ children }) {
   };
 
   return (
-    <div className="min-h-screen bg-mh-light">
+    <div className="h-screen bg-mh-light overflow-hidden flex flex-col">
       {/* Header */}
-      <header className="bg-mh-white shadow-sm border-b border-gray-100 fixed top-0 left-0 right-0 z-40">
+      <header className="bg-mh-white shadow-sm border-b border-gray-100 flex-shrink-0 z-40">
         <div className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 lg:px-6">
           {/* Left: Logo and Sidebar Toggle */}
           <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
@@ -166,7 +166,8 @@ function AdminLayout({ children }) {
         </div>
       </header>
 
-      <div className="flex pt-14 sm:pt-16">
+      {/* Main Container - Flex layout for sidebar and content */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* Mobile Overlay */}
         {isSidebarOpen && (
           <div 
@@ -178,14 +179,13 @@ function AdminLayout({ children }) {
         
         {/* Sidebar */}
         <aside
-          className={`bg-mh-white border-r border-gray-200 transition-all duration-300 ${
+          className={`bg-mh-white border-r border-gray-200 transition-all duration-300 flex flex-col flex-shrink-0 ${
             isSidebarOpen 
-              ? 'w-64 fixed left-0 top-14 sm:top-16 bottom-0 z-30 lg:relative lg:top-0' 
-              : 'w-0 lg:w-16 fixed left-0 top-14 sm:top-16 bottom-0 z-30 lg:relative lg:top-0 overflow-hidden'
+              ? 'w-64 fixed left-0 top-14 sm:top-16 bottom-0 z-30 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:relative lg:top-0 lg:h-full' 
+              : 'w-0 lg:w-16 fixed left-0 top-14 sm:top-16 bottom-0 z-30 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:relative lg:top-0 lg:h-full overflow-hidden'
           }`}
-          style={{ display: 'flex', flexDirection: 'column' }}
         >
-          <nav className="p-3 sm:p-4 space-y-1 sm:space-y-2 flex-1 overflow-y-auto">
+          <nav className="p-3 sm:p-4 space-y-1 sm:space-y-2 flex-1 overflow-y-auto min-h-0">
             <Link
               to="/admin/dashboard"
               className={`flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors group ${
@@ -274,7 +274,7 @@ function AdminLayout({ children }) {
           </nav>
 
           {/* Logout Button at Bottom */}
-          <div className="p-3 sm:p-4 border-t border-gray-200 bg-mh-white">
+          <div className="p-3 sm:p-4 border-t border-gray-200 bg-mh-white flex-shrink-0">
             <button
               onClick={handleLogout}
               className={`w-full flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:text-red-700 font-medium ${!isSidebarOpen ? 'lg:justify-center lg:px-2' : ''}`}
@@ -288,10 +288,8 @@ function AdminLayout({ children }) {
           </div>
         </aside>
 
-        {/* Main Content */}
-        <main
-          className="flex-1 transition-all duration-300"
-        >
+        {/* Main Content - Scrollable */}
+        <main className="flex-1 min-w-0 overflow-y-auto bg-mh-light">
           <div className="p-3 sm:p-4 lg:p-6 xl:p-8">
             {children}
           </div>
