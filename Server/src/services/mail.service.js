@@ -46,6 +46,10 @@ async function sendResetPasswordEmail(toEmailValue, resetUrlValue) {
 }
 
 async function sendLoginOtpEmail(toEmailValue, otpCode) {
+  console.log("📧 Attempting to send login OTP email");
+  console.log("➡️ To:", toEmailValue);
+  console.log("🔑 OTP:", otpCode);
+  
   await sendMail(
     toEmailValue,
     "Login OTP Code",
@@ -63,6 +67,8 @@ async function sendLoginOtpEmail(toEmailValue, otpCode) {
       </div>
     `
   );
+  
+  console.log("✅ sendMail() resolved");
 }
 
 async function sendInvoiceEmail(toEmailValue, invoiceNumberValue) {
