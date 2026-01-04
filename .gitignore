@@ -1,0 +1,15 @@
+# Node
+node_modules/
+
+# Env
+.env
+.env.local
+
+# Build
+dist/
+
+# Uploads (temporary)
+Server/uploads/
+
+# Logs
+*.log
