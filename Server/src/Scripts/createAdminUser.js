@@ -7,7 +7,7 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../../.env') });
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { User } = require('../Model/User');
+const { User } = require('../model/User');
 
 async function createAdminUser() {
   try {

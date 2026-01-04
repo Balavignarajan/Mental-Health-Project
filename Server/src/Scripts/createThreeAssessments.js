@@ -12,7 +12,7 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../../.env') });
 const mongoose = require('mongoose');
-const { Test } = require('../Model/Test');
+const { Test } = require('../model/Test');
 
 /**
  * Generate questions with 4 options each

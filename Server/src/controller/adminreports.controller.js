@@ -1,5 +1,5 @@
-const { Purchase } = require("../Model/Purchase");
-const { TestAttempt } = require("../Model/Testattempt");
+const { Purchase } = require("../model/Purchase");
+const { TestAttempt } = require("../model/TestAttempt");
 
 const { asyncHandler } = require("../utils/Asynchandler");
 const { ok } = require("../utils/Response");
