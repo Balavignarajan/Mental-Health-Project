@@ -453,35 +453,35 @@ function AdminAssessmentLinks() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-4 sm:px-0">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-mh-dark">Assessment Links</h1>
-          <p className="text-gray-600 mt-1">Create and manage shareable assessment links</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-mh-dark">Assessment Links</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Create and manage shareable assessment links</p>
         </div>
         <button
           onClick={() => {
             setShowCreateModal(true);
             setCreatedLink(null);
           }}
-          className="px-4 py-2 bg-mh-gradient text-white rounded-lg font-medium hover:opacity-90 transition"
+          className="w-full sm:w-auto px-4 py-2 bg-mh-gradient text-white rounded-lg font-medium hover:opacity-90 transition text-sm sm:text-base"
         >
           Create New Link
         </button>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="md:w-48">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="w-full sm:w-48">
             <select
               value={isActiveFilter}
               onChange={(e) => {
                 setIsActiveFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
             >
               <option value="true">Active Only</option>
               <option value="false">Inactive Only</option>
@@ -491,21 +491,22 @@ function AdminAssessmentLinks() {
         </div>
       </div>
 
-      {/* Links Table */}
+      {/* Links Table - Desktop */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Test</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attempts</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Test</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attempts</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -518,44 +519,44 @@ function AdminAssessmentLinks() {
               ) : (
                 links.map((link) => (
                   <tr key={link._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {link.campaignName || 'No campaign name'}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 xl:px-6 py-4">
                       <div className="text-sm text-gray-900">
                         {link.testId?.title || 'N/A'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                       {link.linkType === 'paid' ? (
                         <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Paid</span>
                       ) : (
                         <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">Free</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {link.linkType === 'paid' ? `₹${link.price || 0}` : 'Free'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(link)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {link.currentAttempts || 0}
                         {link.maxAttempts ? ` / ${link.maxAttempts}` : ''}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(link.expiresAt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(link.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 xl:px-6 py-4">
                       <div className="flex items-center gap-2 flex-wrap">
                         <button
                           onClick={() => handleViewResults(link)}
@@ -606,24 +607,141 @@ function AdminAssessmentLinks() {
           </table>
         </div>
 
+        {/* Mobile/Tablet Card View */}
+        <div className="lg:hidden">
+          {links.length === 0 ? (
+            <div className="px-4 py-12 text-center text-gray-500">
+              No assessment links found
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {links.map((link) => (
+                <div key={link._id} className="p-4 hover:bg-gray-50">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 truncate">
+                          {link.campaignName || 'No campaign name'}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1 truncate">
+                          {link.testId?.title || 'N/A'}
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0">
+                        {getStatusBadge(link)}
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <div className="text-xs text-gray-500">Type</div>
+                        <div className="mt-1">
+                          {link.linkType === 'paid' ? (
+                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Paid</span>
+                          ) : (
+                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">Free</span>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">Price</div>
+                        <div className="mt-1 text-gray-900">
+                          {link.linkType === 'paid' ? `₹${link.price || 0}` : 'Free'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">Attempts</div>
+                        <div className="mt-1 text-gray-900">
+                          {link.currentAttempts || 0}
+                          {link.maxAttempts ? ` / ${link.maxAttempts}` : ''}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">Created</div>
+                        <div className="mt-1 text-gray-900 text-xs">
+                          {new Date(link.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+
+                    {link.expiresAt && (
+                      <div>
+                        <div className="text-xs text-gray-500">Expires</div>
+                        <div className="mt-1 text-sm text-gray-900">
+                          {formatDate(link.expiresAt)}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="pt-2 border-t border-gray-200">
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => handleViewResults(link)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors flex-1 min-w-[100px] justify-center"
+                          title="View Results"
+                        >
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Results
+                        </button>
+                        <button
+                          onClick={() => handleSendEmail(link)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 hover:border-purple-300 transition-colors flex-1 min-w-[100px] justify-center"
+                          title="Send Email"
+                        >
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          Email
+                        </button>
+                        <button
+                          onClick={() => handleViewEmailHistory(link)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 hover:border-indigo-300 transition-colors flex-1 min-w-[100px] justify-center"
+                          title="Email History"
+                        >
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          History
+                        </button>
+                        <button
+                          onClick={() => handleCopyLink(link.linkToken)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-mh-green bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-colors flex-1 min-w-[100px] justify-center"
+                          title="Copy Link"
+                        >
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Pagination */}
         {pagination.pages > 1 && (
-          <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
-            <div className="text-sm text-gray-700">
+          <div className="bg-gray-50 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200">
+            <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
               Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} links
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto justify-center">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={pagination.page === 1}
-                className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 text-sm flex-1 sm:flex-initial"
               >
                 Previous
               </button>
               <button
                 onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
                 disabled={pagination.page === pagination.pages}
-                className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 text-sm flex-1 sm:flex-initial"
               >
                 Next
               </button>
@@ -636,9 +754,9 @@ function AdminAssessmentLinks() {
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-mh-dark">Create Assessment Link</h2>
+            <div className="p-4 sm:p-6">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-mh-dark">Create Assessment Link</h2>
                 <button
                   onClick={() => {
                     setShowCreateModal(false);
@@ -647,7 +765,7 @@ function AdminAssessmentLinks() {
                   }}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -656,14 +774,14 @@ function AdminAssessmentLinks() {
               {createdLink ? (
                 <div className="space-y-4">
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <p className="text-green-800 font-semibold mb-2">Link Created Successfully!</p>
+                    <p className="text-green-800 font-semibold mb-2 text-sm sm:text-base">Link Created Successfully!</p>
                     <div className="bg-white rounded p-3 mb-3">
                       <p className="text-xs text-gray-500 mb-1">Shareable Link:</p>
-                      <p className="text-sm font-mono break-all">{window.location.origin}/assessment-link/{createdLink.linkToken}</p>
+                      <p className="text-xs sm:text-sm font-mono break-all">{window.location.origin}/assessment-link/{createdLink.linkToken}</p>
                     </div>
                     <button
                       onClick={() => handleCopyLink(createdLink.linkToken)}
-                      className="w-full px-4 py-2 bg-mh-gradient text-white rounded-lg font-medium hover:opacity-90"
+                      className="w-full px-4 py-2 bg-mh-gradient text-white rounded-lg font-medium hover:opacity-90 text-sm sm:text-base"
                     >
                       Copy Link
                     </button>
@@ -674,7 +792,7 @@ function AdminAssessmentLinks() {
                       setCreatedLink(null);
                       setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '' });
                     }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
                   >
                     Close
                   </button>
@@ -689,7 +807,7 @@ function AdminAssessmentLinks() {
                       value={formData.testId}
                       onChange={(e) => setFormData({ ...formData, testId: e.target.value })}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
                     >
                       <option value="">Select a test</option>
                       {tests.map((test) => (
@@ -709,7 +827,7 @@ function AdminAssessmentLinks() {
                       value={formData.campaignName}
                       onChange={(e) => setFormData({ ...formData, campaignName: e.target.value })}
                       placeholder="e.g., Mental Health Awareness Week 2025"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
                     />
                   </div>
 
@@ -722,7 +840,7 @@ function AdminAssessmentLinks() {
                       onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
                       placeholder="Select expiration date"
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
                     />
                     <p className="text-xs text-gray-500 mt-1">The link will expire at the end of the selected date</p>
                   </div>
@@ -737,7 +855,7 @@ function AdminAssessmentLinks() {
                       onChange={(e) => setFormData({ ...formData, maxAttempts: e.target.value })}
                       placeholder="e.g., 1000"
                       min="1"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
                     />
                   </div>
 
@@ -756,7 +874,7 @@ function AdminAssessmentLinks() {
                         });
                       }}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
                     >
                       <option value="free">Free</option>
                       <option value="paid">Paid</option>
@@ -776,26 +894,26 @@ function AdminAssessmentLinks() {
                         min="0"
                         step="0.01"
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+                        className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
                       />
                     </div>
                   )}
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
                     <button
                       type="button"
                     onClick={() => {
                       setShowCreateModal(false);
                       setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '', linkType: 'free', price: 0 });
                     }}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={creating}
-                      className="flex-1 px-4 py-2 bg-mh-gradient text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50"
+                      className="flex-1 px-4 py-2 bg-mh-gradient text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 text-sm sm:text-base"
                     >
                       {creating ? 'Creating...' : 'Create Link'}
                     </button>
@@ -809,13 +927,13 @@ function AdminAssessmentLinks() {
 
       {/* Results Modal */}
       {showResultsModal && selectedLink && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-bold text-mh-dark">Assessment Link Results</h2>
-                  <p className="text-sm text-gray-600 mt-1">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl sm:text-2xl font-bold text-mh-dark">Assessment Link Results</h2>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">
                     {selectedLink.campaignName || 'No campaign name'} - {selectedLink.testId?.title || 'N/A'}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
@@ -830,30 +948,31 @@ function AdminAssessmentLinks() {
                     setLinkResults([]);
                     setResultsPage(1);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               {loadingResults ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="text-center">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-mh-green mb-4"></div>
-                    <p className="text-gray-600">Loading results...</p>
+                    <p className="text-gray-600 text-sm">Loading results...</p>
                   </div>
                 </div>
               ) : linkResults.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-500">No results found for this assessment link</p>
+                  <p className="text-gray-500 text-sm">No results found for this assessment link</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="overflow-x-auto">
+                  {/* Desktop Table */}
+                  <div className="hidden md:block overflow-x-auto">
                     <table className="w-full">
                       <thead className="bg-gray-50">
                         <tr>
@@ -912,13 +1031,74 @@ function AdminAssessmentLinks() {
                     </table>
                   </div>
 
+                  {/* Mobile Card View */}
+                  <div className="md:hidden space-y-3">
+                    {linkResults.map((result) => {
+                      const participantInfo = result.attemptId?.participantInfo || {};
+                      return (
+                        <div key={result._id} className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {participantInfo.name || 'Anonymous'}
+                            </div>
+                            {participantInfo.email && (
+                              <div className="text-xs text-gray-500">{participantInfo.email}</div>
+                            )}
+                            {(participantInfo.gender || participantInfo.dateOfBirth) && (
+                              <div className="text-xs text-gray-500">
+                                {participantInfo.gender && `${participantInfo.gender}`}
+                                {participantInfo.dateOfBirth && ` • ${participantInfo.dateOfBirth}`}
+                              </div>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
+                            <div>
+                              <div className="text-xs text-gray-500">Score</div>
+                              <div className="text-sm font-semibold text-mh-dark">{result.score || 0}</div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-gray-500">Band</div>
+                              <div>
+                                {result.band ? (
+                                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getBandColorClass(result.band)}`}>
+                                    {result.band}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-gray-500">-</span>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-gray-500">Risk Flags</div>
+                              <div>
+                                {result.riskFlags && Object.keys(result.riskFlags).length > 0 ? (
+                                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    {Object.keys(result.riskFlags).length} flag(s)
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-gray-500">None</span>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-gray-500">Completed</div>
+                              <div className="text-xs text-gray-500">
+                                {result.createdAt ? new Date(result.createdAt).toLocaleString() : '-'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
                   {/* Pagination */}
                   {resultsPagination.pages > 1 && (
-                    <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                      <div className="text-sm text-gray-700">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-4">
+                      <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
                         Showing {((resultsPagination.page - 1) * resultsPagination.limit) + 1} to {Math.min(resultsPagination.page * resultsPagination.limit, resultsPagination.total)} of {resultsPagination.total} results
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 w-full sm:w-auto justify-center">
                         <button
                           onClick={() => {
                             const newPage = resultsPage - 1;
@@ -926,7 +1106,7 @@ function AdminAssessmentLinks() {
                             fetchLinkResults(selectedLink._id, newPage);
                           }}
                           disabled={resultsPage === 1}
-                          className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                          className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 text-sm flex-1 sm:flex-initial"
                         >
                           Previous
                         </button>
@@ -937,7 +1117,7 @@ function AdminAssessmentLinks() {
                             fetchLinkResults(selectedLink._id, newPage);
                           }}
                           disabled={resultsPage >= resultsPagination.pages}
-                          className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                          className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 text-sm flex-1 sm:flex-initial"
                         >
                           Next
                         </button>
@@ -948,7 +1128,7 @@ function AdminAssessmentLinks() {
               )}
             </div>
 
-            <div className="p-6 border-t border-gray-200 flex justify-end">
+            <div className="p-4 sm:p-6 border-t border-gray-200 flex justify-end">
               <button
                 onClick={() => {
                   setShowResultsModal(false);
@@ -956,7 +1136,7 @@ function AdminAssessmentLinks() {
                   setLinkResults([]);
                   setResultsPage(1);
                 }}
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="w-full sm:w-auto px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
               >
                 Close
               </button>
@@ -967,21 +1147,20 @@ function AdminAssessmentLinks() {
 
       {/* Send Email Modal */}
       {showEmailModal && selectedLinkForEmail && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
           <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[95vh] overflow-hidden flex flex-col">
             {/* Header */}
-            <div className=" p-6">
-              <div className="flex justify-between items-start">
-                <div className="flex items-start gap-3">
-                  <div className=" bg-opacity-20 rounded-lg p-2">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="p-4 sm:p-6">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+                  <div className="bg-opacity-20 rounded-lg p-2 flex-shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-bold">Send Assessment Link via Email</h2>
-                    <p className="text-sm mt-1 opacity-95">
-                   
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg sm:text-2xl font-bold truncate">Send Assessment Link via Email</h2>
+                    <p className="text-xs sm:text-sm mt-1 opacity-95 truncate">
                       {selectedLinkForEmail.campaignName || 'No campaign name'} • {selectedLinkForEmail.testId?.title || 'N/A'}
                     </p>
                   </div>
@@ -997,43 +1176,43 @@ function AdminAssessmentLinks() {
                     setInvalidEmails([]);
                     setShowEmailPreview(false);
                   }}
-                  className="text-gray-500 hover:text-mh-dark hover:bg-opacity-20 rounded-lg p-1 transition"
+                  className="text-gray-500 hover:text-mh-dark hover:bg-opacity-20 rounded-lg p-1 transition flex-shrink-0"
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
               {emailResults ? (
                 <div className="space-y-6">
                   {/* Success Summary Card */}
-                  <div className={`rounded-xl p-6 shadow-lg ${
+                  <div className={`rounded-xl p-4 sm:p-6 shadow-lg ${
                     emailResults.successful > 0 && emailResults.failed === 0
                       ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300'
                       : emailResults.successful > 0 && emailResults.failed > 0
                       ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-300'
                       : 'bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-300'
                   }`}>
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className={`text-4xl ${
+                    <div className="flex items-center gap-3 sm:gap-4 mb-4">
+                      <div className={`text-3xl sm:text-4xl flex-shrink-0 ${
                         emailResults.successful === emailResults.total ? 'text-green-600' :
                         emailResults.successful > 0 ? 'text-yellow-600' : 'text-red-600'
                       }`}>
                         {emailResults.successful === emailResults.total ? '✅' :
                          emailResults.successful > 0 ? '⚠️' : '❌'}
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-xl mb-1">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg sm:text-xl mb-1">
                           {emailResults.successful === emailResults.total
                             ? 'All emails sent successfully!'
                             : emailResults.successful > 0
                             ? `${emailResults.successful} sent, ${emailResults.failed} failed`
                             : 'Failed to send emails'}
                         </h3>
-                        <div className="flex gap-4 text-sm font-medium">
+                        <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm font-medium">
                           <span className="text-gray-700">Total: <span className="font-bold">{emailResults.total}</span></span>
                           <span className="text-green-700">Successful: <span className="font-bold">{emailResults.successful}</span></span>
                           {emailResults.failed > 0 && (
@@ -1046,9 +1225,9 @@ function AdminAssessmentLinks() {
 
                   {/* Detailed Results */}
                   {emailResults.results && emailResults.results.length > 0 && (
-                    <div className="bg-white rounded-xl shadow-md p-6">
-                      <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+                      <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2 text-sm sm:text-base">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         Email Status Details
@@ -1057,20 +1236,20 @@ function AdminAssessmentLinks() {
                         {emailResults.results.map((result, index) => (
                           <div
                             key={index}
-                            className={`p-4 rounded-lg border-l-4 flex items-center justify-between transition ${
+                            className={`p-3 sm:p-4 rounded-lg border-l-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 transition ${
                               result.success 
                                 ? 'bg-green-50 border-green-400 text-green-900' 
                                 : 'bg-red-50 border-red-400 text-red-900'
                             }`}
                           >
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <span className={`text-lg ${result.success ? 'text-green-600' : 'text-red-600'}`}>
+                            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                              <span className={`text-base sm:text-lg flex-shrink-0 ${result.success ? 'text-green-600' : 'text-red-600'}`}>
                                 {result.success ? '✓' : '✗'}
                               </span>
-                              <span className="font-medium truncate">{result.email}</span>
+                              <span className="font-medium truncate text-sm sm:text-base">{result.email}</span>
                             </div>
                             {!result.success && (
-                              <span className="text-xs text-red-600 ml-2 flex-shrink-0">
+                              <span className="text-xs text-red-600 sm:ml-2 flex-shrink-0">
                                 {result.error || 'Failed'}
                               </span>
                             )}
@@ -1081,7 +1260,7 @@ function AdminAssessmentLinks() {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
                     <button
                       onClick={() => {
                         setShowEmailModal(false);
@@ -1095,7 +1274,7 @@ function AdminAssessmentLinks() {
                         setEmailList([]);
                         setCurrentEmailInput('');
                       }}
-                      className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+                      className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium text-sm sm:text-base"
                     >
                       Close
                     </button>
@@ -1110,7 +1289,7 @@ function AdminAssessmentLinks() {
                         setEmailList([]);
                         setCurrentEmailInput('');
                       }}
-                      className="flex-1 px-6 py-3 bg-mh-gradient text-white rounded-lg hover:opacity-90 transition font-medium shadow-md"
+                      className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-mh-gradient text-white rounded-lg hover:opacity-90 transition font-medium shadow-md text-sm sm:text-base"
                     >
                       Send Another
                     </button>
@@ -1119,14 +1298,14 @@ function AdminAssessmentLinks() {
               ) : (
                 <form onSubmit={handleSendEmailSubmit} className="space-y-6">
                   {/* Email Input Section */}
-                  <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center justify-between mb-4">
+                  <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
                       <label className="block text-sm font-semibold text-gray-800">
                         Recipient Email(s) <span className="text-red-500">*</span>
                       </label>
                       {emailCount > 0 && (
-                        <div className="flex items-center gap-2">
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${
                             invalidEmails.length === 0 
                               ? 'bg-green-100 text-green-700' 
                               : 'bg-yellow-100 text-yellow-700'
@@ -1134,7 +1313,7 @@ function AdminAssessmentLinks() {
                             {emailCount} email{emailCount !== 1 ? 's' : ''}
                           </span>
                           {invalidEmails.length > 0 && (
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                            <span className="px-2 sm:px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
                               {invalidEmails.length} invalid
                             </span>
                           )}
@@ -1144,25 +1323,26 @@ function AdminAssessmentLinks() {
                     
                     {/* Single Email Input with Add Button */}
                     <div className="mb-4">
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="email"
                           value={currentEmailInput}
                           onChange={(e) => setCurrentEmailInput(e.target.value)}
                           onKeyPress={handleEmailInputKeyPress}
                           placeholder="Enter email address"
-                          className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-mh-green transition"
+                          className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-mh-green transition text-sm sm:text-base"
                         />
                         <button
                           type="button"
                           onClick={handleAddEmail}
                           disabled={!currentEmailInput.trim()}
-                          className="px-6 py-3 bg-mh-gradient text-white rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-md flex items-center gap-2"
+                          className="px-4 sm:px-6 py-2 sm:py-3 bg-mh-gradient text-white rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-md flex items-center justify-center gap-2 text-sm sm:text-base"
                         >
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                           </svg>
-                          Add Email
+                          <span className="hidden sm:inline">Add Email</span>
+                          <span className="sm:hidden">Add</span>
                         </button>
                       </div>
                       <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
@@ -1174,16 +1354,17 @@ function AdminAssessmentLinks() {
                     </div>
 
                     {/* CSV Upload Option */}
-                    <div className="mb-4 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                      <label htmlFor="csv-upload" className="flex items-center gap-3 text-sm text-gray-700 cursor-pointer hover:text-mh-green transition group">
-                        <div className="bg-white p-2 rounded-lg group-hover:bg-mh-green group-hover:text-white transition">
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="mb-4 p-3 sm:p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                      <label htmlFor="csv-upload" className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-700 cursor-pointer hover:text-mh-green transition group">
+                        <div className="bg-white p-2 rounded-lg group-hover:bg-mh-green group-hover:text-white transition flex-shrink-0">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                           </svg>
                         </div>
-                        <div className="flex-1">
-                          <span className="font-semibold block">Upload CSV for Bulk Import</span>
-                          <span className="text-xs text-gray-500">Click to upload or drag & drop CSV file</span>
+                        <div className="flex-1 min-w-0">
+                          <span className="font-semibold block text-xs sm:text-sm">Upload CSV for Bulk Import</span>
+                          <span className="text-xs text-gray-500 hidden sm:block">Click to upload or drag & drop CSV file</span>
+                          <span className="text-xs text-gray-500 sm:hidden">Upload CSV file</span>
                         </div>
                         <input
                           id="csv-upload"
@@ -1198,7 +1379,7 @@ function AdminAssessmentLinks() {
                     {/* Email List Display */}
                     {emailList.length > 0 && (
                       <div className="mt-4">
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                           <h4 className="text-sm font-semibold text-gray-800">Email List ({emailList.length})</h4>
                           {emailList.length > 0 && (
                             <button
@@ -1208,39 +1389,39 @@ function AdminAssessmentLinks() {
                                 updateEmailCounts([]);
                                 showToast.success('Email list cleared');
                               }}
-                              className="text-xs text-red-600 hover:text-red-700 font-medium"
+                              className="text-xs text-red-600 hover:text-red-700 font-medium self-start sm:self-auto"
                             >
                               Clear All
                             </button>
                           )}
                         </div>
-                        <div className="max-h-60 overflow-y-auto space-y-2 border border-gray-200 rounded-lg p-3 bg-gray-50">
+                        <div className="max-h-60 overflow-y-auto space-y-2 border border-gray-200 rounded-lg p-2 sm:p-3 bg-gray-50">
                           {emailList.map((emailItem, index) => {
                             const isValid = emailItem.isValid && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailItem.email);
                             return (
                               <div
                                 key={index}
-                                className={`flex items-center justify-between p-3 rounded-lg border-l-4 ${
+                                className={`flex items-center justify-between p-2 sm:p-3 rounded-lg border-l-4 ${
                                   isValid
                                     ? 'bg-white border-green-400'
                                     : 'bg-red-50 border-red-400'
                                 }`}
                               >
-                                <div className="flex items-center gap-3 flex-1 min-w-0">
-                                  <span className={`text-lg ${isValid ? 'text-green-600' : 'text-red-600'}`}>
+                                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                                  <span className={`text-base sm:text-lg flex-shrink-0 ${isValid ? 'text-green-600' : 'text-red-600'}`}>
                                     {isValid ? '✓' : '✗'}
                                   </span>
-                                  <span className={`font-mono text-sm truncate ${isValid ? 'text-gray-900' : 'text-red-800'}`}>
+                                  <span className={`font-mono text-xs sm:text-sm truncate ${isValid ? 'text-gray-900' : 'text-red-800'}`}>
                                     {emailItem.email}
                                   </span>
                                 </div>
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveEmail(index)}
-                                  className="ml-2 text-red-600 hover:text-red-700 hover:bg-red-50 p-1 rounded transition"
+                                  className="ml-2 text-red-600 hover:text-red-700 hover:bg-red-50 p-1 rounded transition flex-shrink-0"
                                   title="Remove email"
                                 >
-                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                   </svg>
                                 </button>
@@ -1269,7 +1450,7 @@ function AdminAssessmentLinks() {
                   </div>
 
                   {/* Custom Message Section */}
-                  <div className="bg-white rounded-xl shadow-md p-6">
+                  <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                     <label className="block text-sm font-semibold text-gray-800 mb-3">
                       Custom Message <span className="text-gray-500 font-normal">(Optional)</span>
                     </label>
@@ -1279,24 +1460,25 @@ function AdminAssessmentLinks() {
                       onChange={handleEmailFormChange}
                       placeholder="Add a personal message that will appear prominently in the email..."
                       rows={4}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-mh-green resize-none transition"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-mh-green resize-none transition text-sm sm:text-base"
                     />
                     <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      This message will be displayed prominently in the email body
+                      <span className="hidden sm:inline">This message will be displayed prominently in the email body</span>
+                      <span className="sm:hidden">Message appears in email</span>
                     </p>
                   </div>
 
                   {/* Link Preview Section */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-md p-6 border-2 border-blue-200">
-                    <div className="flex items-center justify-between mb-3">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-md p-4 sm:p-6 border-2 border-blue-200">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3">
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-                        <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                         </svg>
-                        Assessment Link Preview
+                        <span className="text-xs sm:text-sm">Assessment Link Preview</span>
                       </label>
                       <button
                         type="button"
@@ -1304,7 +1486,7 @@ function AdminAssessmentLinks() {
                           navigator.clipboard.writeText(`${window.location.origin}/assessment-link/${selectedLinkForEmail.linkToken}`);
                           showToast.success('Link copied to clipboard!');
                         }}
-                        className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition flex items-center gap-1"
+                        className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1 w-full sm:w-auto"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -1313,14 +1495,14 @@ function AdminAssessmentLinks() {
                       </button>
                     </div>
                     <div className="bg-white rounded-lg p-3 border border-blue-200">
-                      <p className="text-xs text-gray-700 break-all font-mono">
+                      <p className="text-xs sm:text-sm text-gray-700 break-all font-mono">
                         {window.location.origin}/assessment-link/{selectedLinkForEmail.linkToken}
                       </p>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -1333,23 +1515,23 @@ function AdminAssessmentLinks() {
                         setInvalidEmails([]);
                         setShowEmailPreview(false);
                       }}
-                      className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
+                      className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium text-sm sm:text-base"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={sendingEmail || emailList.length === 0 || invalidEmails.length > 0}
-                      className="flex-1 px-6 py-3 bg-mh-gradient text-white rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg flex items-center justify-center gap-2"
+                      className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-mh-gradient text-white rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base"
                     >
                       {sendingEmail ? (
                         <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
                           <span>Sending...</span>
                         </>
                       ) : (
                         <>
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                           </svg>
                           <span>Send {emailList.length > 0 ? `${emailList.length} Email${emailList.length !== 1 ? 's' : ''}` : 'Email(s)'}</span>
@@ -1366,13 +1548,13 @@ function AdminAssessmentLinks() {
 
       {/* Email History Modal */}
       {showEmailHistoryModal && selectedLinkForHistory && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-bold text-mh-dark">Email History</h2>
-                  <p className="text-sm text-gray-600 mt-1">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl sm:text-2xl font-bold text-mh-dark">Email History</h2>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">
                     {selectedLinkForHistory.campaignName || 'No campaign name'} - {selectedLinkForHistory.testId?.title || 'N/A'}
                   </p>
                 </div>
@@ -1384,20 +1566,20 @@ function AdminAssessmentLinks() {
                     setEmailHistoryPage(1);
                     setEmailHistoryStatusFilter('all');
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
 
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex gap-2">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => handleEmailHistoryFilterChange('all')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition ${
                     emailHistoryStatusFilter === 'all'
                       ? 'bg-mh-gradient text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -1407,7 +1589,7 @@ function AdminAssessmentLinks() {
                 </button>
                 <button
                   onClick={() => handleEmailHistoryFilterChange('sent')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition ${
                     emailHistoryStatusFilter === 'sent'
                       ? 'bg-green-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -1417,7 +1599,7 @@ function AdminAssessmentLinks() {
                 </button>
                 <button
                   onClick={() => handleEmailHistoryFilterChange('failed')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition ${
                     emailHistoryStatusFilter === 'failed'
                       ? 'bg-red-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -1428,21 +1610,22 @@ function AdminAssessmentLinks() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               {loadingEmailHistory ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="text-center">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-mh-green mb-4"></div>
-                    <p className="text-gray-600">Loading email history...</p>
+                    <p className="text-gray-600 text-sm">Loading email history...</p>
                   </div>
                 </div>
               ) : emailHistory.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-500">No email history found for this assessment link</p>
+                  <p className="text-gray-500 text-sm">No email history found for this assessment link</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="overflow-x-auto">
+                  {/* Desktop Table */}
+                  <div className="hidden md:block overflow-x-auto">
                     <table className="w-full">
                       <thead className="bg-gray-50">
                         <tr>
@@ -1495,13 +1678,65 @@ function AdminAssessmentLinks() {
                     </table>
                   </div>
 
+                  {/* Mobile Card View */}
+                  <div className="md:hidden space-y-3">
+                    {emailHistory.map((email) => (
+                      <div key={email._id} className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
+                        <div>
+                          <div className="text-xs text-gray-500">Recipient</div>
+                          <div className="text-sm font-medium text-gray-900 truncate">{email.recipientEmail}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Subject</div>
+                          <div className="text-sm text-gray-900">{email.subject}</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
+                          <div>
+                            <div className="text-xs text-gray-500">Status</div>
+                            <div className="mt-1">
+                              {email.status === 'sent' ? (
+                                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                  ✅ Sent
+                                </span>
+                              ) : (
+                                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                  ❌ Failed
+                                </span>
+                              )}
+                            </div>
+                            {email.errorMessage && (
+                              <div className="text-xs text-red-600 mt-1" title={email.errorMessage}>
+                                {email.errorMessage.length > 30 ? `${email.errorMessage.substring(0, 30)}...` : email.errorMessage}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="text-xs text-gray-500">Sent At</div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {email.sentAt ? new Date(email.sentAt).toLocaleString() : '-'}
+                            </div>
+                          </div>
+                        </div>
+                        {email.sentBy && (
+                          <div className="pt-2 border-t border-gray-100">
+                            <div className="text-xs text-gray-500">Sent By</div>
+                            <div className="text-sm text-gray-900">
+                              {email.sentBy?.firstName || ''} {email.sentBy?.lastName || ''}
+                            </div>
+                            <div className="text-xs text-gray-500">{email.sentBy?.email || ''}</div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
                   {/* Pagination */}
                   {emailHistoryPagination.pages > 1 && (
-                    <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                      <div className="text-sm text-gray-700">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-4">
+                      <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
                         Showing {((emailHistoryPagination.page - 1) * emailHistoryPagination.limit) + 1} to {Math.min(emailHistoryPagination.page * emailHistoryPagination.limit, emailHistoryPagination.total)} of {emailHistoryPagination.total} emails
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 w-full sm:w-auto justify-center">
                         <button
                           onClick={() => {
                             const newPage = emailHistoryPage - 1;
@@ -1509,7 +1744,7 @@ function AdminAssessmentLinks() {
                             fetchEmailHistory(selectedLinkForHistory._id, newPage, emailHistoryStatusFilter);
                           }}
                           disabled={emailHistoryPage === 1}
-                          className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                          className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 text-sm flex-1 sm:flex-initial"
                         >
                           Previous
                         </button>
@@ -1520,7 +1755,7 @@ function AdminAssessmentLinks() {
                             fetchEmailHistory(selectedLinkForHistory._id, newPage, emailHistoryStatusFilter);
                           }}
                           disabled={emailHistoryPage >= emailHistoryPagination.pages}
-                          className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                          className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 text-sm flex-1 sm:flex-initial"
                         >
                           Next
                         </button>
@@ -1531,7 +1766,7 @@ function AdminAssessmentLinks() {
               )}
             </div>
 
-            <div className="p-6 border-t border-gray-200 flex justify-end">
+            <div className="p-4 sm:p-6 border-t border-gray-200 flex justify-end">
               <button
                 onClick={() => {
                   setShowEmailHistoryModal(false);
@@ -1540,7 +1775,7 @@ function AdminAssessmentLinks() {
                   setEmailHistoryPage(1);
                   setEmailHistoryStatusFilter('all');
                 }}
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="w-full sm:w-auto px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
               >
                 Close
               </button>

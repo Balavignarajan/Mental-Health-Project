@@ -861,12 +861,12 @@ function AdminAssessments() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-4 sm:px-0">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-mh-dark">Assessments</h1>
-          <p className="text-gray-600 mt-1">Create and manage mental health assessments</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-mh-dark">Assessments</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Create and manage mental health assessments</p>
         </div>
         <button
           onClick={() => {
@@ -874,32 +874,32 @@ function AdminAssessments() {
             setEditingTestId(null);
             setShowCreateModal(true);
           }}
-          className="bg-mh-gradient text-white px-6 py-2 rounded-lg hover:opacity-90 transition-colors"
+          className="w-full sm:w-auto bg-mh-gradient text-white px-4 sm:px-6 py-2 rounded-lg hover:opacity-90 transition-colors text-sm sm:text-base"
         >
           Create Assessment
         </button>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <div className="flex-1">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title or category..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
             />
           </div>
-          <div className="md:w-48">
+          <div className="w-full sm:w-48">
             <select
               value={isActiveFilter}
               onChange={(e) => {
                 setIsActiveFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
             >
               <option value="all">All Status</option>
               <option value="true">Active</option>
@@ -908,7 +908,7 @@ function AdminAssessments() {
           </div>
           <button
             type="submit"
-            className="bg-mh-gradient text-white px-6 py-2 rounded-lg hover:opacity-90 transition-colors"
+            className="w-full sm:w-auto bg-mh-gradient text-white px-4 sm:px-6 py-2 rounded-lg hover:opacity-90 transition-colors text-sm sm:text-base"
           >
             Search
           </button>
@@ -965,10 +965,10 @@ function AdminAssessments() {
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-4 border-t border-gray-200">
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
                 <button
                   onClick={() => handleViewTest(test._id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 hover:shadow-sm transition-all duration-200 whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 hover:shadow-sm transition-all duration-200 whitespace-nowrap flex-1 min-w-[80px] justify-center sm:flex-initial"
                   title="View Details"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -979,7 +979,7 @@ function AdminAssessments() {
                 </button>
                 <button
                   onClick={() => handleEditTest(test._id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 hover:border-emerald-300 hover:shadow-sm transition-all duration-200 whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 hover:border-emerald-300 hover:shadow-sm transition-all duration-200 whitespace-nowrap flex-1 min-w-[80px] justify-center sm:flex-initial"
                   title="Edit Assessment"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -989,7 +989,7 @@ function AdminAssessments() {
                 </button>
                 <button
                   onClick={() => handleToggleActive(test)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg hover:shadow-sm transition-all duration-200 whitespace-nowrap ${test.isActive
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg hover:shadow-sm transition-all duration-200 whitespace-nowrap flex-1 min-w-[100px] justify-center sm:flex-initial ${test.isActive
                       ? 'text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100 hover:border-orange-300'
                       : 'text-green-700 bg-green-50 border border-green-200 hover:bg-green-100 hover:border-green-300'
                     }`}
@@ -1000,20 +1000,22 @@ function AdminAssessments() {
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Deactivate
+                      <span className="hidden sm:inline">Deactivate</span>
+                      <span className="sm:hidden">Deact</span>
                     </>
                   ) : (
                     <>
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Activate
+                      <span className="hidden sm:inline">Activate</span>
+                      <span className="sm:hidden">Act</span>
                     </>
                   )}
                 </button>
                 <button
                   onClick={() => handleDeleteClick(test._id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 hover:shadow-sm transition-all duration-200 whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 hover:shadow-sm transition-all duration-200 whitespace-nowrap flex-1 min-w-[80px] justify-center sm:flex-initial"
                   title="Delete Assessment"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1029,26 +1031,26 @@ function AdminAssessments() {
 
       {/* Pagination */}
       {pagination.pages > 1 && (
-        <div className="bg-white px-4 py-3 flex items-center justify-between border border-gray-200 rounded-lg sm:px-6">
-          <div className="flex-1 flex justify-between sm:hidden">
+        <div className="bg-white px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4 border border-gray-200 rounded-lg sm:px-6">
+          <div className="flex-1 flex justify-between w-full sm:hidden">
             <button
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
-              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex-1 mr-2"
             >
               Previous
             </button>
             <button
               onClick={() => setPage(page + 1)}
               disabled={page >= pagination.pages}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex-1 ml-2"
             >
               Next
             </button>
           </div>
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-gray-700">
+              <p className="text-xs sm:text-sm text-gray-700">
                 Showing <span className="font-medium">{(page - 1) * pagination.limit + 1}</span> to{' '}
                 <span className="font-medium">{Math.min(page * pagination.limit, pagination.total)}</span> of{' '}
                 <span className="font-medium">{pagination.total}</span> results
@@ -1070,7 +1072,7 @@ function AdminAssessments() {
                     <button
                       key={pageNum}
                       onClick={() => setPage(pageNum)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${page === pageNum
+                      className={`relative inline-flex items-center px-3 sm:px-4 py-2 border text-sm font-medium ${page === pageNum
                           ? 'z-10 bg-mh-gradient border-mh-green text-white'
                           : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                         }`}
@@ -1094,23 +1096,23 @@ function AdminAssessments() {
 
       {/* Create/Edit Test Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col my-8 overflow-hidden">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col my-4 sm:my-8 overflow-hidden">
             {/* Modal Header */}
-            <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-8 py-6">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-gradient-to-br from-mh-green/10 to-emerald-100 rounded-lg">
-                      <svg className="w-6 h-6 text-mh-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                    <div className="p-1.5 sm:p-2 bg-gradient-to-br from-mh-green/10 to-emerald-100 rounded-lg flex-shrink-0">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-mh-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
                         {editingTestId ? 'Edit Assessment' : 'Create New Assessment'}
                       </h3>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
                         {createForm.schemaJson.questions.length > 0
                           ? `${createForm.schemaJson.questions.length} question${createForm.schemaJson.questions.length !== 1 ? 's' : ''} added`
                           : 'Design and configure your assessment'}
@@ -1118,18 +1120,18 @@ function AdminAssessments() {
                     </div>
                   </div>
                   {/* Progress Steps */}
-                  <div className="flex items-center gap-4 mt-4">
+                  <div className="hidden sm:flex items-center gap-2 lg:gap-4 mt-4 overflow-x-auto">
                     {['Basic Info', 'Content', 'Settings', 'Review'].map((step, index) => (
-                      <div key={step} className="flex items-center gap-2">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
+                      <div key={step} className="flex items-center gap-1 lg:gap-2 flex-shrink-0">
+                        <div className={`w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center text-xs lg:text-sm font-medium
                     ${index === 0 ? 'bg-mh-green text-white' : 'bg-gray-100 text-gray-500'}`}>
                           {index + 1}
                         </div>
-                        <span className={`text-sm font-medium ${index === 0 ? 'text-gray-900' : 'text-gray-500'}`}>
+                        <span className={`text-xs lg:text-sm font-medium hidden lg:inline ${index === 0 ? 'text-gray-900' : 'text-gray-500'}`}>
                           {step}
                         </span>
                         {index < 3 && (
-                          <div className="w-12 h-0.5 bg-gray-200 mx-2" />
+                          <div className="w-6 lg:w-12 h-0.5 bg-gray-200 mx-1 lg:mx-2" />
                         )}
                       </div>
                     ))}
@@ -1140,10 +1142,10 @@ function AdminAssessments() {
                     setShowCreateModal(false);
                     resetCreateForm();
                   }}
-                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-2 transition-all duration-200"
+                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 sm:p-2 transition-all duration-200 flex-shrink-0"
                   aria-label="Close modal"
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -1151,27 +1153,27 @@ function AdminAssessments() {
             </div>
 
             <form onSubmit={handleCreateTest} className="flex-1 overflow-y-auto">
-              <div className="px-8 py-6 space-y-6">
+              <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
                 {/* Section: Basic Information */}
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         </div>
                         <div>
-                          <h4 className="text-lg font-semibold text-gray-900">Basic Information</h4>
-                          <p className="text-sm text-gray-500">Core assessment details</p>
+                          <h4 className="text-base sm:text-lg font-semibold text-gray-900">Basic Information</h4>
+                          <p className="text-xs sm:text-sm text-gray-500">Core assessment details</p>
                         </div>
                       </div>
-                      <span className="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Required</span>
+                      <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto">Required</span>
                     </div>
                   </div>
-                  <div className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-4 sm:p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                       <div className="md:col-span-2">
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-800 mb-2">
                           <span>Assessment Title</span>
@@ -1182,7 +1184,7 @@ function AdminAssessments() {
                           value={createForm.title}
                           onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
                           required
-                          className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                           placeholder="e.g., Depression Screening Test"
                         />
                         <p className="text-xs text-gray-500 mt-2">Enter a clear, descriptive title for your assessment</p>
@@ -1285,49 +1287,49 @@ function AdminAssessments() {
 
                 {/* Section: Assessment Content */}
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                           </svg>
                         </div>
                         <div>
-                          <h4 className="text-lg font-semibold text-gray-900">Assessment Content</h4>
-                          <p className="text-sm text-gray-500">Add questions and structure</p>
+                          <h4 className="text-base sm:text-lg font-semibold text-gray-900">Assessment Content</h4>
+                          <p className="text-xs sm:text-sm text-gray-500">Add questions and structure</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         {createForm.schemaJson.questions.length > 0 && (
-                          <span className="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                          <span className="text-xs sm:text-sm font-medium text-green-600 bg-green-50 px-2 sm:px-3 py-1 rounded-full">
                             {createForm.schemaJson.questions.length} questions
                           </span>
                         )}
                       </div>
                     </div>
                   </div>
-                  <div className="p-6 space-y-6">
+                  <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                     {/* Upload Questions JSON - Primary Option */}
-                    <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-300 rounded-xl p-6 shadow-sm">
-                      <div className="flex items-start justify-between mb-5">
-                        <div className="flex items-start gap-4 flex-1">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-300 rounded-xl p-4 sm:p-6 shadow-sm">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4 sm:mb-5">
+                        <div className="flex items-start gap-3 sm:gap-4 flex-1">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h5 className="text-lg font-bold text-gray-900">Upload Questions JSON</h5>
-                              <span className="text-xs font-semibold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full">Recommended</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                              <h5 className="text-base sm:text-lg font-bold text-gray-900">Upload Questions JSON</h5>
+                              <span className="text-xs font-semibold text-blue-700 bg-blue-100 px-2 sm:px-2.5 py-1 rounded-full">Recommended</span>
                             </div>
-                            <p className="text-sm text-gray-600 leading-relaxed">Upload questions via JSON file for fast bulk import. This is the fastest way to add multiple questions at once.</p>
+                            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">Upload questions via JSON file for fast bulk import. This is the fastest way to add multiple questions at once.</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 ml-4">
+                        <div className="flex items-center gap-2 sm:ml-4 flex-shrink-0">
                           {uploadedJsonFileName && (
-                            <span className="text-xs font-semibold text-green-700 bg-green-100 px-3 py-1.5 rounded-full border border-green-200">
+                            <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-green-200">
                               ✓ Imported
                             </span>
                           )}
@@ -1684,23 +1686,23 @@ function AdminAssessments() {
 
                 {/* Section: Settings */}
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                  <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
                         </div>
                         <div>
-                          <h4 className="text-lg font-semibold text-gray-900">Settings & Configuration</h4>
-                          <p className="text-sm text-gray-500">Pricing, duration, and display settings</p>
+                          <h4 className="text-base sm:text-lg font-semibold text-gray-900">Settings & Configuration</h4>
+                          <p className="text-xs sm:text-sm text-gray-500">Pricing, duration, and display settings</p>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="p-6">
+                  <div className="p-4 sm:p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Pricing */}
                       <div className="space-y-4">
@@ -1816,25 +1818,25 @@ function AdminAssessments() {
                 {/* Questions List Preview */}
                 {createForm.schemaJson.questions.length > 0 && (
                   <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center">
-                            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                           </div>
                           <div>
-                            <h4 className="text-lg font-semibold text-gray-900">Questions Preview</h4>
-                            <p className="text-sm text-gray-500">Review and manage your assessment questions</p>
+                            <h4 className="text-base sm:text-lg font-semibold text-gray-900">Questions Preview</h4>
+                            <p className="text-xs sm:text-sm text-gray-500">Review and manage your assessment questions</p>
                           </div>
                         </div>
-                        <span className="text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
+                        <span className="text-xs sm:text-sm font-medium text-amber-600 bg-amber-50 px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto">
                           {createForm.schemaJson.questions.length} questions
                         </span>
                       </div>
                     </div>
-                    <div className="p-6">
+                    <div className="p-4 sm:p-6">
                       <div className="space-y-4">
                         {createForm.schemaJson.questions.map((q, idx) => (
                           <div key={idx} className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-all duration-200">
@@ -1897,9 +1899,9 @@ function AdminAssessments() {
               </div>
 
               {/* Footer Actions */}
-              <div className="sticky bottom-0 bg-white border-t border-gray-200 px-8 py-6">
-                <div className="flex justify-between items-center">
-                  <div className="text-sm text-gray-600">
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="text-xs sm:text-sm text-gray-600">
                     {createForm.schemaJson.questions.length === 0 ? (
                       <span className="text-amber-600 font-medium">⚠️ Add at least one question to continue</span>
                     ) : validationErrors.errors.length > 0 ? (
@@ -1909,14 +1911,14 @@ function AdminAssessments() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
                     <button
                       type="button"
                       onClick={() => {
                         setShowCreateModal(false);
                         resetCreateForm();
                       }}
-                      className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
+                      className="flex-1 sm:flex-initial px-4 sm:px-6 py-2 sm:py-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium text-sm sm:text-base"
                       disabled={creating}
                     >
                       Cancel
@@ -1924,19 +1926,20 @@ function AdminAssessments() {
                     <button
                       type="submit"
                       disabled={creating || createForm.schemaJson.questions.length === 0}
-                      className="px-8 py-3 bg-mh-gradient text-white rounded-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-3"
+                      className="flex-1 sm:flex-initial px-4 sm:px-8 py-2 sm:py-3 bg-mh-gradient text-white rounded-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base"
                     >
                       {creating ? (
                         <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
                           <span>{editingTestId ? 'Updating...' : 'Creating...'}</span>
                         </>
                       ) : (
                         <>
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
-                          <span>{editingTestId ? 'Update Assessment' : 'Create Assessment'}</span>
+                          <span className="hidden sm:inline">{editingTestId ? 'Update Assessment' : 'Create Assessment'}</span>
+                          <span className="sm:hidden">{editingTestId ? 'Update' : 'Create'}</span>
                         </>
                       )}
                     </button>
@@ -1950,56 +1953,56 @@ function AdminAssessments() {
 
       {/* View Modal */}
       {showViewModal && selectedTest && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold text-mh-dark">{selectedTest.title}</h3>
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+          <div className="relative top-0 sm:top-20 mx-auto p-4 sm:p-5 border w-full max-w-2xl shadow-lg rounded-lg sm:rounded-md bg-white max-h-[90vh] overflow-y-auto">
+            <div className="mt-0 sm:mt-3">
+              <div className="flex justify-between items-start mb-4 gap-4">
+                <h3 className="text-base sm:text-lg font-semibold text-mh-dark flex-1 min-w-0">{selectedTest.title}</h3>
                 <button
                   onClick={() => setShowViewModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
-              <div className="space-y-4 max-h-96 overflow-y-auto">
+              <div className="space-y-4 max-h-[60vh] sm:max-h-96 overflow-y-auto">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Category</label>
-                  <p className="text-sm text-gray-900">{selectedTest.category || 'N/A'}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-700">Category</label>
+                  <p className="text-xs sm:text-sm text-gray-900 mt-1">{selectedTest.category || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Short Description</label>
-                  <p className="text-sm text-gray-900">{selectedTest.shortDescription || 'N/A'}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-700">Short Description</label>
+                  <p className="text-xs sm:text-sm text-gray-900 mt-1">{selectedTest.shortDescription || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Long Description</label>
-                  <p className="text-sm text-gray-900">{selectedTest.longDescription || 'N/A'}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-700">Long Description</label>
+                  <p className="text-xs sm:text-sm text-gray-900 mt-1">{selectedTest.longDescription || 'N/A'}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-700">Price</label>
-                    <p className="text-sm text-gray-900">₹{selectedTest.price || 0}</p>
+                    <label className="text-xs sm:text-sm font-medium text-gray-700">Price</label>
+                    <p className="text-xs sm:text-sm text-gray-900 mt-1">₹{selectedTest.price || 0}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-700">MRP</label>
-                    <p className="text-sm text-gray-900">₹{selectedTest.mrp || 0}</p>
+                    <label className="text-xs sm:text-sm font-medium text-gray-700">MRP</label>
+                    <p className="text-xs sm:text-sm text-gray-900 mt-1">₹{selectedTest.mrp || 0}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-700">Questions Count</label>
-                    <p className="text-sm text-gray-900">{selectedTest.questionsCount || 0}</p>
+                    <label className="text-xs sm:text-sm font-medium text-gray-700">Questions Count</label>
+                    <p className="text-xs sm:text-sm text-gray-900 mt-1">{selectedTest.questionsCount || 0}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-700">Duration</label>
-                    <p className="text-sm text-gray-900">
+                    <label className="text-xs sm:text-sm font-medium text-gray-700">Duration</label>
+                    <p className="text-xs sm:text-sm text-gray-900 mt-1">
                       {selectedTest.durationMinutesMin || 0}-{selectedTest.durationMinutesMax || 0} minutes
                     </p>
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Status</label>
-                  <p className="text-sm">
+                  <label className="text-xs sm:text-sm font-medium text-gray-700">Status</label>
+                  <p className="text-xs sm:text-sm mt-1">
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${selectedTest.isActive
                         ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'
@@ -2009,10 +2012,10 @@ function AdminAssessments() {
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex justify-end">
+              <div className="mt-4 sm:mt-6 flex justify-end">
                 <button
                   onClick={() => setShowViewModal(false)}
-                  className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                  className="w-full sm:w-auto bg-gray-200 text-gray-700 px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
                 >
                   Close
                 </button>
@@ -2025,20 +2028,20 @@ function AdminAssessments() {
       {/* Delete Confirmation Modal */}
       {testIdToDelete && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-          <div className="relative mx-auto p-6 border w-full max-w-sm shadow-xl rounded-lg bg-white">
+          <div className="relative mx-auto p-4 sm:p-6 border w-full max-w-sm shadow-xl rounded-lg bg-white">
             <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="mx-auto flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                 Delete Assessment?
               </h3>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6">
                 This will deactivate the assessment and it will no longer be visible to users. This action cannot be undone.
               </p>
-              <div className="flex space-x-3">
+              <div className="flex flex-col sm:flex-row gap-3 sm:space-x-3 sm:space-y-0">
                 <button
                   type="button"
                   onClick={handleDeleteCancel}
