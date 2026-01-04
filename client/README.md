@@ -1,16 +1,60 @@
-# React + Vite
+# Mental Health Assessment Platform - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React frontend application for the Mental Health Assessment Platform.
 
-Currently, two official plugins are available:
+## Tech Stack
+- React 19.2.0
+- Vite 7.2.4
+- Tailwind CSS 3.4.0
+- React Router DOM 7.11.0
+- Axios for API calls
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Setup
 
-## React Compiler
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. **Configure environment:**
+   - Update `.env` with your API endpoint and other frontend variables
 
-## Expanding the ESLint configuration
+3. **Run development server:**
+   ```bash
+   npm run dev
+   ```
+   Frontend will run on: http://localhost:3000
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+## Environment Variables
+
+Create a `.env` file in this directory:
+
+```
+VITE_API_BASE_URL=http://localhost:5000/api
+VITE_APP_NAME=Mental Health Assessment Platform
+VITE_RAZORPAY_KEY_ID=your_razorpay_key
+```
+
+## Available Scripts
+
+- `npm run dev` - Start development server on port 3000
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+## Project Structure
+
+```
+src/
+├── api/          # API service layers
+├── assets/       # Images, icons, static files
+├── components/   # Reusable React components
+├── pages/        # Page components
+├── utils/        # Helper utilities
+└── App.jsx       # Main React app
+```

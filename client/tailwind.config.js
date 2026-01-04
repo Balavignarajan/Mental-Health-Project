@@ -1,11 +1,19 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'mh-green': '#039059',
+        'mh-dark': '#1F2937',
+      },
+      fontFamily: {
+        'sans': ['Manrope', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }

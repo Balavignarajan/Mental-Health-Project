@@ -79,9 +79,13 @@ async function createApp() {
   app.use("/api/public/assessment-links", publicAssessmentLinkRoutes);
   app.use("/api/upload", uploadRoutes);
   
-  // Serve uploaded files
-  // Express static middleware automatically handles URL decoding (e.g., %20 -> space)
-  app.use("/uploads", express.static(path.join(__dirname, "../uploads"), {
+  // Serve uploaded files with CORS headers
+  app.use("/uploads", (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', cfg.CORS_ORIGIN);
+    res.header('Access-Control-Allow-Methods', 'GET');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+  }, express.static(path.join(__dirname, "../uploads"), {
     setHeaders: (res, filePath) => {
       // Ensure proper content-type headers for images
       if (filePath.endsWith('.png')) {
@@ -96,34 +100,8 @@ async function createApp() {
     }
   }));
 
-  // Frontend serving
-  if (cfg.NODE_ENV === "development") {
-    const { createServer } = require("vite");
-    
-    const vite = await createServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-      root: path.join(__dirname, "../../client"),
-      envDir: path.join(__dirname, "../../"),
-      configFile: path.join(__dirname, "../../vite.config.js"),
-    });
-    
-    app.use((req, res, next) => {
-      // Skip Vite middleware for API routes and uploaded files
-      if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/uploads/')) {
-        return next();
-      }
-      vite.middlewares(req, res, next);
-    });
-  } else {
-    app.use(express.static(path.join(__dirname, "../../dist/public")));
-    app.use((req, res, next) => {
-      if (req.path.startsWith('/api/')) {
-        return next();
-      }
-      res.sendFile(path.join(__dirname, "../../dist/public/index.html"));
-    });
-  }
+  // Frontend serving removed - now runs independently
+  // API routes only
 
   app.use(notFoundMiddleware);
   app.use(errorMiddleware);

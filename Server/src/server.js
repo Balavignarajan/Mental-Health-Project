@@ -1,5 +1,5 @@
 const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, "../../.env") });
+require("dotenv").config({ path: path.join(__dirname, "../.env") });
 const { connectDb } = require("./config/db");
 const { createApp } = require("./app");
 const { cfg } = require("./config/config");
@@ -19,9 +19,9 @@ const { cfg } = require("./config/config");
   
   app.listen(cfg.PORT, () => {
     console.log(`✅ Server running on: http://localhost:${cfg.PORT}`);
+    console.log(`🔗 API endpoints available at: http://localhost:${cfg.PORT}/api`);
     if (cfg.NODE_ENV === "development") {
-      console.log(`🔥 Vite dev server ready`);
-      console.log(`📱 Frontend: http://localhost:${cfg.PORT}`);
+      console.log(`📱 Frontend should be running on: http://localhost:3000`);
     }
   });
 })().catch((startupErrorValue) => {
