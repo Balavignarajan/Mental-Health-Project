@@ -928,11 +928,13 @@ function AdminAssessmentLinks() {
                       </label>
                       
                       {/* Original Price Display */}
-                      {selectedTest?.price > 0 && (
+                      {selectedTest && (
                         <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-700">Assessment Original Price:</span>
-                            <span className="text-lg font-semibold text-blue-700">₹{selectedTest.price}</span>
+                            <span className="text-lg font-semibold text-blue-700">
+                              {selectedTest.price > 0 ? `₹${selectedTest.price}` : 'Free'}
+                            </span>
                           </div>
                         </div>
                       )}
@@ -940,32 +942,54 @@ function AdminAssessmentLinks() {
                       {/* Price Option Toggle */}
                       <div className="mb-3">
                         <div className="flex gap-4">
-                          <label className="flex items-center">
-                            <input
-                              type="radio"
-                              name="priceOption"
-                              checked={!formData.useCustomPrice}
-                              onChange={() => setFormData({ 
-                                ...formData, 
-                                useCustomPrice: false,
-                                price: selectedTest?.price || 100
-                              })}
-                              className="mr-2"
-                            />
-                            <span className="text-sm">Use Original Price</span>
+                          <label className="flex items-center cursor-pointer">
+                            <div className="relative">
+                              <input
+                                type="radio"
+                                name="priceOption"
+                                checked={!formData.useCustomPrice}
+                                onChange={() => setFormData({ 
+                                  ...formData, 
+                                  useCustomPrice: false,
+                                  price: selectedTest?.price > 0 ? selectedTest.price : 100
+                                })}
+                                className="sr-only"
+                              />
+                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                !formData.useCustomPrice 
+                                  ? 'border-mh-green bg-mh-green' 
+                                  : 'border-gray-300 bg-white'
+                              }`}>
+                                {!formData.useCustomPrice && (
+                                  <div className="w-2 h-2 rounded-full bg-white"></div>
+                                )}
+                              </div>
+                            </div>
+                            <span className="ml-2 text-sm">Use Original Price</span>
                           </label>
-                          <label className="flex items-center">
-                            <input
-                              type="radio"
-                              name="priceOption"
-                              checked={formData.useCustomPrice}
-                              onChange={() => setFormData({ 
-                                ...formData, 
-                                useCustomPrice: true
-                              })}
-                              className="mr-2"
-                            />
-                            <span className="text-sm">Set Custom Price</span>
+                          <label className="flex items-center cursor-pointer">
+                            <div className="relative">
+                              <input
+                                type="radio"
+                                name="priceOption"
+                                checked={formData.useCustomPrice}
+                                onChange={() => setFormData({ 
+                                  ...formData, 
+                                  useCustomPrice: true
+                                })}
+                                className="sr-only"
+                              />
+                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                formData.useCustomPrice 
+                                  ? 'border-mh-green bg-mh-green' 
+                                  : 'border-gray-300 bg-white'
+                              }`}>
+                                {formData.useCustomPrice && (
+                                  <div className="w-2 h-2 rounded-full bg-white"></div>
+                                )}
+                              </div>
+                            </div>
+                            <span className="ml-2 text-sm">Set Custom Price</span>
                           </label>
                         </div>
                       </div>
@@ -1032,7 +1056,8 @@ function AdminAssessmentLinks() {
                       type="button"
                     onClick={() => {
                       setShowCreateModal(false);
-                      setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '', linkType: 'free', price: 0 });
+                      setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '', linkType: 'free', price: 0, useCustomPrice: false });
+                      setSelectedTest(null);
                     }}
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
                     >
