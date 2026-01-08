@@ -4,12 +4,21 @@ import { showToast } from '../../utils/toast';
 
 function AdminResults() {
   const [results, setResults] = useState([]);
+  const [allResults, setAllResults] = useState([]); // Store all results for filtering/export
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
   const [selectedResult, setSelectedResult] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [expandedRows, setExpandedRows] = useState(new Set());
+  const [filters, setFilters] = useState({ 
+    riskFlags: 'all', 
+    band: 'all', 
+    testCategory: 'all',
+    sortBy: 'date', 
+    sortOrder: 'desc' 
+  });
 
   useEffect(() => {
     fetchResults();
@@ -20,12 +29,14 @@ function AdminResults() {
       setLoading(true);
       const params = {
         page,
-        limit: 20,
+        limit: 1000, // Fetch more for filtering/statistics
         ...(search && { search })
       };
       const response = await getAdminResults(params);
       if (response.success && response.data) {
-        setResults(response.data.results || []);
+        const allResultsData = response.data.results || [];
+        setAllResults(allResultsData);
+        applyFiltersAndSort(allResultsData);
         setPagination(response.data.pagination || {});
       }
     } catch (error) {
@@ -34,6 +45,257 @@ function AdminResults() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Calculate summary statistics
+  const calculateStatistics = (results) => {
+    if (!results || results.length === 0) {
+      return {
+        total: 0,
+        avgScore: 0,
+        bandDistribution: {},
+        riskFlagCount: 0,
+        avgTimeTaken: 0,
+        avgCompletion: 0,
+        registeredUsers: 0,
+        anonymousUsers: 0
+      };
+    }
+
+    const scores = results.map(r => r.score || 0).filter(s => s > 0);
+    const avgScore = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2) : 0;
+
+    const bandDistribution = {};
+    results.forEach(r => {
+      const band = r.band || 'Unknown';
+      bandDistribution[band] = (bandDistribution[band] || 0) + 1;
+    });
+
+    const riskFlagCount = results.filter(r => r.riskFlags && Object.keys(r.riskFlags).length > 0).length;
+
+    const timeTaken = results
+      .map(r => {
+        if (r.attemptId?.startedAt && r.attemptId?.submittedAt) {
+          return (new Date(r.attemptId.submittedAt) - new Date(r.attemptId.startedAt)) / 1000 / 60; // minutes
+        }
+        return null;
+      })
+      .filter(t => t !== null);
+    const avgTimeTaken = timeTaken.length > 0 
+      ? (timeTaken.reduce((a, b) => a + b, 0) / timeTaken.length).toFixed(1) 
+      : 0;
+
+    const completions = results
+      .map(r => {
+        if (r.interpretation?.answeredCount && r.interpretation?.totalItems) {
+          return (r.interpretation.answeredCount / r.interpretation.totalItems) * 100;
+        }
+        return null;
+      })
+      .filter(c => c !== null);
+    const avgCompletion = completions.length > 0
+      ? (completions.reduce((a, b) => a + b, 0) / completions.length).toFixed(1)
+      : 0;
+
+    const registeredUsers = results.filter(r => r.userId).length;
+    const anonymousUsers = results.filter(r => !r.userId).length;
+
+    return {
+      total: results.length,
+      avgScore: parseFloat(avgScore),
+      bandDistribution,
+      riskFlagCount,
+      avgTimeTaken: parseFloat(avgTimeTaken),
+      avgCompletion: parseFloat(avgCompletion),
+      registeredUsers,
+      anonymousUsers
+    };
+  };
+
+  // Apply filters and sorting
+  const applyFiltersAndSort = (results, filterState = filters) => {
+    let filtered = [...results];
+
+    // Filter by search (if any)
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filtered = filtered.filter(r => {
+        const email = r.userId?.email?.toLowerCase() || '';
+        const name = `${r.userId?.firstName || ''} ${r.userId?.lastName || ''}`.toLowerCase();
+        const testTitle = r.testId?.title?.toLowerCase() || '';
+        return email.includes(searchLower) || name.includes(searchLower) || testTitle.includes(searchLower);
+      });
+    }
+
+    // Filter by risk flags
+    if (filterState.riskFlags === 'with') {
+      filtered = filtered.filter(r => r.riskFlags && Object.keys(r.riskFlags).length > 0);
+    } else if (filterState.riskFlags === 'without') {
+      filtered = filtered.filter(r => !r.riskFlags || Object.keys(r.riskFlags).length === 0);
+    }
+
+    // Filter by band
+    if (filterState.band !== 'all') {
+      filtered = filtered.filter(r => {
+        const band = (r.band || '').toLowerCase();
+        return band.includes(filterState.band.toLowerCase());
+      });
+    }
+
+    // Filter by test category
+    if (filterState.testCategory !== 'all') {
+      filtered = filtered.filter(r => {
+        const category = (r.testId?.category || '').toLowerCase();
+        return category === filterState.testCategory.toLowerCase();
+      });
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      let aVal, bVal;
+      switch (filterState.sortBy) {
+        case 'score':
+          aVal = a.score || 0;
+          bVal = b.score || 0;
+          break;
+        case 'date':
+          aVal = new Date(a.createdAt || 0).getTime();
+          bVal = new Date(b.createdAt || 0).getTime();
+          break;
+        case 'time':
+          aVal = a.attemptId?.startedAt && a.attemptId?.submittedAt
+            ? (new Date(a.attemptId.submittedAt) - new Date(a.attemptId.startedAt))
+            : 0;
+          bVal = b.attemptId?.startedAt && b.attemptId?.submittedAt
+            ? (new Date(b.attemptId.submittedAt) - new Date(b.attemptId.startedAt))
+            : 0;
+          break;
+        default:
+          aVal = new Date(a.createdAt || 0).getTime();
+          bVal = new Date(b.createdAt || 0).getTime();
+      }
+      return filterState.sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+
+    setResults(filtered);
+  };
+
+  // Handle filter changes
+  const handleFilterChange = (filterType, value) => {
+    const newFilters = { ...filters, [filterType]: value };
+    setFilters(newFilters);
+    setTimeout(() => {
+      applyFiltersAndSort(allResults, newFilters);
+    }, 0);
+  };
+
+  // Toggle row expansion
+  const toggleRowExpansion = (resultId) => {
+    const newExpanded = new Set(expandedRows);
+    if (newExpanded.has(resultId)) {
+      newExpanded.delete(resultId);
+    } else {
+      newExpanded.add(resultId);
+    }
+    setExpandedRows(newExpanded);
+  };
+
+  // Calculate time taken in minutes
+  const getTimeTaken = (result) => {
+    if (result.attemptId?.startedAt && result.attemptId?.submittedAt) {
+      const minutes = (new Date(result.attemptId.submittedAt) - new Date(result.attemptId.startedAt)) / 1000 / 60;
+      return minutes.toFixed(1);
+    }
+    return '-';
+  };
+
+  // Calculate completion percentage
+  const getCompletionPercentage = (result) => {
+    if (result.interpretation?.answeredCount && result.interpretation?.totalItems) {
+      return ((result.interpretation.answeredCount / result.interpretation.totalItems) * 100).toFixed(0);
+    }
+    return '-';
+  };
+
+  // Get unique test categories
+  const getUniqueCategories = () => {
+    const categories = new Set();
+    allResults.forEach(r => {
+      if (r.testId?.category) {
+        categories.add(r.testId.category);
+      }
+    });
+    return Array.from(categories).sort();
+  };
+
+  // Export to CSV
+  const handleExportCSV = () => {
+    if (results.length === 0) {
+      showToast.error('No results to export');
+      return;
+    }
+
+    const headers = [
+      'User Email',
+      'User Name',
+      'Test Title',
+      'Test Category',
+      'Score',
+      'Band',
+      'Band Description',
+      'Risk Flags',
+      'Risk Flag Details',
+      'Time Taken (minutes)',
+      'Completion %',
+      'Answered Questions',
+      'Total Questions',
+      'Started At',
+      'Completed At',
+      'Link Token'
+    ];
+
+    const rows = results.map(result => {
+      const riskFlags = result.riskFlags || {};
+      const riskFlagKeys = Object.keys(riskFlags);
+      const riskFlagDetails = riskFlagKeys.length > 0 
+        ? riskFlagKeys.map(k => `${k}: ${typeof riskFlags[k] === 'object' && riskFlags[k].helpText ? riskFlags[k].helpText : 'Triggered'}`).join('; ')
+        : 'None';
+
+      return [
+        result.userId?.email || '',
+        `${result.userId?.firstName || ''} ${result.userId?.lastName || ''}`.trim() || 'Anonymous',
+        result.testId?.title || '',
+        result.testId?.category || '',
+        result.score || 0,
+        result.band || '',
+        result.bandDescription || '',
+        riskFlagKeys.length > 0 ? `${riskFlagKeys.length} flag(s)` : 'None',
+        riskFlagDetails,
+        getTimeTaken(result),
+        getCompletionPercentage(result),
+        result.interpretation?.answeredCount || 0,
+        result.interpretation?.totalItems || 0,
+        result.attemptId?.startedAt ? new Date(result.attemptId.startedAt).toLocaleString() : '',
+        result.createdAt ? new Date(result.createdAt).toLocaleString() : '',
+        result.linkToken || ''
+      ];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `assessment-results-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast.success('Results exported successfully!');
   };
 
   const handleViewResult = async (resultId) => {
@@ -52,7 +314,8 @@ function AdminResults() {
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
-    fetchResults();
+    // Apply filters with current search term
+    applyFiltersAndSort(allResults, filters);
   };
 
   const getBandColorClass = (band) => {
@@ -81,34 +344,143 @@ function AdminResults() {
     );
   }
 
+  const stats = calculateStatistics(allResults);
+
   return (
     <div className="space-y-4 sm:space-y-6 px-4 sm:px-0">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-mh-dark">Assessment Results</h1>
           <p className="text-sm sm:text-base text-gray-600 mt-1">View all assessment results (read-only)</p>
         </div>
+        <button
+          onClick={handleExportCSV}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 text-sm sm:text-base"
+          title="Export to CSV"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Export CSV
+        </button>
       </div>
+
+      {/* Summary Statistics */}
+      {stats.total > 0 && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+          <h2 className="text-lg font-semibold text-mh-dark mb-4">Summary Statistics</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+            <div className="bg-white rounded-lg p-3 border border-gray-200">
+              <div className="text-xs text-gray-500">Total Results</div>
+              <div className="text-xl font-bold text-mh-dark">{stats.total}</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 border border-gray-200">
+              <div className="text-xs text-gray-500">Avg Score</div>
+              <div className="text-xl font-bold text-mh-dark">{stats.avgScore}</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 border border-gray-200">
+              <div className="text-xs text-gray-500">Avg Time</div>
+              <div className="text-xl font-bold text-mh-dark">{stats.avgTimeTaken} min</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 border border-gray-200">
+              <div className="text-xs text-gray-500">Avg Completion</div>
+              <div className="text-xl font-bold text-mh-dark">{stats.avgCompletion}%</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 border border-gray-200">
+              <div className="text-xs text-gray-500">With Risk Flags</div>
+              <div className="text-xl font-bold text-red-600">{stats.riskFlagCount}</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 border border-gray-200">
+              <div className="text-xs text-gray-500">Registered Users</div>
+              <div className="text-xl font-bold text-blue-600">{stats.registeredUsers}</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 border border-gray-200">
+              <div className="text-xs text-gray-500">Anonymous</div>
+              <div className="text-xl font-bold text-gray-600">{stats.anonymousUsers}</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by user email or test title..."
-              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
-            />
+        <form onSubmit={handleSearch} className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by user email, name, or test title..."
+                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full sm:w-auto bg-mh-gradient text-white px-4 sm:px-6 py-2 rounded-lg hover:opacity-90 transition-colors text-sm sm:text-base"
+            >
+              Search
+            </button>
           </div>
-          <button
-            type="submit"
-            className="w-full sm:w-auto bg-mh-gradient text-white px-4 sm:px-6 py-2 rounded-lg hover:opacity-90 transition-colors text-sm sm:text-base"
-          >
-            Search
-          </button>
+          <div className="flex flex-wrap gap-3 items-center pt-2 border-t border-gray-200">
+            <div className="flex items-center gap-2">
+              <label className="text-xs sm:text-sm text-gray-600 font-medium">Filter:</label>
+              <select
+                value={filters.riskFlags}
+                onChange={(e) => handleFilterChange('riskFlags', e.target.value)}
+                className="text-xs sm:text-sm border border-gray-300 rounded px-2 py-1.5 focus:ring-2 focus:ring-mh-green focus:border-transparent"
+              >
+                <option value="all">All Results</option>
+                <option value="with">With Risk Flags</option>
+                <option value="without">Without Risk Flags</option>
+              </select>
+              <select
+                value={filters.band}
+                onChange={(e) => handleFilterChange('band', e.target.value)}
+                className="text-xs sm:text-sm border border-gray-300 rounded px-2 py-1.5 focus:ring-2 focus:ring-mh-green focus:border-transparent"
+              >
+                <option value="all">All Bands</option>
+                <option value="low">Low</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High</option>
+                <option value="severe">Severe</option>
+              </select>
+              <select
+                value={filters.testCategory}
+                onChange={(e) => handleFilterChange('testCategory', e.target.value)}
+                className="text-xs sm:text-sm border border-gray-300 rounded px-2 py-1.5 focus:ring-2 focus:ring-mh-green focus:border-transparent"
+              >
+                <option value="all">All Categories</option>
+                {getUniqueCategories().map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2 ml-auto">
+              <label className="text-xs sm:text-sm text-gray-600 font-medium">Sort:</label>
+              <select
+                value={filters.sortBy}
+                onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                className="text-xs sm:text-sm border border-gray-300 rounded px-2 py-1.5 focus:ring-2 focus:ring-mh-green focus:border-transparent"
+              >
+                <option value="date">Date</option>
+                <option value="score">Score</option>
+                <option value="time">Time Taken</option>
+              </select>
+              <button
+                type="button"
+                onClick={() => handleFilterChange('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
+                className="px-2 py-1.5 text-xs sm:text-sm border border-gray-300 rounded hover:bg-gray-50"
+                title={filters.sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+              >
+                {filters.sortOrder === 'asc' ? '↑' : '↓'}
+              </button>
+            </div>
+            <div className="text-xs sm:text-sm text-gray-500">
+              Showing {results.length} of {stats.total} results
+            </div>
+          </div>
         </form>
       </div>
 
@@ -117,13 +489,16 @@ function AdminResults() {
         {/* Desktop Table View */}
         <div className="hidden lg:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 sticky top-0">
               <tr>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8"></th>
                 <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                 <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Test</th>
                 <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
                 <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Band</th>
                 <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Risk Flags</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completion</th>
                 <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                 <th className="px-4 xl:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
@@ -131,70 +506,152 @@ function AdminResults() {
             <tbody className="bg-white divide-y divide-gray-200">
               {results.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan="10" className="px-6 py-8 text-center text-gray-500">
                     No results found
                   </td>
                 </tr>
               ) : (
-                results.map((result) => (
-                  <tr key={result._id} className="hover:bg-gray-50">
-                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {result.userId?.email || (result.linkToken ? 'Anonymous (Link)' : 'Anonymous')}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {result.userId ? (
-                          `${result.userId.firstName || ''} ${result.userId.lastName || ''}`.trim() || 'N/A'
-                        ) : (
-                          result.linkToken ? `Link: ${result.linkToken.substring(0, 12)}...` : 'No user info'
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{result.testId?.title || 'N/A'}</div>
-                      <div className="text-xs text-gray-500">{result.testId?.category || ''}</div>
-                    </td>
-                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-semibold text-mh-dark">{result.score || 0}</div>
-                    </td>
-                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
-                      {result.band ? (
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getBandColorClass(result.band)}`}>
-                          {result.band}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-500">-</span>
+                results.map((result) => {
+                  const isExpanded = expandedRows.has(result._id);
+                  const riskFlagCount = result.riskFlags ? Object.keys(result.riskFlags).length : 0;
+                  return (
+                    <>
+                      <tr key={result._id} className="hover:bg-gray-50">
+                        <td className="px-3 py-4">
+                          <button
+                            onClick={() => toggleRowExpansion(result._id)}
+                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                          >
+                            <svg 
+                              className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} 
+                              fill="none" 
+                              viewBox="0 0 24 24" 
+                              stroke="currentColor"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {result.userId?.email || (result.linkToken ? 'Anonymous (Link)' : 'Anonymous')}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {result.userId ? (
+                              `${result.userId.firstName || ''} ${result.userId.lastName || ''}`.trim() || 'N/A'
+                            ) : (
+                              result.linkToken ? `Link: ${result.linkToken.substring(0, 12)}...` : 'No user info'
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{result.testId?.title || 'N/A'}</div>
+                          <div className="text-xs text-gray-500">{result.testId?.category || ''}</div>
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-semibold text-mh-dark">{result.score || 0}</div>
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
+                          {result.band ? (
+                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getBandColorClass(result.band)}`}>
+                              {result.band}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-gray-500">-</span>
+                          )}
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
+                          {riskFlagCount > 0 ? (
+                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                              {riskFlagCount} flag(s)
+                            </span>
+                          ) : (
+                            <span className="text-xs text-gray-500">None</span>
+                          )}
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {getTimeTaken(result)} min
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {getCompletionPercentage(result)}%
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {result.createdAt ? new Date(result.createdAt).toLocaleDateString() : '-'}
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleViewResult(result._id)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors whitespace-nowrap"
+                              title="View Result"
+                            >
+                              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                              View
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr key={`${result._id}-expanded`} className="bg-gray-50">
+                          <td colSpan="10" className="px-4 xl:px-6 py-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                              {result.bandDescription && (
+                                <div>
+                                  <div className="font-medium text-gray-700 mb-1">Band Description</div>
+                                  <div className="text-gray-600 bg-blue-50 p-2 rounded">{result.bandDescription}</div>
+                                </div>
+                              )}
+                              {result.subscales && Object.keys(result.subscales).length > 0 && (
+                                <div>
+                                  <div className="font-medium text-gray-700 mb-1">Subscales</div>
+                                  <div className="space-y-1">
+                                    {Object.entries(result.subscales).map(([key, value]) => (
+                                      <div key={key} className="flex justify-between bg-gray-100 p-2 rounded">
+                                        <span className="text-gray-700">{key}:</span>
+                                        <span className="font-semibold text-mh-dark">{value}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {riskFlagCount > 0 && (
+                                <div className="md:col-span-2">
+                                  <div className="font-medium text-gray-700 mb-1">Risk Flags</div>
+                                  <div className="bg-red-50 border border-red-200 rounded p-3 space-y-2">
+                                    {Object.entries(result.riskFlags).map(([flag, data]) => (
+                                      <div key={flag} className="text-sm">
+                                        <span className="font-semibold text-red-800">{flag}:</span>
+                                        <span className="text-red-700 ml-2">
+                                          {typeof data === 'object' && data.helpText ? data.helpText : 'Triggered'}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {result.interpretation && (
+                                <div className="md:col-span-2">
+                                  <div className="font-medium text-gray-700 mb-1">Interpretation</div>
+                                  <div className="bg-gray-100 p-2 rounded text-gray-700">
+                                    <div className="text-xs mb-1">
+                                      Answered: {result.interpretation.answeredCount || 0} / {result.interpretation.totalItems || 0} questions
+                                    </div>
+                                    {result.interpretation.text && (
+                                      <div className="text-sm mt-1">{result.interpretation.text}</div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
                       )}
-                    </td>
-                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
-                      {result.riskFlags && Object.keys(result.riskFlags).length > 0 ? (
-                        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                          {Object.keys(result.riskFlags).length} flag(s)
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-500">None</span>
-                      )}
-                    </td>
-                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {result.createdAt ? new Date(result.createdAt).toLocaleDateString() : '-'}
-                    </td>
-                    <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleViewResult(result._id)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors whitespace-nowrap"
-                          title="View Result"
-                        >
-                          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                          View
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                    </>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -208,82 +665,154 @@ function AdminResults() {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {results.map((result) => (
-                <div key={result._id} className="p-4 hover:bg-gray-50">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 truncate">
-                          {result.userId?.email || (result.linkToken ? 'Anonymous (Link)' : 'Anonymous')}
+              {results.map((result) => {
+                const isExpanded = expandedRows.has(result._id);
+                const riskFlagCount = result.riskFlags ? Object.keys(result.riskFlags).length : 0;
+                return (
+                  <div key={result._id} className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-3">
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-gray-900">
+                            {result.userId?.email || (result.linkToken ? 'Anonymous (Link)' : 'Anonymous')}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {result.userId ? (
+                              `${result.userId.firstName || ''} ${result.userId.lastName || ''}`.trim() || 'N/A'
+                            ) : (
+                              result.linkToken ? `Link: ${result.linkToken.substring(0, 12)}...` : 'No user info'
+                            )}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {result.userId ? (
-                            `${result.userId.firstName || ''} ${result.userId.lastName || ''}`.trim() || 'N/A'
-                          ) : (
-                            result.linkToken ? `Link: ${result.linkToken.substring(0, 12)}...` : 'No user info'
-                          )}
-                        </div>
+                        <button
+                          onClick={() => toggleRowExpansion(result._id)}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          <svg 
+                            className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-90' : ''}`} 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
                       </div>
-                      <div className="flex-shrink-0">
-                        {result.band ? (
-                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getBandColorClass(result.band)}`}>
-                            {result.band}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-gray-500">-</span>
+
+                      <div>
+                        <div className="text-xs text-gray-500">Test</div>
+                        <div className="text-sm text-gray-900 mt-1">{result.testId?.title || 'N/A'}</div>
+                        {result.testId?.category && (
+                          <div className="text-xs text-gray-500">{result.testId.category}</div>
                         )}
                       </div>
-                    </div>
 
-                    <div>
-                      <div className="text-xs text-gray-500">Test</div>
-                      <div className="text-sm text-gray-900 mt-1">{result.testId?.title || 'N/A'}</div>
-                      {result.testId?.category && (
-                        <div className="text-xs text-gray-500">{result.testId.category}</div>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-100">
-                      <div>
-                        <div className="text-xs text-gray-500">Score</div>
-                        <div className="text-sm font-semibold text-mh-dark mt-1">{result.score || 0}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500">Date</div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {result.createdAt ? new Date(result.createdAt).toLocaleDateString() : '-'}
+                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+                        <div>
+                          <div className="text-xs text-gray-500">Score</div>
+                          <div className="text-sm font-semibold text-mh-dark mt-1">{result.score || 0}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Band</div>
+                          <div>
+                            {result.band ? (
+                              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getBandColorClass(result.band)}`}>
+                                {result.band}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-500">-</span>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Risk Flags</div>
+                          <div>
+                            {riskFlagCount > 0 ? (
+                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                {riskFlagCount} flag(s)
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-500">None</span>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Time</div>
+                          <div className="text-xs text-gray-600">{getTimeTaken(result)} min</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Completion</div>
+                          <div className="text-xs text-gray-600">{getCompletionPercentage(result)}%</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Date</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {result.createdAt ? new Date(result.createdAt).toLocaleDateString() : '-'}
+                          </div>
                         </div>
                       </div>
-                      <div className="col-span-2">
-                        <div className="text-xs text-gray-500">Risk Flags</div>
-                        <div className="mt-1">
-                          {result.riskFlags && Object.keys(result.riskFlags).length > 0 ? (
-                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                              {Object.keys(result.riskFlags).length} flag(s)
-                            </span>
-                          ) : (
-                            <span className="text-xs text-gray-500">None</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
 
-                    <div className="pt-2 border-t border-gray-200">
                       <button
                         onClick={() => handleViewResult(result._id)}
-                        className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors"
-                        title="View Result"
+                        className="w-full text-xs text-blue-600 hover:text-blue-800 font-medium py-2 border-t border-gray-100"
                       >
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        View Details
+                        View Full Details →
                       </button>
                     </div>
+                    {isExpanded && (
+                      <div className="px-4 pb-4 bg-gray-50 border-t border-gray-200 space-y-3">
+                        {result.bandDescription && (
+                          <div>
+                            <div className="text-xs font-medium text-gray-700 mb-1">Band Description</div>
+                            <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded">{result.bandDescription}</div>
+                          </div>
+                        )}
+                        {result.subscales && Object.keys(result.subscales).length > 0 && (
+                          <div>
+                            <div className="text-xs font-medium text-gray-700 mb-1">Subscales</div>
+                            <div className="space-y-1">
+                              {Object.entries(result.subscales).map(([key, value]) => (
+                                <div key={key} className="flex justify-between bg-gray-100 p-2 rounded text-xs">
+                                  <span className="text-gray-700">{key}:</span>
+                                  <span className="font-semibold text-mh-dark">{value}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {riskFlagCount > 0 && (
+                          <div>
+                            <div className="text-xs font-medium text-gray-700 mb-1">Risk Flags</div>
+                            <div className="bg-red-50 border border-red-200 rounded p-2 space-y-1">
+                              {Object.entries(result.riskFlags).map(([flag, data]) => (
+                                <div key={flag} className="text-xs">
+                                  <span className="font-semibold text-red-800">{flag}:</span>
+                                  <span className="text-red-700 ml-1">
+                                    {typeof data === 'object' && data.helpText ? data.helpText : 'Triggered'}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {result.interpretation && (
+                          <div>
+                            <div className="text-xs font-medium text-gray-700 mb-1">Interpretation</div>
+                            <div className="bg-gray-100 p-2 rounded text-xs text-gray-700">
+                              <div className="mb-1">
+                                Answered: {result.interpretation.answeredCount || 0} / {result.interpretation.totalItems || 0} questions
+                              </div>
+                              {result.interpretation.text && (
+                                <div className="mt-1">{result.interpretation.text}</div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -357,126 +886,182 @@ function AdminResults() {
 
       {/* View Modal */}
       {showViewModal && selectedResult && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-          <div className="relative top-0 sm:top-20 mx-auto p-4 sm:p-5 border w-full max-w-3xl shadow-lg rounded-lg sm:rounded-md bg-white mb-4 sm:mb-10 max-h-[90vh] overflow-y-auto">
-            <div className="mt-0 sm:mt-3">
-              <div className="flex justify-between items-start mb-4 gap-4">
-                <h3 className="text-base sm:text-lg font-semibold text-mh-dark flex-1 min-w-0">Result Details</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <h3 className="text-lg sm:text-xl font-bold text-mh-dark">Result Details</h3>
                 <button
                   onClick={() => setShowViewModal(false)}
-                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                  className="text-gray-400 hover:text-gray-600"
                 >
                   <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
-              <div className="space-y-4 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-gray-700">User</label>
-                    <p className="text-xs sm:text-sm text-gray-900 mt-1">
-                      {selectedResult.userId?.email || (selectedResult.linkToken ? 'Anonymous (Link)' : 'Anonymous')}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {selectedResult.userId ? (
-                        `${selectedResult.userId.firstName || ''} ${selectedResult.userId.lastName || ''}`.trim() || 'N/A'
-                      ) : (
-                        selectedResult.linkToken ? `Link Token: ${selectedResult.linkToken}` : 'No user info'
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-gray-700">Test</label>
-                    <p className="text-xs sm:text-sm text-gray-900 mt-1">{selectedResult.testId?.title || 'N/A'}</p>
-                    <p className="text-xs text-gray-500 mt-1">{selectedResult.testId?.category || ''}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-gray-700">Score</label>
-                    <p className="text-base sm:text-lg font-semibold text-mh-dark mt-1">{selectedResult.score || 0}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-gray-700">Band</label>
-                    <div className="mt-1">
-                      {selectedResult.band ? (
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getBandColorClass(selectedResult.band)}`}>
-                          {selectedResult.band}
-                        </span>
-                      ) : (
-                        <span className="text-xs sm:text-sm text-gray-500">-</span>
-                      )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+              {(() => {
+                const riskFlagCount = selectedResult.riskFlags ? Object.keys(selectedResult.riskFlags).length : 0;
+                return (
+                  <>
+                    {/* User Information */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">User Information</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <div className="text-xs text-gray-500">Email</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {selectedResult.userId?.email || (selectedResult.linkToken ? 'Anonymous (Link)' : 'Anonymous')}
+                          </div>
+                        </div>
+                        {selectedResult.userId && (
+                          <div>
+                            <div className="text-xs text-gray-500">Name</div>
+                            <div className="text-sm text-gray-900">
+                              {`${selectedResult.userId.firstName || ''} ${selectedResult.userId.lastName || ''}`.trim() || 'N/A'}
+                            </div>
+                          </div>
+                        )}
+                        {selectedResult.linkToken && (
+                          <div>
+                            <div className="text-xs text-gray-500">Link Token</div>
+                            <div className="text-sm text-gray-900 font-mono">{selectedResult.linkToken}</div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    {selectedResult.bandDescription && (
-                      <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-xs sm:text-sm text-blue-800">{selectedResult.bandDescription}</p>
+
+                    {/* Test Information */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Test Information</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <div className="text-xs text-gray-500">Test Title</div>
+                          <div className="text-sm font-medium text-gray-900">{selectedResult.testId?.title || 'N/A'}</div>
+                        </div>
+                        {selectedResult.testId?.category && (
+                          <div>
+                            <div className="text-xs text-gray-500">Category</div>
+                            <div className="text-sm text-gray-900">{selectedResult.testId.category}</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Assessment Results */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Assessment Results</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <div className="text-xs text-gray-500">Score</div>
+                          <div className="text-2xl font-bold text-mh-dark">{selectedResult.score || 0}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Band</div>
+                          <div className="mt-1">
+                            {selectedResult.band ? (
+                              <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getBandColorClass(selectedResult.band)}`}>
+                                {selectedResult.band}
+                              </span>
+                            ) : (
+                              <span className="text-sm text-gray-500">-</span>
+                            )}
+                          </div>
+                        </div>
+                        {selectedResult.bandDescription && (
+                          <div className="sm:col-span-2">
+                            <div className="text-xs text-gray-500 mb-1">Band Description</div>
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                              {selectedResult.bandDescription}
+                            </div>
+                          </div>
+                        )}
+                        <div>
+                          <div className="text-xs text-gray-500">Time Taken</div>
+                          <div className="text-sm font-medium text-gray-900">{getTimeTaken(selectedResult)} minutes</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Completion</div>
+                          <div className="text-sm font-medium text-gray-900">{getCompletionPercentage(selectedResult)}%</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Started At</div>
+                          <div className="text-sm text-gray-900">
+                            {selectedResult.attemptId?.startedAt ? new Date(selectedResult.attemptId.startedAt).toLocaleString() : 'N/A'}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Completed At</div>
+                          <div className="text-sm text-gray-900">
+                            {selectedResult.createdAt ? new Date(selectedResult.createdAt).toLocaleString() : 'N/A'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Subscales */}
+                    {selectedResult.subscales && Object.keys(selectedResult.subscales).length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Subscales</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {Object.entries(selectedResult.subscales).map(([key, value]) => (
+                            <div key={key} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                              <div className="text-xs text-gray-500 mb-1">{key}</div>
+                              <div className="text-lg font-bold text-mh-dark">{value}</div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
-                  </div>
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-gray-700">Completed</label>
-                    <p className="text-xs sm:text-sm text-gray-900 mt-1">
-                      {selectedResult.createdAt ? new Date(selectedResult.createdAt).toLocaleString() : 'N/A'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-gray-700">Started At</label>
-                    <p className="text-xs sm:text-sm text-gray-900 mt-1">
-                      {selectedResult.attemptId?.startedAt ? new Date(selectedResult.attemptId.startedAt).toLocaleString() : 'N/A'}
-                    </p>
-                  </div>
-                </div>
 
-                {selectedResult.subscales && Object.keys(selectedResult.subscales).length > 0 && (
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">Subscales</label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {Object.entries(selectedResult.subscales).map(([key, value]) => (
-                        <div key={key} className="bg-gray-50 p-2 sm:p-3 rounded">
-                          <span className="text-xs font-medium text-gray-700">{key}:</span>
-                          <span className="text-xs sm:text-sm font-semibold text-mh-dark ml-2">{value}</span>
+                    {/* Risk Flags */}
+                    {riskFlagCount > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-red-700 mb-3">Risk Flags ({riskFlagCount})</h4>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
+                          {Object.entries(selectedResult.riskFlags).map(([flag, data]) => (
+                            <div key={flag} className="border-b border-red-200 last:border-b-0 pb-2 last:pb-0">
+                              <div className="font-semibold text-red-800 text-sm mb-1">{flag}</div>
+                              <div className="text-sm text-red-700">
+                                {typeof data === 'object' && data.helpText ? data.helpText : 'Risk flag triggered'}
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {selectedResult.riskFlags && Object.keys(selectedResult.riskFlags).length > 0 && (
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">Risk Flags</label>
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                      <div className="space-y-1">
-                        {Object.keys(selectedResult.riskFlags).map((flag) => (
-                          <div key={flag} className="text-xs sm:text-sm text-red-800">
-                            <span className="font-semibold">{flag}:</span> Triggered
-                          </div>
-                        ))}
                       </div>
-                      {selectedResult.interpretation?.riskHelpText && (
-                        <p className="text-xs sm:text-sm text-red-700 mt-2 italic">
-                          {selectedResult.interpretation.riskHelpText}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
+                    )}
 
-                {selectedResult.interpretation && (
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">Interpretation</label>
-                    <div className="bg-gray-50 p-3 rounded text-xs sm:text-sm text-gray-700">
-                      <p>Answered: {selectedResult.interpretation.answeredCount || 0} / {selectedResult.interpretation.totalItems || 0} questions</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="mt-4 sm:mt-6 flex justify-end">
-                <button
-                  onClick={() => setShowViewModal(false)}
-                  className="w-full sm:w-auto bg-gray-200 text-gray-700 px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
-                >
-                  Close
-                </button>
-              </div>
+                    {/* Interpretation */}
+                    {selectedResult.interpretation && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Interpretation</h4>
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                          <div className="text-xs text-gray-600 mb-2">
+                            Answered: {selectedResult.interpretation.answeredCount || 0} / {selectedResult.interpretation.totalItems || 0} questions
+                          </div>
+                          {selectedResult.interpretation.text && (
+                            <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                              {selectedResult.interpretation.text}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+
+            <div className="p-4 sm:p-6 border-t border-gray-200 flex justify-end">
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
