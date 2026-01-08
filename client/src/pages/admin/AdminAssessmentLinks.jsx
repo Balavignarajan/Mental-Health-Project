@@ -18,8 +18,10 @@ function AdminAssessmentLinks() {
     expiresAt: '',
     maxAttempts: '',
     linkType: 'free',
-    price: 0
+    price: 0,
+    useCustomPrice: false
   });
+  const [selectedTest, setSelectedTest] = useState(null);
   const [createdLink, setCreatedLink] = useState(null);
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [selectedLink, setSelectedLink] = useState(null);
@@ -123,7 +125,7 @@ function AdminAssessmentLinks() {
       if (response.success && response.data) {
         showToast.success('Assessment link created successfully!');
         setCreatedLink(response.data);
-        setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '', linkType: 'free', price: 0 });
+        setFormData({ testId: '', campaignName: '', expiresAt: '', maxAttempts: '', linkType: 'free', price: 0, useCustomPrice: false });
         fetchLinks();
       } else {
         showToast.error(response.message || 'Failed to create link');
@@ -805,17 +807,37 @@ function AdminAssessmentLinks() {
                     </label>
                     <select
                       value={formData.testId}
-                      onChange={(e) => setFormData({ ...formData, testId: e.target.value })}
+                      onChange={(e) => {
+                        const testId = e.target.value;
+                        const test = tests.find(t => t._id === testId);
+                        setSelectedTest(test);
+                        setFormData({ 
+                          ...formData, 
+                          testId,
+                          // Auto-set price if switching to paid and test has a price
+                          price: formData.linkType === 'paid' && test?.price ? test.price : formData.price
+                        });
+                      }}
                       required
                       className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
                     >
                       <option value="">Select a test</option>
                       {tests.map((test) => (
                         <option key={test._id} value={test._id}>
-                          {test.title}
+                          {test.title} {test.price > 0 ? `(₹${test.price})` : '(Free)'}
                         </option>
                       ))}
                     </select>
+                    {selectedTest && (
+                      <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs text-gray-600">
+                          <span className="font-medium">Assessment Details:</span> {selectedTest.shortDescription || 'No description'}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          <span className="font-medium">Default Price:</span> {selectedTest.price > 0 ? `₹${selectedTest.price}` : 'Free'}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -867,10 +889,28 @@ function AdminAssessmentLinks() {
                       value={formData.linkType}
                       onChange={(e) => {
                         const newLinkType = e.target.value;
+                        let newPrice = formData.price;
+                        let useCustomPrice = formData.useCustomPrice;
+                        
+                        if (newLinkType === 'free') {
+                          newPrice = 0;
+                          useCustomPrice = false;
+                        } else if (newLinkType === 'paid') {
+                          // If switching to paid, use test's default price unless custom is already set
+                          if (!formData.useCustomPrice && selectedTest?.price > 0) {
+                            newPrice = selectedTest.price;
+                            useCustomPrice = false;
+                          } else if (!formData.useCustomPrice) {
+                            newPrice = 100;
+                            useCustomPrice = false;
+                          }
+                        }
+                        
                         setFormData({ 
                           ...formData, 
                           linkType: newLinkType,
-                          price: newLinkType === 'free' ? 0 : formData.price
+                          price: newPrice,
+                          useCustomPrice
                         });
                       }}
                       required
@@ -884,18 +924,106 @@ function AdminAssessmentLinks() {
                   {formData.linkType === 'paid' && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Price (₹) <span className="text-red-500">*</span>
+                        Pricing Options
                       </label>
-                      <input
-                        type="number"
-                        value={formData.price}
-                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                        placeholder="e.g., 500"
-                        min="0"
-                        step="0.01"
-                        required
-                        className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
-                      />
+                      
+                      {/* Original Price Display */}
+                      {selectedTest?.price > 0 && (
+                        <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-700">Assessment Original Price:</span>
+                            <span className="text-lg font-semibold text-blue-700">₹{selectedTest.price}</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Price Option Toggle */}
+                      <div className="mb-3">
+                        <div className="flex gap-4">
+                          <label className="flex items-center">
+                            <input
+                              type="radio"
+                              name="priceOption"
+                              checked={!formData.useCustomPrice}
+                              onChange={() => setFormData({ 
+                                ...formData, 
+                                useCustomPrice: false,
+                                price: selectedTest?.price || 100
+                              })}
+                              className="mr-2"
+                            />
+                            <span className="text-sm">Use Original Price</span>
+                          </label>
+                          <label className="flex items-center">
+                            <input
+                              type="radio"
+                              name="priceOption"
+                              checked={formData.useCustomPrice}
+                              onChange={() => setFormData({ 
+                                ...formData, 
+                                useCustomPrice: true
+                              })}
+                              className="mr-2"
+                            />
+                            <span className="text-sm">Set Custom Price</span>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      {/* Custom Price Input */}
+                      {formData.useCustomPrice && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Custom Price (₹) <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.price}
+                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                            placeholder="e.g., 299"
+                            min="1"
+                            step="0.01"
+                            required
+                            className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mh-green focus:border-transparent text-sm sm:text-base"
+                          />
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, price: 99 })}
+                              className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition"
+                            >
+                              ₹99
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, price: 199 })}
+                              className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition"
+                            >
+                              ₹199
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, price: 299 })}
+                              className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition"
+                            >
+                              ₹299
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Final Price Display */}
+                      <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-gray-700">Link Price:</span>
+                          <span className="text-xl font-bold text-green-700">₹{formData.price}</span>
+                        </div>
+                        {formData.useCustomPrice && selectedTest?.price > 0 && formData.price < selectedTest.price && (
+                          <div className="mt-1 text-xs text-green-600">
+                            Discount: ₹{selectedTest.price - formData.price} off
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 

@@ -234,9 +234,26 @@ const AssessmentViaLinkPaymentPage = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Summary</h3>
             
             <div className="space-y-3 mb-4">
+              {/* Show original price if different */}
+              {testData.price && testData.price > linkData.price && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-500">Original Price</span>
+                  <span className="text-gray-500 line-through">₹{testData.price}</span>
+                </div>
+              )}
+              
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Assessment Fee</span>
-                <span className="text-gray-900 font-medium">₹{linkData.price}</span>
+                <span className="text-gray-600">
+                  {testData.price && testData.price > linkData.price ? 'Special Price' : 'Assessment Fee'}
+                </span>
+                <div className="flex items-center gap-2">
+                  {testData.price && testData.price > linkData.price && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">
+                      {Math.round(((testData.price - linkData.price) / testData.price) * 100)}% OFF
+                    </span>
+                  )}
+                  <span className="text-gray-900 font-medium">₹{linkData.price}</span>
+                </div>
               </div>
               
               <div className="border-t pt-3">

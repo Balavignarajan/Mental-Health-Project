@@ -58,7 +58,12 @@ exports.validate = asyncHandler(async (req, res) => {
       currentAttempts: linkDoc.currentAttempts,
       maxAttempts: linkDoc.maxAttempts,
       linkType: linkDoc.linkType || 'free',
-      price: linkDoc.price || 0
+      price: linkDoc.price || 0,
+      testId: {
+        _id: testDoc._id,
+        title: testDoc.title,
+        price: testDoc.price || 0
+      }
     },
     test: {
       _id: testDoc._id,
@@ -69,6 +74,7 @@ exports.validate = asyncHandler(async (req, res) => {
       durationMinutesMax: testDoc.durationMinutesMax,
       questionsCount: testDoc.questionsCount,
       imageUrl: testDoc.imageUrl,
+      price: testDoc.price || 0,
       schemaJson: testDoc.schemaJson // Needed for rendering questions
     }
   });

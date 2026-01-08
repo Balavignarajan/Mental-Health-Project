@@ -194,7 +194,7 @@ const AssessmentViaLinkPage2 = () => {
             </div>
           </div>
 
-          {/* Payment Section for Paid Links - UI Only */}
+          {/* Payment Section for Paid Links */}
           {linkData && linkData.linkType === 'paid' && linkData.price > 0 && (
             <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
               <div className="flex items-center justify-between mb-3">
@@ -202,11 +202,34 @@ const AssessmentViaLinkPage2 = () => {
                   <Lock className="w-5 h-5 text-blue-600" />
                   <h3 className="text-lg font-semibold text-gray-800">Payment Required</h3>
                 </div>
-                <span className="text-xl font-bold text-blue-600">₹{linkData.price}</span>
+                <div className="text-right">
+                  {/* Show original price if different from link price */}
+                  {linkData.testId?.price && linkData.testId.price > linkData.price && (
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm text-gray-500 line-through">₹{linkData.testId.price}</span>
+                      <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold">
+                        {Math.round(((linkData.testId.price - linkData.price) / linkData.testId.price) * 100)}% OFF
+                      </span>
+                    </div>
+                  )}
+                  <span className="text-xl font-bold text-blue-600">₹{linkData.price}</span>
+                </div>
               </div>
               <p className="text-sm text-gray-600">
                 This assessment requires payment to proceed. Please complete the payment to continue.
               </p>
+              {linkData.testId?.title && (
+                <div className="mt-3 pt-3 border-t border-blue-200">
+                  <p className="text-xs text-gray-600">
+                    <span className="font-medium">Assessment:</span> {linkData.testId.title}
+                  </p>
+                  {linkData.campaignName && (
+                    <p className="text-xs text-gray-600">
+                      <span className="font-medium">Campaign:</span> {linkData.campaignName}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
