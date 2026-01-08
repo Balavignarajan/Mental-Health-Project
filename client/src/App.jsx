@@ -22,6 +22,8 @@ import ProfilePage from './pages/user/ProfilePage';
 // Shared Pages
 import AboutUsPage from './pages/shared/AboutUsPage';
 import ContactUsPage from './pages/shared/ContactUsPage';
+import PrivacyPolicyPage from './pages/shared/PrivacyPolicyPage';
+import TermsConditionsPage from './pages/shared/TermsConditionsPage';
 // Assessment Via Link Pages
 import AssessmentViaLinkPage1 from './pages/assessmentViaLink/AssessmentViaLinkPage1';
 import AssessmentViaLinkPage2 from './pages/assessmentViaLink/AssessmentViaLinkPage2';
@@ -82,6 +84,8 @@ function App() {
         <Route path="/testimonials" element={<Layout><TestimonialsPage /></Layout>} />
         <Route path="/about" element={<Layout><AboutUsPage /></Layout>} />
         <Route path="/contact" element={<Layout><ContactUsPage /></Layout>} />
+        <Route path="/privacy" element={<Layout><PrivacyPolicyPage /></Layout>} />
+        <Route path="/terms" element={<Layout><TermsConditionsPage /></Layout>} />
         
         {/* Auth Routes - No Header/Footer */}
         <Route path="/login" element={<Layout showHeaderFooter={false}><LoginPage /></Layout>} />
@@ -98,6 +102,8 @@ function App() {
         <Route path="/user/assessment-detail/:id" element={<Layout isLoggedIn={true}><AssessmentDetailPage /></Layout>} />
         <Route path="/user/about" element={<Layout isLoggedIn={true}><AboutUsPage /></Layout>} />
         <Route path="/user/contact" element={<Layout isLoggedIn={true}><ContactUsPage /></Layout>} />
+        <Route path="/user/privacy" element={<Layout isLoggedIn={true}><PrivacyPolicyPage /></Layout>} />
+        <Route path="/user/terms" element={<Layout isLoggedIn={true}><TermsConditionsPage /></Layout>} />
         <Route path="/my-assessments" element={<Layout isLoggedIn={true}><MyAssessmentsPage /></Layout>} />
         <Route path="/profile" element={<Layout isLoggedIn={true}><ProfilePage /></Layout>} />
         <Route path="/assessment-test/:id" element={<Layout isLoggedIn={true}><AssessmentTestPage /></Layout>} />

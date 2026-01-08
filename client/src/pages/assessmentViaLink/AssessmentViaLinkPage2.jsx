@@ -211,19 +211,32 @@ const AssessmentViaLinkPage2 = () => {
           )}
 
           {/* Consent Checkbox */}
-          <div className="flex items-start space-x-3 mb-8">
-            <div className="flex items-center h-5">
-              <input
-                type="checkbox"
-                name="consent"
-                checked={formData.consent}
-                onChange={handleInputChange}
-                className="custom-checkbox"
-              />
+          <div className="bg-gray-50 rounded-lg p-4 mb-8">
+            <div className="flex items-start space-x-3">
+              <div className="flex items-center h-5 mt-0.5">
+                <input
+                  type="checkbox"
+                  name="consent"
+                  checked={formData.consent}
+                  onChange={handleInputChange}
+                  className="custom-checkbox"
+                />
+              </div>
+              <div className="flex items-start space-x-2">
+                <Lock className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                <div>
+                  <label className="text-sm text-gray-800 font-medium leading-relaxed cursor-pointer" onClick={() => setFormData(prev => ({ ...prev, consent: !prev.consent }))}>
+                    I agree to participate in this assessment and consent to data collection
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Your information is secure and confidential. Read our{' '}
+                    <a href="/privacy" target="_blank" className="text-mh-green hover:underline">
+                      Privacy Policy
+                    </a>
+                  </p>
+                </div>
+              </div>
             </div>
-            <label className="text-sm text-gray-600 leading-relaxed">
-              I agree to participate in this assessment and understand how my data will be used.
-            </label>
           </div>
 
           {/* Continue Button */}
