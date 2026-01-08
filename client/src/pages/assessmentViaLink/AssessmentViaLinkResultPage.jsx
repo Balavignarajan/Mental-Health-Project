@@ -109,6 +109,11 @@ function AssessmentViaLinkResultPage() {
                 {displayResult.band}
               </span>
             </div>
+            {displayResult.bandDescription && (
+              <div className="mt-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-blue-800 text-sm leading-relaxed">{displayResult.bandDescription}</p>
+              </div>
+            )}
           </div>
         )}
 

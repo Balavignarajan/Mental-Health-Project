@@ -480,6 +480,7 @@ exports.submit = asyncHandler(async (req, res) => {
     linkToken: token,
     score: scoreResult.score,
     band: scoreResult.band,
+    bandDescription: scoreResult.bandDescription,
     subscales: scoreResult.subscales,
     interpretation: {
       band: scoreResult.band,

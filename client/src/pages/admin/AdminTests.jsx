@@ -541,7 +541,8 @@ function AdminAssessments() {
       backend.bands = uiState.bands.map(band => ({
         min: Number(band.min),
         max: Number(band.max),
-        label: band.label || ''
+        label: band.label || '',
+        description: band.description || ''
       }));
     }
 
@@ -605,7 +606,12 @@ function AdminAssessments() {
       type: backendRules.type || 'sum',
       items: Array.isArray(backendRules.items) ? backendRules.items : [],
       weights: backendRules.weights || {},
-      bands: Array.isArray(backendRules.bands) ? backendRules.bands : [],
+      bands: Array.isArray(backendRules.bands) ? backendRules.bands.map(band => ({
+        min: band.min || 0,
+        max: band.max || 0,
+        label: band.label || '',
+        description: band.description || ''
+      })) : [],
       subscales: backendRules.subscales || {}
     };
   };
@@ -2289,7 +2295,7 @@ function AdminAssessments() {
                             onClick={() => {
                               setScoringRulesState({
                                 ...scoringRulesState,
-                                bands: [...scoringRulesState.bands, { min: 0, max: 10, label: '' }]
+                                bands: [...scoringRulesState.bands, { min: 0, max: 10, label: '', description: '' }]
                               });
                             }}
                             className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
@@ -2302,8 +2308,8 @@ function AdminAssessments() {
                         </div>
                         <div className="space-y-3">
                           {scoringRulesState.bands.map((band, index) => (
-                            <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                              <div className="flex-1 grid grid-cols-3 gap-3">
+                            <div key={index} className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
+                              <div className="grid grid-cols-3 gap-3">
                                 <div>
                                   <label className="block text-xs font-medium text-gray-700 mb-1">Min</label>
                                   <input
@@ -2345,25 +2351,41 @@ function AdminAssessments() {
                                   />
                                 </div>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const newBands = scoringRulesState.bands.filter((_, i) => i !== index);
-                                  setScoringRulesState({ ...scoringRulesState, bands: newBands });
-                                }}
-                                className="text-red-400 hover:text-red-600 transition-colors"
-                              >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </button>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
+                                <textarea
+                                  value={band.description || ''}
+                                  onChange={(e) => {
+                                    const newBands = [...scoringRulesState.bands];
+                                    newBands[index].description = e.target.value;
+                                    setScoringRulesState({ ...scoringRulesState, bands: newBands });
+                                  }}
+                                  placeholder="e.g., Your responses indicate no significant signs of depression."
+                                  rows="2"
+                                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
+                                />
+                              </div>
+                              <div className="flex justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newBands = scoringRulesState.bands.filter((_, i) => i !== index);
+                                    setScoringRulesState({ ...scoringRulesState, bands: newBands });
+                                  }}
+                                  className="text-red-400 hover:text-red-600 transition-colors p-1"
+                                >
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </div>
                             </div>
                           ))}
                           {scoringRulesState.bands.length === 0 && (
                             <p className="text-sm text-gray-500 text-center py-4">No score bands configured. Click "Add Band" to create one.</p>
                           )}
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Score bands help interpret results (e.g., 0-10 = Low, 11-20 = Moderate)</p>
+                        <p className="text-xs text-gray-500 mt-2">Score bands help interpret results. Add descriptions to provide detailed feedback to users based on their scores.</p>
                       </div>
                     </div>
                   )}

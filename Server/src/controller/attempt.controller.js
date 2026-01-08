@@ -293,6 +293,7 @@ exports.submit = asyncHandler(async (req, res) => {
     attemptId: attempt._id,
     score: scoreResult.score,
     band: scoreResult.band,
+    bandDescription: scoreResult.bandDescription,
     subscales: scoreResult.subscales,
     interpretation: {
       band: scoreResult.band,

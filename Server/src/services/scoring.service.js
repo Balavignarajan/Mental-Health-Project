@@ -71,6 +71,7 @@ function computeScore(scoringRules, answersObj) {
 
   // Find band label based on score
   let bandLabel = "";
+  let bandDescription = "";
   const bands = Array.isArray(rules.bands) ? rules.bands : [];
   for (const bandItem of bands) {
     if (typeof bandItem === "object" && 
@@ -78,6 +79,7 @@ function computeScore(scoringRules, answersObj) {
         typeof bandItem.max === "number") {
       if (totalScore >= bandItem.min && totalScore <= bandItem.max) {
         bandLabel = bandItem.label || "";
+        bandDescription = bandItem.description || "";
         break;
       }
     }
@@ -85,7 +87,8 @@ function computeScore(scoringRules, answersObj) {
 
   return { 
     score: totalScore, 
-    band: bandLabel, 
+    band: bandLabel,
+    bandDescription: bandDescription,
     subscales: subscalesOut,
     answeredCount,
     totalItems: items.length

@@ -9,6 +9,7 @@ const resultSchema = new mongoose.Schema(
 
     score: { type: Number, required: true },
     band: { type: String, default: "" },
+    bandDescription: { type: String, default: "" },
     subscales: { type: Object, default: {} },
 
     interpretation: { type: Object, default: {} },

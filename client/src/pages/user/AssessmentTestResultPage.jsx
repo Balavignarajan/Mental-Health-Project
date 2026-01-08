@@ -145,6 +145,11 @@ function AssessmentTestResultPage() {
                 {result.band}
               </div>
             )}
+            {result.bandDescription && (
+              <div className="mt-4 p-4 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                <p className="text-white text-sm leading-relaxed">{result.bandDescription}</p>
+              </div>
+            )}
           </div>
           <div className="text-left sm:text-right">
             <div className="text-lg font-semibold">{test?.title || 'Assessment'}</div>
@@ -183,6 +188,11 @@ function AssessmentTestResultPage() {
               <div className={`px-3 py-2 rounded-full text-sm font-medium inline-block ${getBandColorClass(result.interpretation.band)}`}>
                 {result.interpretation.band}
               </div>
+              {result.bandDescription && (
+                <div className="mt-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-blue-800 text-sm leading-relaxed">{result.bandDescription}</p>
+                </div>
+              )}
             </div>
           )}
           {result.interpretation.score !== undefined && (

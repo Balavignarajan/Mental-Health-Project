@@ -406,6 +406,11 @@ function AdminResults() {
                         <span className="text-xs sm:text-sm text-gray-500">-</span>
                       )}
                     </div>
+                    {selectedResult.bandDescription && (
+                      <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-xs sm:text-sm text-blue-800">{selectedResult.bandDescription}</p>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs sm:text-sm font-medium text-gray-700">Completed</label>
